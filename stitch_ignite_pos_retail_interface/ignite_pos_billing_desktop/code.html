@@ -1,0 +1,349 @@
+<!DOCTYPE html><html lang="en" class="dark"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=JetBrains+Mono:wght@500;600;700&amp;display=swap" rel="stylesheet"><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=block" rel="stylesheet"><script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script><script id="tailwind-config">try{
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-container-lowest": "#180a0b",
+                        "tertiary-fixed-dim": "#64dca0",
+                        "surface-bright": "#473435",
+                        "tertiary": "#64dca0",
+                        "inverse-surface": "#f9dcdc",
+                        "on-background": "#f9dcdc",
+                        "surface-variant": "#423031",
+                        "surface-dim": "#1e0f10",
+                        "secondary-fixed": "#d5e3fd",
+                        "primary-fixed": "#ffdadb",
+                        "surface": "#1e0f10",
+                        "on-tertiary-fixed": "#002112",
+                        "secondary-fixed-dim": "#b9c7e0",
+                        "primary-fixed-dim": "#ffb2b7",
+                        "surface-container-highest": "#423031",
+                        "primary": "#ffb2b7",
+                        "secondary-container": "#3c4a5e",
+                        "on-tertiary-container": "#00311d",
+                        "on-secondary-fixed-variant": "#3a485c",
+                        "on-surface-variant": "#e3bdbf",
+                        "surface-container": "#2b1b1c",
+                        "on-error-container": "#ffdad6",
+                        "surface-container-low": "#271718",
+                        "error-container": "#93000a",
+                        "background": "#0f172a",
+                        "outline": "#334155",
+                        "primary-container": "#f43f5e",
+                        "secondary": "#b9c7e0",
+                        "on-primary-fixed": "#40000d",
+                        "on-primary": "#f8fafc",
+                        "on-tertiary": "#003822",
+                        "surface-tint": "#ffb2b7",
+                        "on-secondary-container": "#abb9d2",
+                        "on-error": "#690005",
+                        "on-primary-container": "#5b0017",
+                        "inverse-primary": "#bc0b3b",
+                        "tertiary-container": "#1fa46d",
+                        "outline-variant": "#334155",
+                        "on-primary-fixed-variant": "#92002a",
+                        "surface-container-high": "#372626",
+                        "on-surface": "#f9dcdc",
+                        "inverse-on-surface": "#3e2c2d",
+                        "on-tertiary-fixed-variant": "#005233",
+                        "on-secondary-fixed": "#0d1c2f",
+                        "on-secondary": "#233144",
+                        "tertiary-fixed": "#82f9ba",
+                        "error": "#ef4444"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "6px",
+                        "lg": "6px",
+                        "xl": "6px",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "margin-screen": "12px",
+                        "unit": "4px",
+                        "gutter": "8px",
+                        "padding-cell": "6px 8px"
+                    },
+                    "fontFamily": {
+                        "display-bold": ["Inter", "sans-serif"],
+                        "headline-sm": ["Inter", "sans-serif"],
+                        "data-md": ["JetBrains Mono", "monospace"],
+                        "body-sm": ["Inter", "sans-serif"],
+                        "body-md": ["Inter", "sans-serif"],
+                        "data-lg": ["JetBrains Mono", "monospace"],
+                        "data-sm": ["JetBrains Mono", "monospace"]
+                    },
+                    "fontSize": {
+                        "display-bold": ["24px", {"lineHeight": "32px", "fontWeight": "700"}],
+                        "headline-sm": ["18px", {"lineHeight": "24px", "fontWeight": "600"}],
+                        "data-md": ["14px", {"lineHeight": "20px", "fontWeight": "500"}],
+                        "body-sm": ["12px", {"lineHeight": "16px", "fontWeight": "400"}],
+                        "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "data-lg": ["20px", {"lineHeight": "28px", "letterSpacing": "-0.02em", "fontWeight": "600"}],
+                        "data-sm": ["11px", {"lineHeight": "14px", "fontWeight": "500"}]
+                    }
+                }
+            }
+        }
+    }catch(_e){}</script></head><body class="flex flex-col">
+<!-- TopNavBar -->
+<header class="bg-surface dark:bg-surface border-b border-outline-variant dark:border-outline-variant flex justify-between items-center w-full px-margin-screen h-12 shrink-0 z-50">
+<div class="flex items-center gap-4">
+<span class="text-display-bold font-display-bold text-primary dark:text-primary tracking-tight">Ignite POS</span>
+<div class="h-6 w-px bg-outline-variant ml-2"></div>
+</div>
+<div class="flex-1 max-w-2xl px-8">
+<div class="relative group">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant">search</span>
+<input type="text" placeholder="Search by Name or Hotkey (F3)..." class="w-full h-8 bg-surface-container-low border border-outline-variant rounded-lg pl-10 pr-16 text-body-md focus:border-primary-container focus:ring-0 transition-colors">
+<div class="absolute right-3 top-1/2 -translate-y-1/2 text-data-sm font-data-sm text-on-surface-variant border border-outline-variant px-1 rounded bg-surface">
+                    [F3]
+                </div>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="flex items-center gap-2">
+<div class="w-2 h-2 rounded-full bg-tertiary shadow-[0_0_8px_#64dca0]"></div>
+<span class="text-data-sm font-data-sm text-on-surface">Connected (Local)</span>
+</div>
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-highest cursor-pointer p-1 rounded transition-colors" data-icon="wifi">wifi</span>
+<span class="material-symbols-outlined text-on-surface-variant hover:bg-surface-container-highest cursor-pointer p-1 rounded transition-colors" data-icon="settings">settings</span>
+<div class="flex items-center gap-2 hover:bg-surface-container-highest cursor-pointer p-1 rounded transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="account_circle">account_circle</span>
+<span class="text-data-sm font-data-sm text-on-surface">Cashier_01</span>
+</div>
+</div>
+</div>
+</header>
+<main class="flex-1 flex overflow-hidden p-3 gap-3">
+<!-- Left Column: PRODUCT INVENTORY (60%) -->
+<section class="w-3/5 flex flex-col gap-3">
+<div class="flex flex-col h-full bg-surface-container-low border border-outline-variant rounded overflow-hidden">
+<!-- Filters -->
+<div class="p-2 border-b border-outline-variant flex gap-2">
+<button class="px-3 h-7 bg-primary-container text-on-primary text-body-sm font-semibold rounded">All</button>
+<button class="px-3 h-7 bg-surface-container-highest border border-outline-variant text-on-surface-variant text-body-sm hover:bg-outline-variant transition-colors rounded">Sparklers</button>
+<button class="px-3 h-7 bg-surface-container-highest border border-outline-variant text-on-surface-variant text-body-sm hover:bg-outline-variant transition-colors rounded">Pots</button>
+<button class="px-3 h-7 bg-surface-container-highest border border-outline-variant text-on-surface-variant text-body-sm hover:bg-outline-variant transition-colors rounded">Rockets</button>
+<button class="px-3 h-7 bg-surface-container-highest border border-outline-variant text-on-surface-variant text-body-sm hover:bg-outline-variant transition-colors rounded">Ground Items</button>
+</div>
+<!-- Table Header -->
+<div class="flex-1 overflow-auto custom-scrollbar">
+<table class="w-full dense-table text-left border-collapse zebra-striping">
+<thead class="sticky top-0 bg-surface-container-high z-10 shadow-sm">
+<tr class="text-on-surface-variant uppercase text-[10px] tracking-wider font-bold">
+<th class="w-auto">Item Name</th>
+<th class="w-24">Unit</th>
+<th class="w-24 text-right">Stock</th>
+<th class="w-32 text-right">Price</th>
+</tr>
+</thead>
+<tbody class="text-body-md text-on-surface">
+<tr class="hover:bg-primary-container/10 cursor-pointer group">
+<td class="font-medium">Flower Pots G</td>
+<td>Box</td>
+<td class="text-right mono-nums font-data-md">82</td>
+<td class="text-right mono-nums font-data-md">₹120.00</td>
+</tr>
+<tr class="hover:bg-primary-container/10 cursor-pointer group">
+<td class="font-medium">Sparklers 10cm</td>
+<td>Box</td>
+<td class="text-right mono-nums font-data-md text-error">12 [⚠️ Low]</td>
+<td class="text-right mono-nums font-data-md">₹45.00</td>
+</tr>
+<tr class="hover:bg-primary-container/10 cursor-pointer group bg-error-container/5">
+<td class="font-medium text-on-surface-variant">Ground Chakra</td>
+<td class="text-on-surface-variant">Box</td>
+<td class="text-right mono-nums font-data-md text-error">0 [OOS]</td>
+<td class="text-right mono-nums font-data-md text-on-surface-variant">₹75.00</td>
+</tr>
+<tr class="hover:bg-primary-container/10 cursor-pointer group">
+<td class="font-medium">Ladi 28 Chorsa</td>
+<td>Pack</td>
+<td class="text-right mono-nums font-data-md">140</td>
+<td class="text-right mono-nums font-data-md">₹90.00</td>
+</tr>
+<tr class="hover:bg-primary-container/10 cursor-pointer group">
+<td class="font-medium">Pencil Sparklers (Color)</td>
+<td>Pack</td>
+<td class="text-right mono-nums font-data-md">45</td>
+<td class="text-right mono-nums font-data-md">₹60.00</td>
+</tr>
+<tr class="hover:bg-primary-container/10 cursor-pointer group">
+<td class="font-medium">Sky Shot 12 Step</td>
+<td>Box</td>
+<td class="text-right mono-nums font-data-md">24</td>
+<td class="text-right mono-nums font-data-md">₹450.00</td>
+</tr>
+<tr class="hover:bg-primary-container/10 cursor-pointer group">
+<td class="font-medium">Magic Fountain</td>
+<td>Pcs</td>
+<td class="text-right mono-nums font-data-md">68</td>
+<td class="text-right mono-nums font-data-md">₹110.00</td>
+</tr>
+<tr class="hover:bg-primary-container/10 cursor-pointer group">
+<td class="font-medium">Green Bijli Crackers</td>
+<td>Bundle</td>
+<td class="text-right mono-nums font-data-md">210</td>
+<td class="text-right mono-nums font-data-md">₹25.00</td>
+</tr>
+<tr class="hover:bg-primary-container/10 cursor-pointer group">
+<td class="font-medium">Atom Bomb (Large)</td>
+<td>Box</td>
+<td class="text-right mono-nums font-data-md">15</td>
+<td class="text-right mono-nums font-data-md">₹180.00</td>
+</tr>
+<!-- Fill padding rows for visual density -->
+<tr class="h-8"><td></td><td></td><td></td><td></td></tr>
+<tr class="h-8"><td></td><td></td><td></td><td></td></tr>
+<tr class="h-8"><td></td><td></td><td></td><td></td></tr>
+<tr class="h-8"><td></td><td></td><td></td><td></td></tr>
+</tbody>
+</table>
+</div>
+</div>
+</section>
+<!-- Right Column: ACTIVE BILLING DESK (40%) -->
+<section class="w-2/5 flex flex-col gap-3">
+<div class="flex-1 flex flex-col bg-surface border border-outline-variant rounded overflow-hidden">
+<!-- Customer Selection -->
+<div class="p-3 bg-surface-container-low border-b border-outline-variant">
+<label class="block text-[10px] uppercase font-bold text-on-surface-variant mb-1">Customer Details [F10]</label>
+<div class="relative">
+<input type="text" value="Walk-in Customer" class="w-full bg-background border-2 border-primary-container rounded px-3 py-2 text-body-md font-semibold focus:ring-0">
+<span class="material-symbols-outlined absolute right-3 top-1/2 -translate-y-1/2 text-primary-container">edit</span>
+</div>
+</div>
+<!-- Cart Table -->
+<div class="flex-1 overflow-auto custom-scrollbar">
+<table class="w-full text-left border-collapse">
+<thead class="sticky top-0 bg-surface-container-high z-10 border-b border-outline-variant">
+<tr class="text-on-surface-variant uppercase text-[10px] tracking-wider font-bold">
+<th class="p-2">Item Name</th>
+<th class="p-2 w-20 text-center">Qty</th>
+<th class="p-2 text-right">Price</th>
+<th class="p-2 text-right">Total</th>
+</tr>
+</thead>
+<tbody class="text-body-md text-on-surface divide-y divide-outline-variant">
+<tr>
+<td class="p-2">Flower Pots G</td>
+<td class="p-2">
+<div class="flex items-center bg-background border border-outline rounded overflow-hidden">
+<button class="w-6 h-6 flex items-center justify-center hover:bg-surface-container-highest">-</button>
+<input type="text" value="1" class="w-8 h-6 bg-transparent border-none text-center text-xs font-data-sm focus:ring-0 p-0">
+<button class="w-6 h-6 flex items-center justify-center hover:bg-surface-container-highest">+</button>
+</div>
+</td>
+<td class="p-2 text-right font-data-sm">₹120.00</td>
+<td class="p-2 text-right font-data-sm font-semibold">₹120.00</td>
+</tr>
+<tr>
+<td class="p-2">Sparklers 10cm</td>
+<td class="p-2">
+<div class="flex items-center bg-background border border-outline rounded overflow-hidden">
+<button class="w-6 h-6 flex items-center justify-center hover:bg-surface-container-highest">-</button>
+<input type="text" value="3" class="w-8 h-6 bg-transparent border-none text-center text-xs font-data-sm focus:ring-0 p-0">
+<button class="w-6 h-6 flex items-center justify-center hover:bg-surface-container-highest">+</button>
+</div>
+</td>
+<td class="p-2 text-right font-data-sm">₹45.00</td>
+<td class="p-2 text-right font-data-sm font-semibold">₹135.00</td>
+</tr>
+<tr>
+<td class="p-2">Pencil Sparklers</td>
+<td class="p-2">
+<div class="flex items-center bg-background border border-outline rounded overflow-hidden">
+<button class="w-6 h-6 flex items-center justify-center hover:bg-surface-container-highest">-</button>
+<input type="text" value="1" class="w-8 h-6 bg-transparent border-none text-center text-xs font-data-sm focus:ring-0 p-0">
+<button class="w-6 h-6 flex items-center justify-center hover:bg-surface-container-highest">+</button>
+</div>
+</td>
+<td class="p-2 text-right font-data-sm">₹60.00</td>
+<td class="p-2 text-right font-data-sm font-semibold">₹60.00</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Summary Section -->
+<div class="bg-surface-container-low p-4 space-y-3 border-t border-outline-variant">
+<div class="flex justify-between items-center text-on-surface-variant">
+<span class="text-body-sm">Subtotal</span>
+<span class="font-data-md">₹315.00</span>
+</div>
+<div class="flex justify-between items-center">
+<span class="text-body-sm text-on-surface-variant">Discount/Tax</span>
+<select class="bg-background border border-outline-variant text-data-sm h-7 rounded px-2 focus:ring-primary-container">
+<option>None (0%)</option>
+<option>Festive Off (10%)</option>
+<option>Bulk (15%)</option>
+<option>GST (18%)</option>
+</select>
+</div>
+<div class="pt-3 border-t border-outline-variant flex justify-between items-end">
+<div class="flex flex-col">
+<span class="text-[10px] uppercase font-black text-primary-container tracking-widest">Grand Total</span>
+<span class="text-display-bold font-data-lg text-primary">₹315.00</span>
+</div>
+<div class="flex gap-2">
+<button class="p-2 bg-surface-container-highest border border-outline text-on-surface rounded hover:bg-outline-variant transition-colors">
+<span class="material-symbols-outlined">delete</span>
+</button>
+<button class="p-2 bg-surface-container-highest border border-outline text-on-surface rounded hover:bg-outline-variant transition-colors">
+<span class="material-symbols-outlined">pause</span>
+</button>
+</div>
+</div>
+<button class="w-full bg-primary-container hover:bg-rose-600 text-on-primary font-display-bold text-headline-sm py-4 rounded flex items-center justify-center gap-3 transition-all active:scale-[0.98]">
+<span class="opacity-50 text-sm">[F12]</span>
+<span>SAVE &amp; PRINT RECEIPT</span>
+<span class="material-symbols-outlined">print</span>
+</button>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-surface-container-lowest dark:bg-surface-container-lowest border-t border-outline-variant dark:border-outline-variant fixed bottom-0 w-full flex justify-between items-center px-margin-screen h-8 z-50">
+<div class="flex gap-6 items-center">
+<div class="flex gap-4">
+<span class="text-data-sm font-data-sm text-on-surface-variant"><b class="text-primary-container">[F3]</b> Search</span>
+<span class="text-data-sm font-data-sm text-on-surface-variant"><b class="text-primary-container">[F5]</b> Clear Cart</span>
+<span class="text-data-sm font-data-sm text-on-surface-variant"><b class="text-primary-container">[F10]</b> Customer Details</span>
+<span class="text-data-sm font-data-sm text-on-surface-variant"><b class="text-primary-container">[F12]</b> Save &amp; Print</span>
+</div>
+</div>
+<div class="flex gap-4 items-center">
+<a href="#" class="text-data-sm font-data-sm text-on-surface-variant hover:text-primary transition-colors">Help</a>
+<div class="w-px h-3 bg-outline-variant"></div>
+<a href="#" class="text-data-sm font-data-sm text-on-surface-variant hover:text-primary transition-colors">Logs</a>
+<div class="w-px h-3 bg-outline-variant"></div>
+<span class="text-data-sm font-data-sm text-on-surface">V 2.4.0-stable</span>
+</div>
+</footer>
+<script>
+        // Micro-interactions for hotkeys (simulated)
+        document.addEventListener('keydown', (e) => {
+            if(e.key === 'F3') {
+                e.preventDefault();
+                document.querySelector('input[placeholder*="Search"]').focus();
+            }
+            if(e.key === 'F12') {
+                e.preventDefault();
+                const btn = document.querySelector('button:contains("SAVE & PRINT")') || document.querySelector('.bg-primary-container.py-4');
+                btn.style.transform = 'scale(0.95)';
+                setTimeout(() => btn.style.transform = '', 100);
+                alert('Processing Transaction...');
+            }
+        });
+
+        // Add visual feedback on table row clicks
+        document.querySelectorAll('tbody tr').forEach(row => {
+            row.addEventListener('click', () => {
+                row.classList.add('bg-primary-container/20');
+                setTimeout(() => row.classList.remove('bg-primary-container/20'), 300);
+            });
+        });
+    </script>
+</body></html>
