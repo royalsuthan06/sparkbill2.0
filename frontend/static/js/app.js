@@ -147,6 +147,9 @@ function setupEventListeners() {
     document.getElementById('sku-input').addEventListener('keypress', (e) => {
         if (e.key === 'Enter') addToCart();
     });
+    document.getElementById('qty-input').addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') addToCart();
+    });
     document.getElementById('void-btn').addEventListener('click', voidCart);
     document.getElementById('checkout-btn').addEventListener('click', checkout);
     document.getElementById('received-input').addEventListener('input', updateBalance);
