@@ -187,6 +187,14 @@ function addToCart() {
     }
 
     const existing = cartItems.find(ci => ci.product_id === product.id);
+    const currentCartQty = existing ? existing.quantity : 0;
+    const totalQtyAfterAdd = currentCartQty + qty;
+
+    if (totalQtyAfterAdd > product.stock_quantity) {
+        alert(`Not enough stock for ${product.name}! Only ${product.stock_quantity} left in stock!`);
+        return;
+    }
+
     if (existing) {
         existing.quantity += qty;
     } else {
@@ -209,11 +217,17 @@ function renderCart() {
     const tbody = document.getElementById('bill-table-body');
     let sno = 1;
     tbody.innerHTML = cartItems.map(item => {
+        const product = products.find(p => p.id === item.product_id);
+        const stock = product ? product.stock_quantity : 0;
         const total = item.quantity * item.price;
+        let stockClass = '';
+        if (stock <30) stockClass='text-error';
+        else if (stock <60) stockClass='text-yellow-600';
         return `
             <tr class="zebra-row">
                 <td class="p-padding-cell font-data-md">${sno++}</td>
                 <td class="p-padding-cell font-body-md text-on-surface">${item.product_name}</td>
+                <td class="p-padding-cell text-center font-data-md ${stockClass}">${stock}</td>
                 <td class="p-padding-cell font-data-md text-right text-on-surface-variant">
                     ₹${item.price.toFixed(2)} <span class="line-through">/₹${item.mrp.toFixed(2)}</span>
                 </td>
@@ -240,8 +254,15 @@ function renderCart() {
 
 function updateCartItemQty(productId, qty) {
     const item = cartItems.find(i => i.product_id === productId);
-    if (item) {
-        item.quantity = parseInt(qty) || 1;
+    const product = products.find(p => p.id === productId);
+    const newQty = parseInt(qty) || 1;
+    if (item && product) {
+        if (newQty > product.stock_quantity) {
+            alert(`Not enough stock for ${product.name}! Only ${product.stock_quantity} left in stock!`);
+            renderCart(); // reset to previous value
+            return;
+        }
+        item.quantity = newQty;
         if (item.quantity <=0) removeFromCart(productId);
         else renderCart();
     }
@@ -390,6 +411,57 @@ async function saveProduct() {
         } else {
             const errorData = await res.json();
             alert(`Failed to save product: ${errorData.error || 'Unknown error'}`);
+        }
+    } catch (err) {
+        console.error(err);
+        alert(`An error occurred: ${err.message}`);
+    }
+}
+
+async function checkout() {
+    if (cartItems.length === 0) {
+        alert('Cart is empty!');
+        return;
+    }
+
+    const customerName = document.getElementById('customer-name').value;
+    const customerMobile = document.getElementById('customer-mobile').value;
+    const received = parseFloat(document.getElementById('received-input').value) || 0;
+    const totalAmount = cartItems.reduce((sum, i) => sum + (i.price * i.quantity), 0);
+
+    const saleData = {
+        customer_name: customerName,
+        customer_mobile: customerMobile,
+        total_amount: totalAmount,
+        discount: 0,
+        amount_paid: received,
+        balance: Math.max(0, received - totalAmount),
+        payment_method: received >= totalAmount ? 'Cash' : 'Partial',
+        items: cartItems.map(i => ({
+            ...i,
+            total: i.price * i.quantity
+        }))
+    };
+
+    try {
+        const res = await fetch(`${API_BASE}/sales`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(saleData)
+        });
+
+        if (res.ok) {
+            alert('Sale completed successfully!');
+            cartItems = [];
+            renderCart();
+            document.getElementById('customer-name').value = '';
+            document.getElementById('customer-mobile').value = '';
+            document.getElementById('received-input').value = '';
+            await loadProducts();
+            await loadStats();
+        } else {
+            const errorData = await res.json();
+            alert(`Failed to complete sale: ${errorData.error || 'Unknown error'}`);
         }
     } catch (err) {
         console.error(err);

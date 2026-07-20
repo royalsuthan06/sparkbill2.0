@@ -74,6 +74,12 @@ def add_product():
         for field in required_fields:
             if field not in data:
                 return jsonify({'error': f'Missing required field: {field}'}), 400
+        
+        # Check for duplicate SKU
+        existing_product = Product.query.filter_by(sku=data['sku']).first()
+        if existing_product:
+            return jsonify({'error': 'A product with this SKU already exists!'}),400
+        
         new_product = Product(
             sku=data['sku'],
             name=data['name'],
@@ -98,6 +104,13 @@ def update_product(product_id):
     try:
         data = request.get_json()
         product = Product.query.get_or_404(product_id)
+        
+        # Check for duplicate SKU (if changing SKU)
+        if 'sku' in data and data['sku'] != product.sku:
+            existing_product = Product.query.filter_by(sku=data['sku']).first()
+            if existing_product:
+                return jsonify({'error': 'A product with this SKU already exists!'}),400
+        
         product.sku = data.get('sku', product.sku)
         product.name = data.get('name', product.name)
         product.description = data.get('description', product.description)
@@ -145,40 +158,56 @@ def get_sales():
 
 @app.route('/api/sales', methods=['POST'])
 def create_sale():
-    data = request.get_json()
-    invoice_number = f'INV-{datetime.now().strftime("%Y%m%d%H%M%S")}'
-    new_sale = Sale(
-        invoice_number=invoice_number,
-        customer_name=data.get('customer_name', ''),
-        customer_mobile=data.get('customer_mobile', ''),
-        total_amount=data['total_amount'],
-        discount=data.get('discount', 0),
-        amount_paid=data['amount_paid'],
-        balance=data.get('balance', 0),
-        payment_method=data.get('payment_method', 'Cash'),
-        sale_date=datetime.utcnow()
-    )
-    db.session.add(new_sale)
+    try:
+        data = request.get_json()
+        invoice_number = f'INV-{datetime.now().strftime("%Y%m%d%H%M%S")}'
+        
+        # Validate stock levels first!
+        for item in data['items']:
+            product = Product.query.get(item['product_id'])
+            if not product:
+                return jsonify({'error': f"Product {item['product_name']} not found!"}),400
 
-    for item in data['items']:
-        sale_item = SaleItem(
-            sale=new_sale,
-            product_id=item['product_id'],
-            product_name=item['product_name'],
-            quantity=item['quantity'],
-            price=item['price'],
-            mrp=item['mrp'],
-            total=item['total']
+            if product.stock_quantity < item['quantity']:
+                return jsonify({
+                    'error': f"Not enough stock for {item['product_name']}! Only {product.stock_quantity} left in stock!"
+                }),400
+        
+        new_sale = Sale(
+            invoice_number=invoice_number,
+            customer_name=data.get('customer_name', ''),
+            customer_mobile=data.get('customer_mobile', ''),
+            total_amount=data['total_amount'],
+            discount=data.get('discount', 0),
+            amount_paid=data['amount_paid'],
+            balance=data.get('balance', 0),
+            payment_method=data.get('payment_method', 'Cash'),
+            sale_date=datetime.utcnow()
         )
-        db.session.add(sale_item)
+        db.session.add(new_sale)
 
-        # Update product stock
-        product = Product.query.get(item['product_id'])
-        if product:
+        for item in data['items']:
+            sale_item = SaleItem(
+                sale=new_sale,
+                product_id=item['product_id'],
+                product_name=item['product_name'],
+                quantity=item['quantity'],
+                price=item['price'],
+                mrp=item['mrp'],
+                total=item['total']
+            )
+            db.session.add(sale_item)
+
+            # Update product stock
+            product = Product.query.get(item['product_id'])
             product.stock_quantity -= item['quantity']
 
-    db.session.commit()
-    return jsonify({'id': new_sale.id, 'invoice_number': invoice_number}), 201
+        db.session.commit()
+        return jsonify({'id': new_sale.id, 'invoice_number': invoice_number}), 201
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error creating sale: {e}")
+        return jsonify({'error': str(e)}), 500
 
 
 @app.route('/api/sales/<int:sale_id>', methods=['GET'])
