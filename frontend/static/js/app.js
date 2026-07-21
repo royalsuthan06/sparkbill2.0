@@ -161,6 +161,12 @@ function setupEventListeners() {
     document.getElementById('product-modal-cancel').addEventListener('click', closeProductModal);
     document.getElementById('product-modal-save').addEventListener('click', saveProduct);
 
+    // Sale Modal
+    document.getElementById('sale-modal-close').addEventListener('click', closeSaleModal);
+    document.getElementById('sale-modal-backdrop').addEventListener('click', closeSaleModal);
+    document.getElementById('sale-modal-cancel').addEventListener('click', closeSaleModal);
+    document.getElementById('sale-modal-print').addEventListener('click', () => printCurrentSale());
+
     // Hotkeys
     document.addEventListener('keydown', handleHotkeys);
 }
@@ -182,6 +188,11 @@ function addToCart() {
     const qtyInput = document.getElementById('qty-input');
     const sku = skuInput.value.trim();
     const qty = parseInt(qtyInput.value) || 1;
+
+    if (qty <= 0) {
+        alert('Quantity must be greater than 0!');
+        return;
+    }
 
     const product = products.find(p => p.sku === sku);
     if (!product) {
@@ -421,63 +432,131 @@ async function saveProduct() {
     }
 }
 
-async function checkout() {
-    if (cartItems.length === 0) {
-        alert('Cart is empty!');
-        return;
-    }
+let currentViewingSaleId = null;
 
-    const customerName = document.getElementById('customer-name').value;
-    const customerMobile = document.getElementById('customer-mobile').value;
-    const received = parseFloat(document.getElementById('received-input').value) || 0;
-    const totalAmount = cartItems.reduce((sum, i) => sum + (i.price * i.quantity), 0);
-
-    const saleData = {
-        customer_name: customerName,
-        customer_mobile: customerMobile,
-        total_amount: totalAmount,
-        discount: 0,
-        amount_paid: received,
-        balance: Math.max(0, received - totalAmount),
-        payment_method: received >= totalAmount ? 'Cash' : 'Partial',
-        items: cartItems.map(i => ({
-            ...i,
-            total: i.price * i.quantity
-        }))
-    };
-
-    try {
-        const res = await fetch(`${API_BASE}/sales`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(saleData)
-        });
-
-        if (res.ok) {
-            alert('Sale completed successfully!');
-            cartItems = [];
-            renderCart();
-            document.getElementById('customer-name').value = '';
-            document.getElementById('customer-mobile').value = '';
-            document.getElementById('received-input').value = '';
-            await loadProducts();
-            await loadStats();
-        } else {
-            const errorData = await res.json();
-            alert(`Failed to complete sale: ${errorData.error || 'Unknown error'}`);
-        }
-    } catch (err) {
-        console.error(err);
-        alert(`An error occurred: ${err.message}`);
-    }
+function closeSaleModal() {
+    document.getElementById('sale-modal').classList.add('hidden');
+    currentViewingSaleId = null;
 }
 
-function viewSale(id) {
-    alert(`Viewing sale #${id}`);
+async function viewSale(id) {
+    try {
+        const res = await fetch(`${API_BASE}/sales/${id}`);
+        if (!res.ok) throw new Error('Failed to fetch sale');
+        const sale = await res.json();
+        currentViewingSaleId = id;
+
+        const date = new Date(sale.sale_date);
+        const body = document.getElementById('sale-modal-body');
+        body.innerHTML = `
+            <div class="space-y-4">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <span class="text-[11px] font-bold uppercase text-on-surface-variant">Invoice Number</span>
+                        <p class="font-data-md text-data-md text-on-surface">${sale.invoice_number}</p>
+                    </div>
+                    <div>
+                        <span class="text-[11px] font-bold uppercase text-on-surface-variant">Date & Time</span>
+                        <p class="font-data-md text-data-md text-on-surface">${date.toLocaleDateString('en-IN')} ${date.toLocaleTimeString('en-IN', {hour:'2-digit', minute:'2-digit'})}</p>
+                    </div>
+                    <div>
+                        <span class="text-[11px] font-bold uppercase text-on-surface-variant">Customer</span>
+                        <p class="font-data-md text-data-md text-on-surface">${sale.customer_name || 'Walk-in'}</p>
+                    </div>
+                    <div>
+                        <span class="text-[11px] font-bold uppercase text-on-surface-variant">Payment Method</span>
+                        <p class="font-data-md text-data-md text-on-surface">${sale.payment_method}</p>
+                    </div>
+                </div>
+                <div class="border-t border-outline-variant pt-4">
+                    <table class="w-full text-left">
+                        <thead>
+                            <tr class="border-b border-outline-variant">
+                                <th class="pb-2 text-[11px] font-bold uppercase text-on-surface-variant">Item</th>
+                                <th class="pb-2 text-[11px] font-bold uppercase text-on-surface-variant text-center">Qty</th>
+                                <th class="pb-2 text-[11px] font-bold uppercase text-on-surface-variant text-right">Price</th>
+                                <th class="pb-2 text-[11px] font-bold uppercase text-on-surface-variant text-right">Total</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${sale.items.map(item => `
+                                <tr class="border-b border-outline-variant/50">
+                                    <td class="py-2 font-body-md text-on-surface">${item.product_name}</td>
+                                    <td class="py-2 font-data-md text-data-md text-center text-on-surface">${item.quantity}</td>
+                                    <td class="py-2 font-data-md text-data-md text-right text-on-surface">₹${parseFloat(item.price).toFixed(2)}</td>
+                                    <td class="py-2 font-data-md text-data-md text-right font-semibold text-on-surface">₹${parseFloat(item.total).toFixed(2)}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                </div>
+                <div class="border-t border-outline-variant pt-4 space-y-2">
+                    <div class="flex justify-between text-body-sm text-on-surface-variant">
+                        <span>Total Amount</span>
+                        <span class="font-semibold">₹${parseFloat(sale.total_amount).toFixed(2)}</span>
+                    </div>
+                    <div class="flex justify-between text-body-sm text-on-surface-variant">
+                        <span>Amount Paid</span>
+                        <span class="font-semibold">₹${parseFloat(sale.amount_paid).toFixed(2)}</span>
+                    </div>
+                    <div class="flex justify-between text-body-sm text-on-surface-variant">
+                        <span>Balance</span>
+                        <span class="font-semibold">₹${parseFloat(sale.balance).toFixed(2)}</span>
+                    </div>
+                </div>
+            </div>
+        `;
+        document.getElementById('sale-modal').classList.remove('hidden');
+    } catch (err) {
+        console.error(err);
+        alert('Failed to load sale details');
+    }
 }
 
 function printSale(id) {
-    alert(`Printing sale #${id}`);
+    viewSale(id);
+}
+
+function printCurrentSale() {
+    if (!currentViewingSaleId) return;
+    const content = document.getElementById('sale-modal-body').innerHTML;
+    
+    const printWindow = window.open('', '_blank', 'width=800,height=600');
+    printWindow.document.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Invoice - ${currentViewingSaleId}</title>
+            <style>
+                body { font-family: 'Inter', sans-serif; padding: 40px; color: #0f172a; }
+                .invoice-header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #f43f5e; padding-bottom: 20px; }
+                .invoice-header h1 { margin: 0; color: #f43f5e; }
+                .invoice-header p { margin: 5px 0 0; color: #64748b; }
+                table { width: 100%; border-collapse: collapse; margin: 20px 0; }
+                th, td { padding: 10px; text-align: left; border-bottom: 1px solid #e2e8f0; }
+                th { background: #f8fafc; font-size: 12px; text-transform: uppercase; }
+                .totals { text-align: right; margin-top: 20px; }
+                .totals div { padding: 5px 0; }
+                .footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #e2e8f0; color: #64748b; font-size: 12px; }
+                @media print { body { padding: 0; } }
+            </style>
+        </head>
+        <body>
+            <div class="invoice-header">
+                <h1>Arun Crackers</h1>
+                <p>Ignite POS - Point of Sale System</p>
+                <p>Invoice #${currentViewingSaleId}</p>
+            </div>
+            ${content}
+            <div class="footer">
+                <p>Thank you for your purchase!</p>
+                <p>This is a computer-generated invoice.</p>
+            </div>
+            <script>window.onload = function() { window.print(); }<\/script>
+        </body>
+        </html>
+    `);
+    printWindow.document.close();
 }
 
 function handleHotkeys(e) {

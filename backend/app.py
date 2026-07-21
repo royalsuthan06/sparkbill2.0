@@ -160,19 +160,32 @@ def get_sales():
 def create_sale():
     try:
         data = request.get_json()
+        if not data or 'items' not in data or len(data['items']) == 0:
+            return jsonify({'error': 'No items in sale'}), 400
+
         invoice_number = f'INV-{datetime.now().strftime("%Y%m%d%H%M%S")}'
         
-        # Validate stock levels first!
+        calculated_total = sum(item['price'] * item['quantity'] for item in data['items'])
+        if abs(calculated_total - data.get('total_amount', 0)) > 0.01:
+            return jsonify({'error': 'Total amount mismatch'}), 400
+        
+        if data.get('amount_paid', 0) < 0:
+            return jsonify({'error': 'Amount paid cannot be negative'}), 400
+
+        product_ids = [item['product_id'] for item in data['items']]
+        products = Product.query.filter(Product.id.in_(product_ids)).with_for_update().all()
+        product_map = {p.id: p for p in products}
+
         for item in data['items']:
-            product = Product.query.get(item['product_id'])
+            product = product_map.get(item['product_id'])
             if not product:
-                return jsonify({'error': f"Product {item['product_name']} not found!"}),400
+                return jsonify({'error': f"Product {item['product_name']} not found!"}), 400
 
             if product.stock_quantity < item['quantity']:
                 return jsonify({
                     'error': f"Not enough stock for {item['product_name']}! Only {product.stock_quantity} left in stock!"
-                }),400
-        
+                }), 400
+
         new_sale = Sale(
             invoice_number=invoice_number,
             customer_name=data.get('customer_name', ''),
@@ -194,12 +207,11 @@ def create_sale():
                 quantity=item['quantity'],
                 price=item['price'],
                 mrp=item['mrp'],
-                total=item['total']
+                total=item['price'] * item['quantity']
             )
             db.session.add(sale_item)
 
-            # Update product stock
-            product = Product.query.get(item['product_id'])
+            product = product_map[item['product_id']]
             product.stock_quantity -= item['quantity']
 
         db.session.commit()

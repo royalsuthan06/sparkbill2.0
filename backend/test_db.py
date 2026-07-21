@@ -22,7 +22,7 @@ try:
     
     # Check if database exists
     with connection.cursor() as cursor:
-        cursor.execute(f"SHOW DATABASES LIKE '{DB_NAME}'")
+        cursor.execute("SHOW DATABABASES LIKE %s", (DB_NAME,))
         result = cursor.fetchone()
         if result:
             print(f"✓ Database '{DB_NAME}' exists!")
