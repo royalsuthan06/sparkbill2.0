@@ -47,6 +47,7 @@ CREATE TABLE IF NOT EXISTS sale_items (
     FOREIGN KEY (product_id) REFERENCES products(id)
 );
 
+<<<<<<< HEAD
 -- Insert 2025 Pricelist Products
 INSERT INTO products (sku, name, description, price, cost_price, mrp, stock_quantity, category) VALUES
 ('001', '2 3/4'''' KURUVI CRACKERS', '1 PKT - 2 3/4'''' KURUVI CRACKERS', 9.00, 5.85, 45.00, 100, 'One Sound Crackers'),
@@ -191,3 +192,12 @@ INSERT INTO products (sku, name, description, price, cost_price, mrp, stock_quan
 ('140', '15 CM APPLE-AIR PACK 15 CM', '1 BOX - 15 CM APPLE-AIR PACK 15 CM', 200.00, 130.00, 1000.00, 100, 'New Significant Varities'),
 ('141', '(Set of 3 tubes) 30 CM TRIPLET (4IN1) 30 CM (4IN1)', '1 BOX - (Set of 3 tubes) 30 CM TRIPLET (4IN1) 30 CM (4IN1)', 200.00, 130.00, 1000.00, 100, 'New Significant Varities'),
 ('142', 'WHIRL SPARKLERS', '1 BOX - WHIRL SPARKLERS', 200.00, 130.00, 1000.00, 100, 'New Significant Varities');
+=======
+-- Insert sample products
+INSERT INTO products (sku, name, description, price, cost_price, mrp, stock_quantity, category) VALUES
+('001', 'Flower Pot - Special Large', 'Large flower pot crackers', 250.00, 180.00, 300.00, 50, 'Flower Pots'),
+('002', 'Laxmi Bombs (28 Pcs)', 'Pack of 28 laxmi bombs', 180.00, 120.00, 180.00, 100, 'Bombs'),
+('003', 'Sparklers - Multicolour 15cm', 'Multicolour sparklers, 15cm', 45.00, 25.00, 45.00, 500, 'Sparklers'),
+('004', 'Chakra - 5 Inch', '5 inch chakra ground spinner', 60.00, 40.00, 75.00, 150, 'Ground Spinners'),
+('005', 'Rockets - 10 Pcs', 'Pack of 10 sky rockets', 120.00, 80.00, 150.00, 80, 'Rockets');
+>>>>>>> e52a7f2fda1925932fd783d6ed5c998a279a268a
