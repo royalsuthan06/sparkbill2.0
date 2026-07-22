@@ -1,0 +1,2258 @@
+[
+  {
+    "sno": "01",
+    "name": "2 3/4'' KURUVI CRACKERS 2 3/4",
+    "category": "ONE SOUND CRACKERS",
+    "mrp": 45.0,
+    "price": 9.0,
+    "page": 1,
+    "raw": [
+      "01",
+      "2 3/4'' KURUVI CRACKERS 2 3/4",
+      "45",
+      "9",
+      "1 PKT"
+    ]
+  },
+  {
+    "sno": "02",
+    "name": "3.5'' SPIDERMAN CRACKERS 3.5",
+    "category": "ONE SOUND CRACKERS",
+    "mrp": 75.0,
+    "price": 15.0,
+    "page": 1,
+    "raw": [
+      "02",
+      "3.5'' SPIDERMAN CRACKERS 3.5",
+      "75",
+      "15",
+      "1 PKT"
+    ]
+  },
+  {
+    "sno": "03",
+    "name": "4'' LAKSHMI CRACKERS 4",
+    "category": "ONE SOUND CRACKERS",
+    "mrp": 110.0,
+    "price": 22.0,
+    "page": 1,
+    "raw": [
+      "03",
+      "4'' LAKSHMI CRACKERS 4",
+      "110",
+      "22",
+      "1 PKT"
+    ]
+  },
+  {
+    "sno": "04",
+    "name": "(10 PLY) \n4'' GOLD LAKSHMI DELUXE 4",
+    "category": "ONE SOUND CRACKERS",
+    "mrp": 190.0,
+    "price": 38.0,
+    "page": 1,
+    "raw": [
+      "04",
+      "(10 PLY) \n4'' GOLD LAKSHMI DELUXE 4",
+      "190",
+      "38",
+      "1 PKT"
+    ]
+  },
+  {
+    "sno": "05",
+    "name": "(12 PLY) \n4'' MEGA DELUXE GANESH 4",
+    "category": "ONE SOUND CRACKERS",
+    "mrp": 200.0,
+    "price": 40.0,
+    "page": 1,
+    "raw": [
+      "05",
+      "(12 PLY) \n4'' MEGA DELUXE GANESH 4",
+      "200",
+      "40",
+      "1 PKT"
+    ]
+  },
+  {
+    "sno": "06",
+    "name": "5'' LAKSHMI CRACKERS 5",
+    "category": "ONE SOUND CRACKERS",
+    "mrp": 275.0,
+    "price": 55.0,
+    "page": 1,
+    "raw": [
+      "06",
+      "5'' LAKSHMI CRACKERS 5",
+      "275",
+      "55",
+      "1 PKT"
+    ]
+  },
+  {
+    "sno": "07",
+    "name": "6'' LAKSHMI CRACKERS 6",
+    "category": "ONE SOUND CRACKERS",
+    "mrp": 350.0,
+    "price": 70.0,
+    "page": 1,
+    "raw": [
+      "07",
+      "6'' LAKSHMI CRACKERS 6",
+      "350",
+      "70",
+      "1 PKT"
+    ]
+  },
+  {
+    "sno": "08",
+    "name": "2 SOUND CRACKERS 2",
+    "category": "ONE SOUND CRACKERS",
+    "mrp": 175.0,
+    "price": 35.0,
+    "page": 1,
+    "raw": [
+      "08",
+      "2 SOUND CRACKERS 2",
+      "175",
+      "35",
+      "1 PKT"
+    ]
+  },
+  {
+    "sno": "09",
+    "name": "(25 PCS) \n10.5'' GROUND CHAKKAR BIG 10.5",
+    "category": "GROUND CHAKKARS",
+    "mrp": 475.0,
+    "price": 95.0,
+    "page": 1,
+    "raw": [
+      "09",
+      "(25 PCS) \n10.5'' GROUND CHAKKAR BIG 10.5",
+      "475",
+      "95",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "10",
+    "name": "(10 PCS) \n10.5'' GROUND CHAKKAR BIG 10.5",
+    "category": "GROUND CHAKKARS",
+    "mrp": 225.0,
+    "price": 45.0,
+    "page": 1,
+    "raw": [
+      "10",
+      "(10 PCS) \n10.5'' GROUND CHAKKAR BIG 10.5",
+      "225",
+      "45",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "11",
+    "name": "(10 PCS) \n15'' GROUND CHAKKAR ASHOKA 15",
+    "category": "GROUND CHAKKARS",
+    "mrp": 300.0,
+    "price": 60.0,
+    "page": 1,
+    "raw": [
+      "11",
+      "(10 PCS) \n15'' GROUND CHAKKAR ASHOKA 15",
+      "300",
+      "60",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "12",
+    "name": "(10 PCS) \n21'' GROUND CHAKKAR SPECIAL 21",
+    "category": "GROUND CHAKKARS",
+    "mrp": 400.0,
+    "price": 80.0,
+    "page": 1,
+    "raw": [
+      "12",
+      "(10 PCS) \n21'' GROUND CHAKKAR SPECIAL 21",
+      "400",
+      "80",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "13",
+    "name": "(10 PCS) \n31'' GROUND CHAKKAR DELUXE 31",
+    "category": "GROUND CHAKKARS",
+    "mrp": 750.0,
+    "price": 150.0,
+    "page": 1,
+    "raw": [
+      "13",
+      "(10 PCS) \n31'' GROUND CHAKKAR DELUXE 31",
+      "750",
+      "150",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "14",
+    "name": "(WINDOW PACK) (10 PCS) \nSPINNER SPECIAL",
+    "category": "SPINNER CHAKKARS",
+    "mrp": 800.0,
+    "price": 160.0,
+    "page": 1,
+    "raw": [
+      "14",
+      "(WINDOW PACK) (10 PCS) \nSPINNER SPECIAL",
+      "800",
+      "160",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "15",
+    "name": "(WINDOW PACK) (10 PCS)\nSPINNER SUPER DELUXE",
+    "category": "SPINNER CHAKKARS",
+    "mrp": 975.0,
+    "price": 195.0,
+    "page": 1,
+    "raw": [
+      "15",
+      "(WINDOW PACK) (10 PCS)\nSPINNER SUPER DELUXE",
+      "975",
+      "195",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "16",
+    "name": "(10 PCS) \nFLOWER POTS SMALL",
+    "category": "FLOWER POTS",
+    "mrp": 300.0,
+    "price": 60.0,
+    "page": 1,
+    "raw": [
+      "16",
+      "(10 PCS) \nFLOWER POTS SMALL",
+      "300",
+      "60",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "17",
+    "name": "(10 PCS) \nFLOWER POTS BIG",
+    "category": "FLOWER POTS",
+    "mrp": 350.0,
+    "price": 70.0,
+    "page": 1,
+    "raw": [
+      "17",
+      "(10 PCS) \nFLOWER POTS BIG",
+      "350",
+      "70",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "18",
+    "name": "(10 PCS) \nFLOWER POTS SPECIAL",
+    "category": "FLOWER POTS",
+    "mrp": 400.0,
+    "price": 80.0,
+    "page": 1,
+    "raw": [
+      "18",
+      "(10 PCS) \nFLOWER POTS SPECIAL",
+      "400",
+      "80",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "19",
+    "name": "(10 PCS) \nFLOWER POTS ASOKA",
+    "category": "FLOWER POTS",
+    "mrp": 500.0,
+    "price": 100.0,
+    "page": 1,
+    "raw": [
+      "19",
+      "(10 PCS) \nFLOWER POTS ASOKA",
+      "500",
+      "100",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "20",
+    "name": "(10 PCS) \nCOLOUR KOTI",
+    "category": "FLOWER POTS",
+    "mrp": 1000.0,
+    "price": 200.0,
+    "page": 1,
+    "raw": [
+      "20",
+      "(10 PCS) \nCOLOUR KOTI",
+      "1000",
+      "200",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "21",
+    "name": "(5 PCS) \nFLOWER POTS DELUXE",
+    "category": "FLOWER POTS",
+    "mrp": 1100.0,
+    "price": 220.0,
+    "page": 1,
+    "raw": [
+      "21",
+      "(5 PCS) \nFLOWER POTS DELUXE",
+      "1100",
+      "220",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "22",
+    "name": "(2 PCS) \nFLOWER POTS SUPER DELUXE",
+    "category": "FLOWER POTS",
+    "mrp": 750.0,
+    "price": 150.0,
+    "page": 1,
+    "raw": [
+      "22",
+      "(2 PCS) \nFLOWER POTS SUPER DELUXE",
+      "750",
+      "150",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "23",
+    "name": "(UV PACK) (10 PCS) \nCOLOUR KOTI DELUXE",
+    "category": "FLOWER POTS",
+    "mrp": 1950.0,
+    "price": 390.0,
+    "page": 1,
+    "raw": [
+      "23",
+      "(UV PACK) (10 PCS) \nCOLOUR KOTI DELUXE",
+      "1950",
+      "390",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "24",
+    "name": "(WINDOW PACK) (5 PCS) \nTRI COLOUR FOUNTAIN",
+    "category": "FLOWER POTS",
+    "mrp": 1500.0,
+    "price": 300.0,
+    "page": 1,
+    "raw": [
+      "24",
+      "(WINDOW PACK) (5 PCS) \nTRI COLOUR FOUNTAIN",
+      "1500",
+      "300",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "25",
+    "name": "(UV PACK LONG BOX) (10 PCS) \nNOVA POTS",
+    "category": "FLOWER POTS",
+    "mrp": 1450.0,
+    "price": 290.0,
+    "page": 1,
+    "raw": [
+      "25",
+      "(UV PACK LONG BOX) (10 PCS) \nNOVA POTS",
+      "1450",
+      "290",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "26",
+    "name": "(10 PCS) \nHYDRO ATOM",
+    "category": "ATOM BOMB",
+    "mrp": 350.0,
+    "price": 70.0,
+    "page": 1,
+    "raw": [
+      "26",
+      "(10 PCS) \nHYDRO ATOM",
+      "350",
+      "70",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "27",
+    "name": "(10 PCS) \nKING BOMB",
+    "category": "ATOM BOMB",
+    "mrp": 400.0,
+    "price": 80.0,
+    "page": 1,
+    "raw": [
+      "27",
+      "(10 PCS) \nKING BOMB",
+      "400",
+      "80",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "28",
+    "name": "(CLASSIC BOMB) (10 PCS) \nMEGA FLASH",
+    "category": "ATOM BOMB",
+    "mrp": 525.0,
+    "price": 105.0,
+    "page": 1,
+    "raw": [
+      "28",
+      "(CLASSIC BOMB) (10 PCS) \nMEGA FLASH",
+      "525",
+      "105",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "29",
+    "name": "(10 PCS) \nBULLET BOMB",
+    "category": "ATOM BOMB",
+    "mrp": 150.0,
+    "price": 30.0,
+    "page": 1,
+    "raw": [
+      "29",
+      "(10 PCS) \nBULLET BOMB",
+      "150",
+      "30",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "30",
+    "name": "(10 PCS) \nMEGA BULLET",
+    "category": "ATOM BOMB",
+    "mrp": 225.0,
+    "price": 45.0,
+    "page": 1,
+    "raw": [
+      "30",
+      "(10 PCS) \nMEGA BULLET",
+      "225",
+      "45",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "31",
+    "name": "PAPER BOMB 1/4 kg",
+    "category": "PAPER BOMB",
+    "mrp": 250.0,
+    "price": 50.0,
+    "page": 1,
+    "raw": [
+      "31",
+      "PAPER BOMB 1/4 kg",
+      "250",
+      "50",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "32",
+    "name": "PAPER BOMB (1PCS) 1/2 kg",
+    "category": "PAPER BOMB",
+    "mrp": 500.0,
+    "price": 100.0,
+    "page": 1,
+    "raw": [
+      "32",
+      "PAPER BOMB (1PCS) 1/2 kg",
+      "500",
+      "100",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "33",
+    "name": "PAPER BOMB (1PCS) 1KG",
+    "category": "PAPER BOMB",
+    "mrp": 950.0,
+    "price": 190.0,
+    "page": 1,
+    "raw": [
+      "33",
+      "PAPER BOMB (1PCS) 1KG",
+      "950",
+      "190",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "34",
+    "name": "(10 PCS) \nBABY ROCKET",
+    "category": "ROCKETS",
+    "mrp": 200.0,
+    "price": 40.0,
+    "page": 2,
+    "raw": [
+      "34",
+      "(10 PCS) \nBABY ROCKET",
+      "200",
+      "40",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "35",
+    "name": "(10 PCS) \nCOLOUR ROCKET",
+    "category": "ROCKETS",
+    "mrp": 350.0,
+    "price": 70.0,
+    "page": 2,
+    "raw": [
+      "35",
+      "(10 PCS) \nCOLOUR ROCKET",
+      "350",
+      "70",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "36",
+    "name": "(10 PCS) \nROCKET BOMB",
+    "category": "ROCKETS",
+    "mrp": 350.0,
+    "price": 70.0,
+    "page": 2,
+    "raw": [
+      "36",
+      "(10 PCS) \nROCKET BOMB",
+      "350",
+      "70",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "37",
+    "name": "(10 PCS) \nLUNIK ROCKET",
+    "category": "ROCKETS",
+    "mrp": 600.0,
+    "price": 120.0,
+    "page": 2,
+    "raw": [
+      "37",
+      "(10 PCS) \nLUNIK ROCKET",
+      "600",
+      "120",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "38",
+    "name": "(10 PCS) \n2 SOUND ROCKET 2",
+    "category": "ROCKETS",
+    "mrp": 750.0,
+    "price": 150.0,
+    "page": 2,
+    "raw": [
+      "38",
+      "(10 PCS) \n2 SOUND ROCKET 2",
+      "750",
+      "150",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "39",
+    "name": "(GRIVAR BAG) (100 PCS) \nCOLOUR RED BIJILI",
+    "category": "BIJILI CRACKERS",
+    "mrp": 150.0,
+    "price": 30.0,
+    "page": 2,
+    "raw": [
+      "39",
+      "(GRIVAR BAG) (100 PCS) \nCOLOUR RED BIJILI",
+      "150",
+      "30",
+      "1 BAG"
+    ]
+  },
+  {
+    "sno": "40",
+    "name": "(GRIVAR BAG) (100 PCS) \nCOLOUR STRIPED BIJILI",
+    "category": "BIJILI CRACKERS",
+    "mrp": 175.0,
+    "price": 35.0,
+    "page": 2,
+    "raw": [
+      "40",
+      "(GRIVAR BAG) (100 PCS) \nCOLOUR STRIPED BIJILI",
+      "175",
+      "35",
+      "1 BAG"
+    ]
+  },
+  {
+    "sno": "41",
+    "name": "(10 PCS) \n1 1/2'' TWINKLING STAR 1 1/2''",
+    "category": "TWINKLING STAR",
+    "mrp": 150.0,
+    "price": 30.0,
+    "page": 2,
+    "raw": [
+      "41",
+      "(10 PCS) \n1 1/2'' TWINKLING STAR 1 1/2''",
+      "150",
+      "30",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "42",
+    "name": "(10 PCS) \n4'' TWINKLING STAR 4",
+    "category": "TWINKLING STAR",
+    "mrp": 375.0,
+    "price": 75.0,
+    "page": 2,
+    "raw": [
+      "42",
+      "(10 PCS) \n4'' TWINKLING STAR 4",
+      "375",
+      "75",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "43",
+    "name": "(10 PCS) \n7'' PENCIL 7",
+    "category": "PENCILS",
+    "mrp": 125.0,
+    "price": 25.0,
+    "page": 2,
+    "raw": [
+      "43",
+      "(10 PCS) \n7'' PENCIL 7",
+      "125",
+      "25",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "44",
+    "name": "(10 PCS) \n10'' PENCIL 10",
+    "category": "PENCILS",
+    "mrp": 350.0,
+    "price": 70.0,
+    "page": 2,
+    "raw": [
+      "44",
+      "(10 PCS) \n10'' PENCIL 10",
+      "350",
+      "70",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "45",
+    "name": "(10 PCS) \nASSORTED CARTOON",
+    "category": "FANCY NOVELTIES",
+    "mrp": 200.0,
+    "price": 40.0,
+    "page": 2,
+    "raw": [
+      "45",
+      "(10 PCS) \nASSORTED CARTOON",
+      "200",
+      "40",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "46",
+    "name": "(5 PCS) \nDANCING WHEEL",
+    "category": "FANCY NOVELTIES",
+    "mrp": 350.0,
+    "price": 70.0,
+    "page": 2,
+    "raw": [
+      "46",
+      "(5 PCS) \nDANCING WHEEL",
+      "350",
+      "70",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "47",
+    "name": "(5 PCS) \nFLOWER BOMB",
+    "category": "FANCY NOVELTIES",
+    "mrp": 375.0,
+    "price": 75.0,
+    "page": 2,
+    "raw": [
+      "47",
+      "(5 PCS) \nFLOWER BOMB",
+      "375",
+      "75",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "48",
+    "name": "(5 pcs) \nCOLOUR FALLS/RAIN",
+    "category": "FANCY NOVELTIES",
+    "mrp": 500.0,
+    "price": 100.0,
+    "page": 2,
+    "raw": [
+      "48",
+      "(5 pcs) \nCOLOUR FALLS/RAIN",
+      "500",
+      "100",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "49",
+    "name": "(5 pcs) \nBAMBARAM",
+    "category": "FANCY NOVELTIES",
+    "mrp": 500.0,
+    "price": 100.0,
+    "page": 2,
+    "raw": [
+      "49",
+      "(5 pcs) \nBAMBARAM",
+      "500",
+      "100",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "50",
+    "name": "(5 pcs) \nDRONE",
+    "category": "FANCY NOVELTIES",
+    "mrp": 900.0,
+    "price": 180.0,
+    "page": 2,
+    "raw": [
+      "50",
+      "(5 pcs) \nDRONE",
+      "900",
+      "180",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "51",
+    "name": "(10 pcs) \nBUTTERFLY",
+    "category": "FANCY NOVELTIES",
+    "mrp": 600.0,
+    "price": 120.0,
+    "page": 2,
+    "raw": [
+      "51",
+      "(10 pcs) \nBUTTERFLY",
+      "600",
+      "120",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "52",
+    "name": "(HELICOPTER) (5 pcs) \nSKY FORCE",
+    "category": "FANCY NOVELTIES",
+    "mrp": 800.0,
+    "price": 160.0,
+    "page": 2,
+    "raw": [
+      "52",
+      "(HELICOPTER) (5 pcs) \nSKY FORCE",
+      "800",
+      "160",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "53",
+    "name": "(10 pcs) \nRICH GOLD FLOWER (SANE)",
+    "category": "FANCY NOVELTIES",
+    "mrp": 300.0,
+    "price": 60.0,
+    "page": 2,
+    "raw": [
+      "53",
+      "(10 pcs) \nRICH GOLD FLOWER (SANE)",
+      "300",
+      "60",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "54",
+    "name": "(5 pcs) \nCOCUKOO FEATHER",
+    "category": "FANCY NOVELTIES",
+    "mrp": 600.0,
+    "price": 120.0,
+    "page": 2,
+    "raw": [
+      "54",
+      "(5 pcs) \nCOCUKOO FEATHER",
+      "600",
+      "120",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "55",
+    "name": "(5 pcs) \nLOTUS/FLORA",
+    "category": "FANCY NOVELTIES",
+    "mrp": 950.0,
+    "price": 190.0,
+    "page": 2,
+    "raw": [
+      "55",
+      "(5 pcs) \nLOTUS/FLORA",
+      "950",
+      "190",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "56",
+    "name": "(5 pcs) \nMAGIC GOLD/GOLDEN GLOBE",
+    "category": "FANCY NOVELTIES",
+    "mrp": 525.0,
+    "price": 105.0,
+    "page": 2,
+    "raw": [
+      "56",
+      "(5 pcs) \nMAGIC GOLD/GOLDEN GLOBE",
+      "525",
+      "105",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "57",
+    "name": "(2 pcs) \nSIREN",
+    "category": "FANCY NOVELTIES",
+    "mrp": 950.0,
+    "price": 190.0,
+    "page": 2,
+    "raw": [
+      "57",
+      "(2 pcs) \nSIREN",
+      "950",
+      "190",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "58",
+    "name": "(PAPER FOUNTAIN) (2 pcs) \nJEE BHOOM BAA",
+    "category": "FANCY NOVELTIES",
+    "mrp": 1800.0,
+    "price": 360.0,
+    "page": 2,
+    "raw": [
+      "58",
+      "(PAPER FOUNTAIN) (2 pcs) \nJEE BHOOM BAA",
+      "1800",
+      "360",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "59",
+    "name": "(5 pcs) \nSPIDER",
+    "category": "FANCY NOVELTIES",
+    "mrp": 800.0,
+    "price": 160.0,
+    "page": 2,
+    "raw": [
+      "59",
+      "(5 pcs) \nSPIDER",
+      "800",
+      "160",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "60",
+    "name": "(CRACKLING PENCIL)(2 pcs)\nPOP CORN/STAR RAIN",
+    "category": "FANCY NOVELTIES",
+    "mrp": 1000.0,
+    "price": 200.0,
+    "page": 2,
+    "raw": [
+      "60",
+      "(CRACKLING PENCIL)(2 pcs)\nPOP CORN/STAR RAIN",
+      "1000",
+      "200",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "61",
+    "name": "(COLD PYTO PENCIL) (2 pcs) \nBABY CORN-H 2 O- H 2 O",
+    "category": "FANCY NOVELTIES",
+    "mrp": 1000.0,
+    "price": 200.0,
+    "page": 2,
+    "raw": [
+      "61",
+      "(COLD PYTO PENCIL) (2 pcs) \nBABY CORN-H 2 O- H 2 O",
+      "1000",
+      "200",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "62",
+    "name": "(5 pcs) \nASRAFI GOLD",
+    "category": "FANCY NOVELTIES",
+    "mrp": 500.0,
+    "price": 100.0,
+    "page": 2,
+    "raw": [
+      "62",
+      "(5 pcs) \nASRAFI GOLD",
+      "500",
+      "100",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "63",
+    "name": "(CRACKLING) (1 Pce) \nBIG FOUNTAIN",
+    "category": "FOUNTAIN",
+    "mrp": 1500.0,
+    "price": 300.0,
+    "page": 2,
+    "raw": [
+      "63",
+      "(CRACKLING) (1 Pce) \nBIG FOUNTAIN",
+      "1500",
+      "300",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "64",
+    "name": "(SMALL FOUNTAIN) (1 Pce) \nEMOJI CRACKLING",
+    "category": "FOUNTAIN",
+    "mrp": 800.0,
+    "price": 160.0,
+    "page": 2,
+    "raw": [
+      "64",
+      "(SMALL FOUNTAIN) (1 Pce) \nEMOJI CRACKLING",
+      "800",
+      "160",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "65",
+    "name": "(1 Pce) \nPEACOCK",
+    "category": "FOUNTAIN",
+    "mrp": 950.0,
+    "price": 190.0,
+    "page": 2,
+    "raw": [
+      "65",
+      "(1 Pce) \nPEACOCK",
+      "950",
+      "190",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "66",
+    "name": "(RED, YELLOW & CRACKLING) (1 Pce) \nSHINING STARS",
+    "category": "FOUNTAIN",
+    "mrp": 1500.0,
+    "price": 300.0,
+    "page": 2,
+    "raw": [
+      "66",
+      "(RED, YELLOW & CRACKLING) (1 Pce) \nSHINING STARS",
+      "1500",
+      "300",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "67",
+    "name": "(RED, YELLOW & CRACKLING) (1 Pce) \nLIVE SHOW SMALL",
+    "category": "FOUNTAIN",
+    "mrp": 750.0,
+    "price": 150.0,
+    "page": 2,
+    "raw": [
+      "67",
+      "(RED, YELLOW & CRACKLING) (1 Pce) \nLIVE SHOW SMALL",
+      "750",
+      "150",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "68",
+    "name": "(UV PACK) (1 Pce) \nBADA PEACOCK MEGA",
+    "category": "FOUNTAIN",
+    "mrp": 2250.0,
+    "price": 450.0,
+    "page": 2,
+    "raw": [
+      "68",
+      "(UV PACK) (1 Pce) \nBADA PEACOCK MEGA",
+      "2250",
+      "450",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "69",
+    "name": "(MULTICOLOUR) (5 PcS) \nMAGIC SPRING",
+    "category": "FOUNTAIN",
+    "mrp": 900.0,
+    "price": 180.0,
+    "page": 2,
+    "raw": [
+      "69",
+      "(MULTICOLOUR) (5 PcS) \nMAGIC SPRING",
+      "900",
+      "180",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "70",
+    "name": "(1 Pce) \n5 CRAZY CRACKLING",
+    "category": "FOUNTAIN",
+    "mrp": 1000.0,
+    "price": 200.0,
+    "page": 2,
+    "raw": [
+      "70",
+      "(1 Pce) \n5 CRAZY CRACKLING",
+      "1000",
+      "200",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "71",
+    "name": "(MULTICOLOUR 3 Pcs) (1 Pce) \nCOLOUR SMOKE",
+    "category": "KIDS SPECIAL",
+    "mrp": 1025.0,
+    "price": 205.0,
+    "page": 2,
+    "raw": [
+      "71",
+      "(MULTICOLOUR 3 Pcs) (1 Pce) \nCOLOUR SMOKE",
+      "1025",
+      "205",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "72",
+    "name": "(OLA VEDI 25 PCS) (1 Pce) \nBLACK & WHITE",
+    "category": "KIDS SPECIAL",
+    "mrp": 900.0,
+    "price": 180.0,
+    "page": 2,
+    "raw": [
+      "72",
+      "(OLA VEDI 25 PCS) (1 Pce) \nBLACK & WHITE",
+      "900",
+      "180",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "73",
+    "name": "(3 Pcs) (1 Pce) \nPARTY MARRIAGE",
+    "category": "KIDS SPECIAL",
+    "mrp": 825.0,
+    "price": 165.0,
+    "page": 2,
+    "raw": [
+      "73",
+      "(3 Pcs) (1 Pce) \nPARTY MARRIAGE",
+      "825",
+      "165",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "74",
+    "name": "(3 Pcs) (1 Pce) \nMONEY BLAST",
+    "category": "KIDS SPECIAL",
+    "mrp": 950.0,
+    "price": 190.0,
+    "page": 3,
+    "raw": [
+      "74",
+      "(3 Pcs) (1 Pce) \nMONEY BLAST",
+      "950",
+      "190",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "75",
+    "name": "(MULTICOLOUR 5 Pcs) (1 Pce) \nDISCO SHOWER",
+    "category": "KIDS SPECIAL",
+    "mrp": 500.0,
+    "price": 100.0,
+    "page": 3,
+    "raw": [
+      "75",
+      "(MULTICOLOUR 5 Pcs) (1 Pce) \nDISCO SHOWER",
+      "500",
+      "100",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "76",
+    "name": "(BIG CHIT PUT) (10 PcS) \nDHAAM DHOOM",
+    "category": "KIDS SPECIAL",
+    "mrp": 350.0,
+    "price": 70.0,
+    "page": 3,
+    "raw": [
+      "76",
+      "(BIG CHIT PUT) (10 PcS) \nDHAAM DHOOM",
+      "350",
+      "70",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "77",
+    "name": "20 DELUXE",
+    "category": "DELUXE CRACKERS ( BIG )",
+    "mrp": 200.0,
+    "price": 40.0,
+    "page": 3,
+    "raw": [
+      "77",
+      "20 DELUXE",
+      "200",
+      "40",
+      "1 PKT"
+    ]
+  },
+  {
+    "sno": "78",
+    "name": "24 DELUXE",
+    "category": "DELUXE CRACKERS ( BIG )",
+    "mrp": 250.0,
+    "price": 50.0,
+    "page": 3,
+    "raw": [
+      "78",
+      "24 DELUXE",
+      "250",
+      "50",
+      "1 PKT"
+    ]
+  },
+  {
+    "sno": "79",
+    "name": "28 DELUXE",
+    "category": "DELUXE CRACKERS ( BIG )",
+    "mrp": 300.0,
+    "price": 60.0,
+    "page": 3,
+    "raw": [
+      "79",
+      "28 DELUXE",
+      "300",
+      "60",
+      "1 PKT"
+    ]
+  },
+  {
+    "sno": "80",
+    "name": "32 DELUXE",
+    "category": "DELUXE CRACKERS ( BIG )",
+    "mrp": 350.0,
+    "price": 70.0,
+    "page": 3,
+    "raw": [
+      "80",
+      "32 DELUXE",
+      "350",
+      "70",
+      "1 PKT"
+    ]
+  },
+  {
+    "sno": "81",
+    "name": "40 DELUXE",
+    "category": "DELUXE CRACKERS ( BIG )",
+    "mrp": 400.0,
+    "price": 80.0,
+    "page": 3,
+    "raw": [
+      "81",
+      "40 DELUXE",
+      "400",
+      "80",
+      "1 PKT"
+    ]
+  },
+  {
+    "sno": "82",
+    "name": "50 DELUXE",
+    "category": "DELUXE CRACKERS ( BIG )",
+    "mrp": 500.0,
+    "price": 100.0,
+    "page": 3,
+    "raw": [
+      "82",
+      "50 DELUXE",
+      "500",
+      "100",
+      "1 PKT"
+    ]
+  },
+  {
+    "sno": "83",
+    "name": "100 DELUXE",
+    "category": "DELUXE CRACKERS ( BIG )",
+    "mrp": 1000.0,
+    "price": 200.0,
+    "page": 3,
+    "raw": [
+      "83",
+      "100 DELUXE",
+      "1000",
+      "200",
+      "1 PKT"
+    ]
+  },
+  {
+    "sno": "84",
+    "name": "1000 WALA 1000",
+    "category": "GARLAND ( HALF COUNT )",
+    "mrp": 800.0,
+    "price": 160.0,
+    "page": 3,
+    "raw": [
+      "84",
+      "1000 WALA 1000",
+      "800",
+      "160",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "85",
+    "name": "2000 WALA 2000",
+    "category": "GARLAND ( HALF COUNT )",
+    "mrp": 1600.0,
+    "price": 320.0,
+    "page": 3,
+    "raw": [
+      "85",
+      "2000 WALA 2000",
+      "1600",
+      "320",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "86",
+    "name": "3000 WALA 3000",
+    "category": "GARLAND ( HALF COUNT )",
+    "mrp": 2400.0,
+    "price": 480.0,
+    "page": 3,
+    "raw": [
+      "86",
+      "3000 WALA 3000",
+      "2400",
+      "480",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "87",
+    "name": "5000 WALA 5000",
+    "category": "GARLAND ( HALF COUNT )",
+    "mrp": 4000.0,
+    "price": 800.0,
+    "page": 3,
+    "raw": [
+      "87",
+      "5000 WALA 5000",
+      "4000",
+      "800",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "88",
+    "name": "10000 WALA 10000",
+    "category": "GARLAND ( HALF COUNT )",
+    "mrp": 8000.0,
+    "price": 1600.0,
+    "page": 3,
+    "raw": [
+      "88",
+      "10000 WALA 10000",
+      "8000",
+      "1600",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "89",
+    "name": "1OO WALA 100",
+    "category": "GARLAND ( FULL COUNT )",
+    "mrp": 250.0,
+    "price": 50.0,
+    "page": 3,
+    "raw": [
+      "89",
+      "1OO WALA 100",
+      "250",
+      "50",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "90",
+    "name": "200 WALA 200",
+    "category": "GARLAND ( FULL COUNT )",
+    "mrp": 500.0,
+    "price": 100.0,
+    "page": 3,
+    "raw": [
+      "90",
+      "200 WALA 200",
+      "500",
+      "100",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "91",
+    "name": "300 WALA 300",
+    "category": "GARLAND ( FULL COUNT )",
+    "mrp": 700.0,
+    "price": 140.0,
+    "page": 3,
+    "raw": [
+      "91",
+      "300 WALA 300",
+      "700",
+      "140",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "92",
+    "name": "600 WALA 600",
+    "category": "GARLAND ( FULL COUNT )",
+    "mrp": 1300.0,
+    "price": 260.0,
+    "page": 3,
+    "raw": [
+      "92",
+      "600 WALA 600",
+      "1300",
+      "260",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "93",
+    "name": "1000 WALA 1000",
+    "category": "GARLAND ( FULL COUNT )",
+    "mrp": 1500.0,
+    "price": 300.0,
+    "page": 3,
+    "raw": [
+      "93",
+      "1000 WALA 1000",
+      "1500",
+      "300",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "94",
+    "name": "2000 WALA 2000",
+    "category": "GARLAND ( FULL COUNT )",
+    "mrp": 3000.0,
+    "price": 600.0,
+    "page": 3,
+    "raw": [
+      "94",
+      "2000 WALA 2000",
+      "3000",
+      "600",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "95",
+    "name": "3000 WALA 3000",
+    "category": "GARLAND ( FULL COUNT )",
+    "mrp": 4500.0,
+    "price": 900.0,
+    "page": 3,
+    "raw": [
+      "95",
+      "3000 WALA 3000",
+      "4500",
+      "900",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "96",
+    "name": "5000 WALA 5000",
+    "category": "GARLAND ( FULL COUNT )",
+    "mrp": 7500.0,
+    "price": 1500.0,
+    "page": 3,
+    "raw": [
+      "96",
+      "5000 WALA 5000",
+      "7500",
+      "1500",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "97",
+    "name": "10000 WALA 10000",
+    "category": "GARLAND ( FULL COUNT )",
+    "mrp": 15000.0,
+    "price": 3000.0,
+    "page": 3,
+    "raw": [
+      "97",
+      "10000 WALA 10000",
+      "15000",
+      "3000",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "98",
+    "name": "(6 VARIETIES) (1 Pce) \n2\" FANCY 2",
+    "category": "AERIAL NOVELTIES ( SINGLE PIPE )",
+    "mrp": 700.0,
+    "price": 140.0,
+    "page": 3,
+    "raw": [
+      "98",
+      "(6 VARIETIES) (1 Pce) \n2\" FANCY 2",
+      "700",
+      "140",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "99",
+    "name": "2 1/2\" FANCY (6 VARIETIES) (1 Pce) 2 1/2",
+    "category": "AERIAL NOVELTIES ( SINGLE PIPE )",
+    "mrp": 850.0,
+    "price": 170.0,
+    "page": 3,
+    "raw": [
+      "99",
+      "2 1/2\" FANCY (6 VARIETIES) (1 Pce) 2 1/2",
+      "850",
+      "170",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "100",
+    "name": "3 1/2\" FANCY (UV PACK) (6 VARIETIES) (1 Pce) 3 1/2",
+    "category": "AERIAL NOVELTIES ( SINGLE PIPE )",
+    "mrp": 1500.0,
+    "price": 300.0,
+    "page": 3,
+    "raw": [
+      "100",
+      "3 1/2\" FANCY (UV PACK) (6 VARIETIES) (1 Pce) 3 1/2",
+      "1500",
+      "300",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "101",
+    "name": "4\" FANCY (6 VARIETIES) (1 Pce) 4",
+    "category": "AERIAL NOVELTIES ( SINGLE PIPE )",
+    "mrp": 2000.0,
+    "price": 400.0,
+    "page": 3,
+    "raw": [
+      "101",
+      "4\" FANCY (6 VARIETIES) (1 Pce) 4",
+      "2000",
+      "400",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "102",
+    "name": "4 DOUBLE BALL FANCY (6 VARIETIES) (1 Pce) 4",
+    "category": "AERIAL NOVELTIES ( SINGLE PIPE )",
+    "mrp": 2500.0,
+    "price": 500.0,
+    "page": 3,
+    "raw": [
+      "102",
+      "4 DOUBLE BALL FANCY (6 VARIETIES) (1 Pce) 4",
+      "2500",
+      "500",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "103",
+    "name": "4 FANCY WINDOW (2 Pcs) (4 VARIETIES (2 Pce) 4",
+    "category": "AERIAL NOVELTIES ( SINGLE PIPE )",
+    "mrp": 3750.0,
+    "price": 750.0,
+    "page": 3,
+    "raw": [
+      "103",
+      "4 FANCY WINDOW (2 Pcs) (4 VARIETIES (2 Pce) 4",
+      "3750",
+      "750",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "104",
+    "name": "4\" NAYAGARA FALLS PIPE GOLD (1 pce) 4\"",
+    "category": "AERIAL NOVELTIES ( SINGLE PIPE )",
+    "mrp": 2150.0,
+    "price": 430.0,
+    "page": 3,
+    "raw": [
+      "104",
+      "4\" NAYAGARA FALLS PIPE GOLD (1 pce) 4\"",
+      "2150",
+      "430",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "105",
+    "name": "(MULTICOLOUR UV PACK) \n30 SHOT 30",
+    "category": "FANCY REPEATING SHOTS",
+    "mrp": 2000.0,
+    "price": 400.0,
+    "page": 3,
+    "raw": [
+      "105",
+      "(MULTICOLOUR UV PACK) \n30 SHOT 30",
+      "2000",
+      "400",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "106",
+    "name": "(MULTICOLOUR UV PACK) \n60 SHOT 60",
+    "category": "FANCY REPEATING SHOTS",
+    "mrp": 4000.0,
+    "price": 800.0,
+    "page": 3,
+    "raw": [
+      "106",
+      "(MULTICOLOUR UV PACK) \n60 SHOT 60",
+      "4000",
+      "800",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "107",
+    "name": "(MULTICOLOUR UV PACK) \n120 SHOT 120",
+    "category": "FANCY REPEATING SHOTS",
+    "mrp": 8000.0,
+    "price": 1600.0,
+    "page": 3,
+    "raw": [
+      "107",
+      "(MULTICOLOUR UV PACK) \n120 SHOT 120",
+      "8000",
+      "1600",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "108",
+    "name": "(MULTICOLOUR) \n240 SHOT 240",
+    "category": "FANCY REPEATING SHOTS",
+    "mrp": 16000.0,
+    "price": 3200.0,
+    "page": 3,
+    "raw": [
+      "108",
+      "(MULTICOLOUR) \n240 SHOT 240",
+      "16000",
+      "3200",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "109",
+    "name": "(5 PCS) \n7 SHOT 7",
+    "category": "FANCY MULTI SHOTS",
+    "mrp": 650.0,
+    "price": 130.0,
+    "page": 3,
+    "raw": [
+      "109",
+      "(5 PCS) \n7 SHOT 7",
+      "650",
+      "130",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "110",
+    "name": "(DELUXE) (UV) (1 PCS) \n12 SHOT COLOUR BOMB 12",
+    "category": "FANCY MULTI SHOTS",
+    "mrp": 950.0,
+    "price": 190.0,
+    "page": 3,
+    "raw": [
+      "110",
+      "(DELUXE) (UV) (1 PCS) \n12 SHOT COLOUR BOMB 12",
+      "950",
+      "190",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "111",
+    "name": "(RED & YELLOW) (UV) (1 PCS) \n12 SHOT 12",
+    "category": "FANCY MULTI SHOTS",
+    "mrp": 1000.0,
+    "price": 200.0,
+    "page": 3,
+    "raw": [
+      "111",
+      "(RED & YELLOW) (UV) (1 PCS) \n12 SHOT 12",
+      "1000",
+      "200",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "112",
+    "name": "(CRACKLING) (1 PCS) \nSKY WAR",
+    "category": "FANCY MULTI SHOTS",
+    "mrp": 1050.0,
+    "price": 210.0,
+    "page": 3,
+    "raw": [
+      "112",
+      "(CRACKLING) (1 PCS) \nSKY WAR",
+      "1050",
+      "210",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "113",
+    "name": "(DELUXE) (1 PCS) \n25 SHOT 25",
+    "category": "FANCY MULTI SHOTS",
+    "mrp": 1750.0,
+    "price": 350.0,
+    "page": 3,
+    "raw": [
+      "113",
+      "(DELUXE) (1 PCS) \n25 SHOT 25",
+      "1750",
+      "350",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "110",
+    "name": "(10 PCS) \nSKY SHOT",
+    "category": "FANCY MULTI SHOTS",
+    "mrp": 600.0,
+    "price": 120.0,
+    "page": 4,
+    "raw": [
+      "110",
+      "(10 PCS) \nSKY SHOT",
+      "600",
+      "120",
+      "1 PKT"
+    ]
+  },
+  {
+    "sno": "111",
+    "name": "(10 Pcs) \nSKY SHOT CRACKLING",
+    "category": "FANCY MULTI SHOTS",
+    "mrp": 700.0,
+    "price": 140.0,
+    "page": 4,
+    "raw": [
+      "111",
+      "(10 Pcs) \nSKY SHOT CRACKLING",
+      "700",
+      "140",
+      "1 PKT"
+    ]
+  },
+  {
+    "sno": "112",
+    "name": "(6 Pcs) \nJUNIPER WINDOW PACK",
+    "category": "FANCY MULTI SHOTS",
+    "mrp": 625.0,
+    "price": 125.0,
+    "page": 4,
+    "raw": [
+      "112",
+      "(6 Pcs) \nJUNIPER WINDOW PACK",
+      "625",
+      "125",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "113",
+    "name": "GOLDEN INGOT WINDOW PACK",
+    "category": "FANCY MULTI SHOTS",
+    "mrp": 700.0,
+    "price": 140.0,
+    "page": 4,
+    "raw": [
+      "113",
+      "GOLDEN INGOT WINDOW PACK",
+      "700",
+      "140",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "118",
+    "name": "7 CM AMBER ELECTRIC 7 CM",
+    "category": "7 CM SPARKLERS 7 CM",
+    "mrp": 50.0,
+    "price": 10.0,
+    "page": 4,
+    "raw": [
+      "118",
+      "7 CM AMBER ELECTRIC 7 CM",
+      "50",
+      "10",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "119",
+    "name": "7 CM CRACKLING 7 CM",
+    "category": "7 CM SPARKLERS 7 CM",
+    "mrp": 60.0,
+    "price": 12.0,
+    "page": 4,
+    "raw": [
+      "119",
+      "7 CM CRACKLING 7 CM",
+      "60",
+      "12",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "120",
+    "name": "7 CM EMEROLD GREEN 7 CM",
+    "category": "7 CM SPARKLERS 7 CM",
+    "mrp": 70.0,
+    "price": 14.0,
+    "page": 4,
+    "raw": [
+      "120",
+      "7 CM EMEROLD GREEN 7 CM",
+      "70",
+      "14",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "121",
+    "name": "7 CM CHERRY RED 7 CM",
+    "category": "7 CM SPARKLERS 7 CM",
+    "mrp": 80.0,
+    "price": 16.0,
+    "page": 4,
+    "raw": [
+      "121",
+      "7 CM CHERRY RED 7 CM",
+      "80",
+      "16",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "122",
+    "name": "7 CM KRACK JACK 50/50 7 CM 50/50",
+    "category": "7 CM SPARKLERS 7 CM",
+    "mrp": 75.0,
+    "price": 15.0,
+    "page": 4,
+    "raw": [
+      "122",
+      "7 CM KRACK JACK 50/50 7 CM 50/50",
+      "75",
+      "15",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "123",
+    "name": "10 CM AMBER ELECTRIC 10 CM",
+    "category": "10 CM SPARKLERS 10 CM",
+    "mrp": 90.0,
+    "price": 18.0,
+    "page": 4,
+    "raw": [
+      "123",
+      "10 CM AMBER ELECTRIC 10 CM",
+      "90",
+      "18",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "124",
+    "name": "10 CM CRACKLING 10 CM",
+    "category": "10 CM SPARKLERS 10 CM",
+    "mrp": 100.0,
+    "price": 20.0,
+    "page": 4,
+    "raw": [
+      "124",
+      "10 CM CRACKLING 10 CM",
+      "100",
+      "20",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "125",
+    "name": "10 CM EMEROLD GREEN 10 CM",
+    "category": "10 CM SPARKLERS 10 CM",
+    "mrp": 110.0,
+    "price": 22.0,
+    "page": 4,
+    "raw": [
+      "125",
+      "10 CM EMEROLD GREEN 10 CM",
+      "110",
+      "22",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "126",
+    "name": "10 CM CHERRY RED 10 CM",
+    "category": "10 CM SPARKLERS 10 CM",
+    "mrp": 140.0,
+    "price": 28.0,
+    "page": 4,
+    "raw": [
+      "126",
+      "10 CM CHERRY RED 10 CM",
+      "140",
+      "28",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "127",
+    "name": "10 CM JICK JACK 50/50 10 CM 50/50",
+    "category": "10 CM SPARKLERS 10 CM",
+    "mrp": 120.0,
+    "price": 24.0,
+    "page": 4,
+    "raw": [
+      "127",
+      "10 CM JICK JACK 50/50 10 CM 50/50",
+      "120",
+      "24",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "128",
+    "name": "10 CM COCKTAIL (4 IN 1) 10 CM (4 IN 1)",
+    "category": "10 CM SPARKLERS 10 CM",
+    "mrp": 130.0,
+    "price": 26.0,
+    "page": 4,
+    "raw": [
+      "128",
+      "10 CM COCKTAIL (4 IN 1) 10 CM (4 IN 1)",
+      "130",
+      "26",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "129",
+    "name": "12 CM AMBER ELECTRIC 12 CM",
+    "category": "12 CM SPARKLERS 12 CM",
+    "mrp": 150.0,
+    "price": 30.0,
+    "page": 4,
+    "raw": [
+      "129",
+      "12 CM AMBER ELECTRIC 12 CM",
+      "150",
+      "30",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "130",
+    "name": "12 CM CRACKLING 12 CM",
+    "category": "12 CM SPARKLERS 12 CM",
+    "mrp": 160.0,
+    "price": 32.0,
+    "page": 4,
+    "raw": [
+      "130",
+      "12 CM CRACKLING 12 CM",
+      "160",
+      "32",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "131",
+    "name": "12 CM EMEROLD GREEN 12 CM",
+    "category": "12 CM SPARKLERS 12 CM",
+    "mrp": 170.0,
+    "price": 34.0,
+    "page": 4,
+    "raw": [
+      "131",
+      "12 CM EMEROLD GREEN 12 CM",
+      "170",
+      "34",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "132",
+    "name": "12 CM CHERRY RED 12 CM",
+    "category": "12 CM SPARKLERS 12 CM",
+    "mrp": 180.0,
+    "price": 36.0,
+    "page": 4,
+    "raw": [
+      "132",
+      "12 CM CHERRY RED 12 CM",
+      "180",
+      "36",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "133",
+    "name": "30 CM AMBER ELECTRIC 30 CM",
+    "category": "30 CM SPARKLERS 30 CM",
+    "mrp": 200.0,
+    "price": 40.0,
+    "page": 4,
+    "raw": [
+      "133",
+      "30 CM AMBER ELECTRIC 30 CM",
+      "200",
+      "40",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "134",
+    "name": "30 CM CRACKLING 30 CM",
+    "category": "30 CM SPARKLERS 30 CM",
+    "mrp": 220.0,
+    "price": 44.0,
+    "page": 4,
+    "raw": [
+      "134",
+      "30 CM CRACKLING 30 CM",
+      "220",
+      "44",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "135",
+    "name": "30 CM EMEROLD GREEN 30 CM",
+    "category": "30 CM SPARKLERS 30 CM",
+    "mrp": 240.0,
+    "price": 48.0,
+    "page": 4,
+    "raw": [
+      "135",
+      "30 CM EMEROLD GREEN 30 CM",
+      "240",
+      "48",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "136",
+    "name": "30 CM CHERRY RED 30 CM",
+    "category": "30 CM SPARKLERS 30 CM",
+    "mrp": 260.0,
+    "price": 52.0,
+    "page": 4,
+    "raw": [
+      "136",
+      "30 CM CHERRY RED 30 CM",
+      "260",
+      "52",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "137",
+    "name": "50 CM AMBER ELECTRIC 50 CM",
+    "category": "50 CM SPARKLERS 50 CM",
+    "mrp": 800.0,
+    "price": 160.0,
+    "page": 4,
+    "raw": [
+      "137",
+      "50 CM AMBER ELECTRIC 50 CM",
+      "800",
+      "160",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "138",
+    "name": "50 CM CRACKLING 50 CM",
+    "category": "50 CM SPARKLERS 50 CM",
+    "mrp": 900.0,
+    "price": 180.0,
+    "page": 4,
+    "raw": [
+      "138",
+      "50 CM CRACKLING 50 CM",
+      "900",
+      "180",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "139",
+    "name": "50 CM MIX-KIT 50 CM",
+    "category": "50 CM SPARKLERS 50 CM",
+    "mrp": 1000.0,
+    "price": 200.0,
+    "page": 4,
+    "raw": [
+      "139",
+      "50 CM MIX-KIT 50 CM",
+      "1000",
+      "200",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "140",
+    "name": "15 CM APPLE-AIR PACK 15 CM",
+    "category": "NEW SIGNIFICANT VARITIES",
+    "mrp": 1000.0,
+    "price": 200.0,
+    "page": 4,
+    "raw": [
+      "140",
+      "15 CM APPLE-AIR PACK 15 CM",
+      "1000",
+      "200",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "141",
+    "name": "(Set of 3 tubes) \n30 CM TRIPLET (4IN1) 30 CM (4IN1)",
+    "category": "NEW SIGNIFICANT VARITIES",
+    "mrp": 1000.0,
+    "price": 200.0,
+    "page": 4,
+    "raw": [
+      "141",
+      "(Set of 3 tubes) \n30 CM TRIPLET (4IN1) 30 CM (4IN1)",
+      "1000",
+      "200",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "142",
+    "name": "WHIRL SPARKLERS 240",
+    "category": "NEW SIGNIFICANT VARITIES",
+    "mrp": 1000.0,
+    "price": 200.0,
+    "page": 4,
+    "raw": [
+      "142",
+      "WHIRL SPARKLERS 240",
+      "1000",
+      "200",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "143",
+    "name": "GANESH (16 ITEM BOX) (16 ITEM BOX)",
+    "category": "GIFT BOX",
+    "mrp": 330.0,
+    "price": 330.0,
+    "page": 4,
+    "raw": [
+      "143",
+      "GANESH (16 ITEM BOX) (16 ITEM BOX)",
+      "330",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "144",
+    "name": "TREAT (20 ITEM BOX) (20 ITEM BOX)",
+    "category": "GIFT BOX",
+    "mrp": 400.0,
+    "price": 400.0,
+    "page": 4,
+    "raw": [
+      "144",
+      "TREAT (20 ITEM BOX) (20 ITEM BOX)",
+      "400",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "145",
+    "name": "LEO (25 ITEM BOX) (25 ITEM BOX)",
+    "category": "GIFT BOX",
+    "mrp": 450.0,
+    "price": 450.0,
+    "page": 4,
+    "raw": [
+      "145",
+      "LEO (25 ITEM BOX) (25 ITEM BOX)",
+      "450",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "146",
+    "name": "LAXMI (30 ITEM BOX) (30 ITEM BOX)",
+    "category": "GIFT BOX",
+    "mrp": 550.0,
+    "price": 550.0,
+    "page": 4,
+    "raw": [
+      "146",
+      "LAXMI (30 ITEM BOX) (30 ITEM BOX)",
+      "550",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "147",
+    "name": "KGF (36 ITEM BOX) (36 ITEM BOX)",
+    "category": "GIFT BOX",
+    "mrp": 600.0,
+    "price": 600.0,
+    "page": 4,
+    "raw": [
+      "147",
+      "KGF (36 ITEM BOX) (36 ITEM BOX)",
+      "600",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "148",
+    "name": "PUBG (41 ITEM BOX) (41 ITEM BOX)",
+    "category": "GIFT BOX",
+    "mrp": 800.0,
+    "price": 800.0,
+    "page": 4,
+    "raw": [
+      "148",
+      "PUBG (41 ITEM BOX) (41 ITEM BOX)",
+      "800",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "149",
+    "name": "EVEREST (45 ITEM BOX) (45 ITEM BOX)",
+    "category": "GIFT BOX",
+    "mrp": 950.0,
+    "price": 950.0,
+    "page": 4,
+    "raw": [
+      "149",
+      "EVEREST (45 ITEM BOX) (45 ITEM BOX)",
+      "950",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "150",
+    "name": "BIG BOSS (51 ITEM BOX) (51 ITEM BOX)",
+    "category": "GIFT BOX",
+    "mrp": 1100.0,
+    "price": 1100.0,
+    "page": 4,
+    "raw": [
+      "150",
+      "BIG BOSS (51 ITEM BOX) (51 ITEM BOX)",
+      "1100",
+      "1 BOX"
+    ]
+  },
+  {
+    "sno": "151",
+    "name": "7 HILLS (60 ITEM BOX) (60 ITEM BOX)",
+    "category": "GIFT BOX",
+    "mrp": 1300.0,
+    "price": 1300.0,
+    "page": 4,
+    "raw": [
+      "151",
+      "7 HILLS (60 ITEM BOX) (60 ITEM BOX)",
+      "1300",
+      "1 BOX"
+    ]
+  }
+]
