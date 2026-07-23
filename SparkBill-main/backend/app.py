@@ -73,14 +73,20 @@ db.init_app(app)
 import json
 
 def seed_sample_data():
-    """Seed sample data from inventory_data.json if Product table is empty."""
-    if Product.query.first() is None:
-        json_path = os.path.abspath(os.path.join(basedir, '..', 'database', 'inventory_data.json'))
-        if os.path.exists(json_path):
-            with open(json_path, 'r', encoding='utf-8') as f:
-                items_data = json.load(f)
-            sample_products = [
-                Product(
+    """Seed sample data from inventory_data.json, adding any missing products."""
+    json_path = os.path.abspath(os.path.join(basedir, '..', 'database', 'inventory_data.json'))
+    if os.path.exists(json_path):
+        with open(json_path, 'r', encoding='utf-8') as f:
+            items_data = json.load(f)
+        
+        # Get existing SKUs from the database
+        existing_products = Product.query.with_entities(Product.sku).all()
+        existing_skus = {p.sku for p in existing_products}
+        
+        new_products = []
+        for item in items_data:
+            if str(item['sku']) not in existing_skus:
+                new_products.append(Product(
                     sku=str(item['sku']),
                     name=str(item['name']),
                     description=str(item.get('description', '')),
@@ -89,12 +95,15 @@ def seed_sample_data():
                     mrp=float(item['mrp']),
                     stock_quantity=int(item.get('stock_quantity', 100)),
                     category=str(item.get('category', 'General'))
-                ) for item in items_data
-            ]
-            db.session.bulk_save_objects(sample_products)
+                ))
+                
+        if new_products:
+            db.session.bulk_save_objects(new_products)
             db.session.commit()
-            print(f"[Database] Successfully seeded {len(sample_products)} products from PDF inventory.")
-        else:
+            print(f"[Database] Successfully seeded {len(new_products)} new products from inventory data.")
+    else:
+        # Fallback if json doesn't exist and DB is empty
+        if Product.query.first() is None:
             sample_products = [
                 Product(sku='001', name='Flower Pot - Special Large', description='Large flower pot crackers', price=250.00, cost_price=180.00, mrp=300.00, stock_quantity=50, category='Flower Pots'),
                 Product(sku='002', name='Laxmi Bombs (28 Pcs)', description='Pack of 28 laxmi bombs', price=180.00, cost_price=120.00, mrp=180.00, stock_quantity=100, category='Sound Crackers'),
@@ -378,9 +387,9 @@ def start_app():
     if os.environ.get('WERKZEUG_RUN_MAIN') != 'true':
         threading.Timer(1.2, lambda: webbrowser.open('http://127.0.0.1:5000')).start()
     print("=" * 60)
-    print(" SparkBill POS App is running at http://127.0.0.1:5000")
+    print(" SparkBill POS App is running at http://0.0.0.0:5000 (accessible on local network)")
     print("=" * 60)
-    app.run(debug=True, port=5000)
+    app.run(host='0.0.0.0', debug=True, port=5000)
 
 
 if __name__ == '__main__':
