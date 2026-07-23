@@ -1,9 +1,6 @@
 Flask==2.3.3
 Flask-CORS==4.0.0
 Flask-SQLAlchemy==3.1.1
-<<<<<<< HEAD
 mysql-connector-python==8.2.0
-=======
->>>>>>> e52a7f2fda1925932fd783d6ed5c998a279a268a
 PyMySQL==1.1.0
 python-dotenv==1.0.0
