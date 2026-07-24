@@ -147,6 +147,16 @@ function setupEventListeners() {
     document.getElementById('sku-input').addEventListener('keypress', (e) => {
         if (e.key === 'Enter') addToCart();
     });
+    document.getElementById('sku-input').addEventListener('input', (e) => {
+        const sku = e.target.value.trim();
+        const preview = document.getElementById('product-preview');
+        if (!sku) {
+            preview.textContent = '-';
+            return;
+        }
+        const product = products.find(p => p.sku === sku);
+        preview.textContent = product ? product.name : 'Not found';
+    });
     document.getElementById('qty-input').addEventListener('keypress', (e) => {
         if (e.key === 'Enter') addToCart();
     });
@@ -224,6 +234,7 @@ function addToCart() {
     renderCart();
     skuInput.value = '';
     qtyInput.value = 1;
+    document.getElementById('product-preview').textContent = '-';
     skuInput.focus();
 }
 
@@ -292,6 +303,7 @@ function voidCart() {
         cartItems = [];
         renderCart();
         document.getElementById('received-input').value = '';
+        document.getElementById('product-preview').textContent = '-';
     }
 }
 
@@ -341,6 +353,8 @@ async function checkout() {
             document.getElementById('customer-name').value = '';
             document.getElementById('customer-mobile').value = '';
             document.getElementById('received-input').value = '';
+            document.getElementById('sku-input').value = '';
+            document.getElementById('product-preview').textContent = '-';
             await loadProducts();
             await loadStats();
         } else {

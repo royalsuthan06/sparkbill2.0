@@ -235,20 +235,26 @@
             </section>
             <section class="bg-surface border border-outline-variant p-4 shadow-sm">
                 <div class="grid grid-cols-12 gap-4">
-                    <div class="col-span-8">
+                    <div class="col-span-3">
                         <label class="block text-on-surface-variant font-body-sm text-body-sm mb-1"
                             for="sku-input">Enter S.No / Product ID (F1)</label>
                         <div class="relative">
                             <input autofocus
-                                class="w-full bg-surface-container-low border border-outline p-4 font-data-lg text-data-lg text-on-surface input-focus-ring placeholder:text-outline transition-all outline-none"
+                                class="w-full bg-surface-container-low border border-outline p-3 font-data-md text-data-md text-on-surface input-focus-ring placeholder:text-outline transition-all outline-none"
                                 id="sku-input" placeholder="Scan Barcode or Type SKU..." type="text" />
-                            <div class="absolute right-4 top-1/2 -translate-y-1/2">
+                            <div class="absolute right-3 top-1/2 -translate-y-1/2">
                                 <span
                                     class="bg-surface-container-high text-on-surface-variant px-2 py-0.5 rounded font-data-sm text-[10px] border border-outline-variant">F1</span>
                             </div>
                         </div>
                     </div>
-                    <div class="col-span-4">
+                    <div class="col-span-6 flex items-end">
+                        <div class="w-full bg-surface-container-low border border-outline rounded p-4 min-h-[52px] flex flex-col justify-center">
+                            <span class="text-[11px] font-bold uppercase text-on-surface-variant block mb-0.5">Product</span>
+                            <span class="font-data-lg text-data-lg text-on-surface block" id="product-preview">-</span>
+                        </div>
+                    </div>
+                    <div class="col-span-3">
                         <label class="block text-on-surface-variant font-body-sm text-body-sm mb-1"
                             for="qty-input">Quantity (F2)</label>
                         <div class="relative">
