@@ -95,13 +95,13 @@ function renderInventoryTable() {
 
     if (priceFilter !== 'all') {
         if (priceFilter === 'under-100') {
-            filtered = filtered.filter(p => p.mrp < 100);
+            filtered = filtered.filter(p => p.price < 100);
         } else if (priceFilter === '100-500') {
-            filtered = filtered.filter(p => p.mrp >= 100 && p.mrp <= 500);
+            filtered = filtered.filter(p => p.price >= 100 && p.price <= 500);
         } else if (priceFilter === '500-1000') {
-            filtered = filtered.filter(p => p.mrp > 500 && p.mrp <= 1000);
+            filtered = filtered.filter(p => p.price > 500 && p.price <= 1000);
         } else if (priceFilter === 'over-1000') {
-            filtered = filtered.filter(p => p.mrp > 1000);
+            filtered = filtered.filter(p => p.price > 1000);
         }
     }
 
@@ -765,7 +765,7 @@ function showToast(message, type = 'success') {
     if (!container) return;
 
     const toast = document.createElement('div');
-    toast.className = `flex items-center gap-3 bg-white border border-outline-variant px-4 py-3 shadow-2xl rounded-lg pointer-events-auto transform translate-y-[-20px] opacity-0 transition-all duration-300 ease-out border-l-4 ${
+    toast.className = `flex items-center gap-4 bg-white border border-outline-variant px-6 py-4 shadow-2xl rounded-xl pointer-events-auto transform translate-y-[-20px] opacity-0 transition-all duration-300 ease-out border-l-4 min-w-[320px] md:min-w-[400px] ${
         type === 'success' ? 'border-l-emerald-500' : 'border-l-red-500'
     }`;
 
@@ -773,11 +773,11 @@ function showToast(message, type = 'success') {
     const iconColor = type === 'success' ? 'text-emerald-500' : 'text-red-500';
 
     toast.innerHTML = `
-        <span class="material-symbols-outlined ${iconColor}">${icon}</span>
+        <span class="material-symbols-outlined text-[28px] ${iconColor}">${icon}</span>
         <div class="flex-1">
-            <p class="text-body-sm font-semibold text-on-surface">${message}</p>
+            <p class="text-base font-bold text-on-surface">${message}</p>
         </div>
-        <button class="material-symbols-outlined text-[18px] text-on-surface-variant hover:text-on-surface ml-2" onclick="this.parentElement.remove()">close</button>
+        <button class="material-symbols-outlined text-[20px] text-on-surface-variant hover:text-on-surface ml-3" onclick="this.parentElement.remove()">close</button>
     `;
 
     container.appendChild(toast);
