@@ -4,6 +4,8 @@ let products = [];
 let cartItems = [];
 let currentView = 'billing';
 let editingProductId = null;
+let allSales = [];
+let activePeriod = 'today';
 
 async function init() {
     updateDate();
@@ -23,6 +25,7 @@ async function loadProducts() {
     try {
         const res = await fetch(`${API_BASE}/products`);
         products = await res.json();
+        populateCategoryFilter();
         renderInventoryTable();
     } catch (err) {
         console.error('Failed to load products:', err);
@@ -37,11 +40,6 @@ async function loadStats() {
         document.getElementById('stat-low-stock').textContent = stats.low_stock_items;
         document.getElementById('stat-inventory-value').textContent = `₹${stats.inventory_value.toFixed(2)}`;
         document.getElementById('stat-categories').textContent = [...new Set(products.map(p => p.category))].length;
-
-        document.getElementById('report-today-sales').textContent = `₹${stats.today_sales.toFixed(2)}`;
-        document.getElementById('report-today-count').textContent = stats.today_count;
-        const avgBill = stats.today_count > 0 ? (stats.today_sales / stats.today_count).toFixed(2) : '0.00';
-        document.getElementById('report-avg-bill').textContent = `₹${avgBill}`;
     } catch (err) {
         console.error('Failed to load stats:', err);
     }
@@ -50,20 +48,93 @@ async function loadStats() {
 async function loadSales() {
     try {
         const res = await fetch(`${API_BASE}/sales`);
-        const sales = await res.json();
-        renderReportsTable(sales);
+        allSales = await res.json();
+        filterReports();
     } catch (err) {
         console.error('Failed to load sales:', err);
     }
 }
 
+function populateCategoryFilter() {
+    const filterCategory = document.getElementById('filter-category');
+    if (!filterCategory) return;
+
+    const currentValue = filterCategory.value || 'all';
+
+    // Get unique categories and filter out empty values
+    const categories = [...new Set(products.map(p => p.category).filter(Boolean))].sort();
+
+    let html = '<option value="all">All Categories</option>';
+    categories.forEach(cat => {
+        html += `<option value="${cat}">${cat}</option>`;
+    });
+
+    filterCategory.innerHTML = html;
+
+    // Restore previous selection if it exists in the new list, else fall back to 'all'
+    if (categories.includes(currentValue) || currentValue === 'all') {
+        filterCategory.value = currentValue;
+    } else {
+        filterCategory.value = 'all';
+    }
+}
+
 function renderInventoryTable() {
     const tbody = document.getElementById('inventory-table-body');
-    tbody.innerHTML = products.map(p => {
+    if (!tbody) return;
+
+    const categoryFilter = document.getElementById('filter-category')?.value || 'all';
+    const priceFilter = document.getElementById('filter-price')?.value || 'all';
+    const stockFilter = document.getElementById('filter-stock')?.value || 'all';
+
+    let filtered = products;
+
+    if (categoryFilter !== 'all') {
+        filtered = filtered.filter(p => p.category === categoryFilter);
+    }
+
+    if (priceFilter !== 'all') {
+        if (priceFilter === 'under-100') {
+            filtered = filtered.filter(p => p.mrp < 100);
+        } else if (priceFilter === '100-500') {
+            filtered = filtered.filter(p => p.mrp >= 100 && p.mrp <= 500);
+        } else if (priceFilter === '500-1000') {
+            filtered = filtered.filter(p => p.mrp > 500 && p.mrp <= 1000);
+        } else if (priceFilter === 'over-1000') {
+            filtered = filtered.filter(p => p.mrp > 1000);
+        }
+    }
+
+    if (stockFilter !== 'all') {
+        if (stockFilter === 'low') {
+            filtered = filtered.filter(p => p.stock_quantity < 30);
+        } else if (stockFilter === 'warning') {
+            filtered = filtered.filter(p => p.stock_quantity >= 30 && p.stock_quantity < 60);
+        } else if (stockFilter === 'healthy') {
+            filtered = filtered.filter(p => p.stock_quantity >= 60);
+        } else if (stockFilter === 'out') {
+            filtered = filtered.filter(p => p.stock_quantity === 0);
+        }
+    }
+
+    const countDisplay = document.getElementById('inventory-count-display');
+    if (countDisplay) {
+        if (filtered.length === products.length) {
+            countDisplay.textContent = `(Showing all ${products.length} products)`;
+        } else {
+            countDisplay.textContent = `(Showing ${filtered.length} of ${products.length} products)`;
+        }
+    }
+
+    tbody.innerHTML = filtered.map(p => {
         let badgeClass = 'bg-emerald-100 text-emerald-700 border-emerald-200';
         let dotClass = 'bg-emerald-500';
         let status = 'Healthy';
-        if (p.stock_quantity < 30) {
+        if (p.stock_quantity === 0) {
+            badgeClass = 'bg-slate-100 text-slate-700 border-slate-200';
+            dotClass = 'bg-slate-500';
+            status = 'Out of Stock';
+        } else if (p.stock_quantity < 30) {
             badgeClass = 'bg-red-100 text-red-700 border-red-200';
             dotClass = 'bg-red-500';
             status = 'Low Stock';
@@ -83,8 +154,7 @@ function renderInventoryTable() {
                         ${p.stock_quantity} ${status}
                     </span>
                 </td>
-                <td class="px-4 py-2 font-mono text-right text-on-surface outline-none">₹${p.cost_price.toFixed(2)}</td>
-                <td class="px-4 py-2 font-mono text-right text-on-surface outline-none">₹${p.mrp.toFixed(2)}</td>
+                <td class="px-4 py-2 font-mono text-right text-on-surface outline-none">₹${p.price.toFixed(2)}</td>
                 <td class="px-4 py-2 text-center">
                     <button class="text-on-surface-variant hover:text-primary transition-colors p-1 rounded-md" onclick="openEditProductModal(${p.id})">
                         <span class="material-symbols-outlined text-[18px]">edit</span>
@@ -171,6 +241,19 @@ function setupEventListeners() {
     document.getElementById('product-modal-cancel').addEventListener('click', closeProductModal);
     document.getElementById('product-modal-save').addEventListener('click', saveProduct);
 
+    // Filters
+    document.getElementById('filter-category').addEventListener('change', renderInventoryTable);
+    document.getElementById('filter-price').addEventListener('change', renderInventoryTable);
+    document.getElementById('filter-stock').addEventListener('change', renderInventoryTable);
+    document.getElementById('reset-filters-btn').addEventListener('click', resetFilters);
+
+    // Reports Filters
+    document.querySelectorAll('#period-btn-group [data-period]').forEach(btn => {
+        btn.addEventListener('click', () => handlePeriodChange(btn.dataset.period));
+    });
+    document.getElementById('custom-start-date').addEventListener('change', filterReports);
+    document.getElementById('custom-end-date').addEventListener('change', filterReports);
+
     // Sale Modal
     document.getElementById('sale-modal-close').addEventListener('click', closeSaleModal);
     document.getElementById('sale-modal-backdrop').addEventListener('click', closeSaleModal);
@@ -200,13 +283,13 @@ function addToCart() {
     const qty = parseInt(qtyInput.value) || 1;
 
     if (qty <= 0) {
-        alert('Quantity must be greater than 0!');
+        showToast('Quantity must be greater than 0!', 'error');
         return;
     }
 
     const product = products.find(p => p.sku === sku);
     if (!product) {
-        alert('Product not found!');
+        showToast('Product not found!', 'error');
         return;
     }
 
@@ -215,7 +298,7 @@ function addToCart() {
     const totalQtyAfterAdd = currentCartQty + qty;
 
     if (totalQtyAfterAdd > product.stock_quantity) {
-        alert(`Not enough stock for ${product.name}! Only ${product.stock_quantity} left in stock!`);
+        showToast(`Not enough stock for ${product.name}! Only ${product.stock_quantity} left in stock!`, 'error');
         return;
     }
 
@@ -226,7 +309,6 @@ function addToCart() {
             product_id: product.id,
             product_name: product.name,
             price: product.price,
-            mrp: product.mrp,
             quantity: qty
         });
     }
@@ -254,7 +336,7 @@ function renderCart() {
                 <td class="p-padding-cell font-body-md text-on-surface">${item.product_name}</td>
                 <td class="p-padding-cell text-center font-data-md ${stockClass}">${stock}</td>
                 <td class="p-padding-cell font-data-md text-right text-on-surface-variant">
-                    ₹${item.price.toFixed(2)} <span class="line-through">/₹${item.mrp.toFixed(2)}</span>
+                    ₹${item.price.toFixed(2)}
                 </td>
                 <td class="p-padding-cell text-right">
                     <input type="number" class="w-20 bg-transparent border border-outline-variant rounded p-1 text-center text-primary font-bold" value="${item.quantity}" min="1" onchange="updateCartItemQty(${item.product_id}, this.value)" />
@@ -283,7 +365,7 @@ function updateCartItemQty(productId, qty) {
     const newQty = parseInt(qty) || 1;
     if (item && product) {
         if (newQty > product.stock_quantity) {
-            alert(`Not enough stock for ${product.name}! Only ${product.stock_quantity} left in stock!`);
+            showToast(`Not enough stock for ${product.name}! Only ${product.stock_quantity} left in stock!`, 'error');
             renderCart(); // reset to previous value
             return;
         }
@@ -316,7 +398,7 @@ function updateBalance() {
 
 async function checkout() {
     if (cartItems.length === 0) {
-        alert('Cart is empty!');
+        showToast('Cart is empty!', 'error');
         return;
     }
 
@@ -347,7 +429,7 @@ async function checkout() {
         });
 
         if (res.ok) {
-            alert('Sale completed successfully!');
+            showToast('Sale completed successfully!', 'success');
             cartItems = [];
             renderCart();
             document.getElementById('customer-name').value = '';
@@ -357,9 +439,10 @@ async function checkout() {
             document.getElementById('product-preview').textContent = '-';
             await loadProducts();
             await loadStats();
+            await loadSales();
         } else {
             const errorData = await res.json();
-            alert(`Failed to complete sale: ${errorData.error || 'Unknown error'}`);
+            showToast(`Failed to complete sale: ${errorData.error || 'Unknown error'}`, 'error');
         }
     } catch (err) {
         console.error(err);
@@ -374,9 +457,7 @@ function openAddProductModal() {
     document.getElementById('product-name').value = '';
     document.getElementById('product-category').value = 'Sparklers';
     document.getElementById('product-stock').value = 0;
-    document.getElementById('product-cost-price').value = 0;
     document.getElementById('product-price').value = 0;
-    document.getElementById('product-mrp').value = 0;
     document.getElementById('product-modal').classList.remove('hidden');
 }
 
@@ -389,9 +470,7 @@ function openEditProductModal(id) {
     document.getElementById('product-name').value = product.name;
     document.getElementById('product-category').value = product.category || 'Sparklers';
     document.getElementById('product-stock').value = product.stock_quantity;
-    document.getElementById('product-cost-price').value = product.cost_price;
     document.getElementById('product-price').value = product.price;
-    document.getElementById('product-mrp').value = product.mrp;
     document.getElementById('product-modal').classList.remove('hidden');
 }
 
@@ -399,21 +478,121 @@ function closeProductModal() {
     document.getElementById('product-modal').classList.add('hidden');
 }
 
+function resetFilters() {
+    document.getElementById('filter-category').value = 'all';
+    document.getElementById('filter-price').value = 'all';
+    document.getElementById('filter-stock').value = 'all';
+    renderInventoryTable();
+}
+
+function filterReports() {
+    if (!allSales || allSales.length === 0) {
+        updateReportStats(0, 0, 0);
+        renderReportsTable([]);
+        return;
+    }
+
+    const today = new Date();
+    
+    // Helper to get start/end of a local date
+    const getStartOfDay = (date) => new Date(date.getFullYear(), date.getMonth(), date.getDate(), 0, 0, 0, 0);
+    const getEndOfDay = (date) => new Date(date.getFullYear(), date.getMonth(), date.getDate(), 23, 59, 59, 999);
+
+    let startDate, endDate;
+
+    if (activePeriod === 'today') {
+        startDate = getStartOfDay(today);
+        endDate = getEndOfDay(today);
+    } else if (activePeriod === 'yesterday') {
+        const yesterday = new Date(today);
+        yesterday.setDate(today.getDate() - 1);
+        startDate = getStartOfDay(yesterday);
+        endDate = getEndOfDay(yesterday);
+    } else if (activePeriod === '7d') {
+        const sevenDaysAgo = new Date(today);
+        sevenDaysAgo.setDate(today.getDate() - 6);
+        startDate = getStartOfDay(sevenDaysAgo);
+        endDate = getEndOfDay(today);
+    } else if (activePeriod === 'custom') {
+        const startVal = document.getElementById('custom-start-date').value;
+        const endVal = document.getElementById('custom-end-date').value;
+
+        if (startVal) {
+            startDate = getStartOfDay(new Date(startVal));
+        } else {
+            startDate = new Date(0); // far past
+        }
+
+        if (endVal) {
+            endDate = getEndOfDay(new Date(endVal));
+        } else {
+            endDate = getEndOfDay(today);
+        }
+    }
+
+    const filtered = allSales.filter(sale => {
+        const saleDate = new Date(sale.sale_date);
+        return saleDate >= startDate && saleDate <= endDate;
+    });
+
+    const totalSales = filtered.reduce((sum, s) => sum + (s.total_amount || 0), 0);
+    const totalCount = filtered.length;
+    const avgBill = totalCount > 0 ? totalSales / totalCount : 0;
+
+    updateReportStats(totalSales, totalCount, avgBill);
+    renderReportsTable(filtered);
+}
+
+function updateReportStats(totalSales, totalCount, avgBill) {
+    document.getElementById('report-today-sales').textContent = `₹${totalSales.toFixed(2)}`;
+    document.getElementById('report-today-count').textContent = totalCount;
+    document.getElementById('report-avg-bill').textContent = `₹${avgBill.toFixed(2)}`;
+}
+
+function handlePeriodChange(period) {
+    activePeriod = period;
+    
+    // Toggle active styles on buttons
+    document.querySelectorAll('#period-btn-group [data-period]').forEach(btn => {
+        if (btn.dataset.period === period) {
+            btn.className = "px-3 py-1 text-sm font-bold bg-primary text-white rounded shadow-sm";
+        } else {
+            btn.className = "px-3 py-1 text-sm font-bold text-on-surface-variant hover:bg-surface-container-low rounded";
+        }
+    });
+
+    // Show/hide custom date range inputs
+    const customContainer = document.getElementById('custom-date-container');
+    if (period === 'custom') {
+        customContainer.classList.remove('hidden');
+        
+        // Default start/end input fields if empty
+        const startInput = document.getElementById('custom-start-date');
+        const endInput = document.getElementById('custom-end-date');
+        const todayStr = new Date().toISOString().split('T')[0];
+        
+        if (!startInput.value) startInput.value = todayStr;
+        if (!endInput.value) endInput.value = todayStr;
+    } else {
+        customContainer.classList.add('hidden');
+    }
+
+    filterReports();
+}
+
 async function saveProduct() {
     const sku = document.getElementById('product-sku').value.trim();
     const name = document.getElementById('product-name').value.trim();
     const category = document.getElementById('product-category').value;
     const stock = parseInt(document.getElementById('product-stock').value) || 0;
-    const costPrice = parseFloat(document.getElementById('product-cost-price').value) || 0;
     const price = parseFloat(document.getElementById('product-price').value) || 0;
-    const mrp = parseFloat(document.getElementById('product-mrp').value) || 0;
 
     if (!sku || !name) {
-        alert('Please fill SKU and product name!');
+        showToast('Please fill SKU and product name!', 'error');
         return;
     }
 
-    const data = { sku, name, category, stock_quantity: stock, cost_price: costPrice, price, mrp };
+    const data = { sku, name, category, stock_quantity: stock, price };
 
     try {
         let res;
@@ -432,17 +611,17 @@ async function saveProduct() {
         }
 
         if (res.ok) {
-            alert('Product saved successfully!');
+            showToast('Product saved successfully!', 'success');
             closeProductModal();
             await loadProducts();
             await loadStats();
         } else {
             const errorData = await res.json();
-            alert(`Failed to save product: ${errorData.error || 'Unknown error'}`);
+            showToast(`Failed to save product: ${errorData.error || 'Unknown error'}`, 'error');
         }
     } catch (err) {
         console.error(err);
-        alert(`An error occurred: ${err.message}`);
+        showToast(`An error occurred: ${err.message}`, 'error');
     }
 }
 
@@ -579,6 +758,44 @@ function handleHotkeys(e) {
     if (e.key === 'F3') { e.preventDefault(); document.getElementById('customer-name').focus(); }
     if (e.key === 'F8') { e.preventDefault(); voidCart(); }
     if (e.key === 'F12') { e.preventDefault(); checkout(); }
+}
+
+function showToast(message, type = 'success') {
+    const container = document.getElementById('toast-container');
+    if (!container) return;
+
+    const toast = document.createElement('div');
+    toast.className = `flex items-center gap-3 bg-white border border-outline-variant px-4 py-3 shadow-2xl rounded-lg pointer-events-auto transform translate-y-[-20px] opacity-0 transition-all duration-300 ease-out border-l-4 ${
+        type === 'success' ? 'border-l-emerald-500' : 'border-l-red-500'
+    }`;
+
+    const icon = type === 'success' ? 'check_circle' : 'error';
+    const iconColor = type === 'success' ? 'text-emerald-500' : 'text-red-500';
+
+    toast.innerHTML = `
+        <span class="material-symbols-outlined ${iconColor}">${icon}</span>
+        <div class="flex-1">
+            <p class="text-body-sm font-semibold text-on-surface">${message}</p>
+        </div>
+        <button class="material-symbols-outlined text-[18px] text-on-surface-variant hover:text-on-surface ml-2" onclick="this.parentElement.remove()">close</button>
+    `;
+
+    container.appendChild(toast);
+
+    // Trigger animation
+    setTimeout(() => {
+        toast.className = toast.className.replace('translate-y-[-20px] opacity-0', 'translate-y-0 opacity-100');
+    }, 10);
+
+    // Auto dismiss
+    setTimeout(() => {
+        if (toast.parentNode) {
+            toast.className = toast.className.replace('translate-y-0 opacity-100', 'translate-y-[-20px] opacity-0');
+            setTimeout(() => {
+                if (toast.parentNode) toast.remove();
+            }, 300);
+        }
+    }, 3500);
 }
 
 init();

@@ -91,8 +91,6 @@ def seed_sample_data():
                     name=str(item['name']),
                     description=str(item.get('description', '')),
                     price=float(item['price']),
-                    cost_price=float(item.get('cost_price', 0)),
-                    mrp=float(item['mrp']),
                     stock_quantity=int(item.get('stock_quantity', 100)),
                     category=str(item.get('category', 'General'))
                 ))
@@ -105,11 +103,11 @@ def seed_sample_data():
         # Fallback if json doesn't exist and DB is empty
         if Product.query.first() is None:
             sample_products = [
-                Product(sku='001', name='Flower Pot - Special Large', description='Large flower pot crackers', price=250.00, cost_price=180.00, mrp=300.00, stock_quantity=50, category='Flower Pots'),
-                Product(sku='002', name='Laxmi Bombs (28 Pcs)', description='Pack of 28 laxmi bombs', price=180.00, cost_price=120.00, mrp=180.00, stock_quantity=100, category='Sound Crackers'),
-                Product(sku='003', name='Sparklers - Multicolour 15cm', description='Multicolour sparklers, 15cm', price=45.00, cost_price=25.00, mrp=45.00, stock_quantity=500, category='Sparklers'),
-                Product(sku='004', name='Chakra - 5 Inch', description='5 inch chakra ground spinner', price=60.00, cost_price=40.00, mrp=75.00, stock_quantity=150, category='Visual Effects'),
-                Product(sku='005', name='Rockets - 10 Pcs', description='Pack of 10 sky rockets', price=120.00, cost_price=80.00, mrp=150.00, stock_quantity=80, category='Rocket'),
+                Product(sku='001', name='Flower Pot - Special Large', description='Large flower pot crackers', price=250.00, stock_quantity=50, category='Flower Pots'),
+                Product(sku='002', name='Laxmi Bombs (28 Pcs)', description='Pack of 28 laxmi bombs', price=180.00, stock_quantity=100, category='Sound Crackers'),
+                Product(sku='003', name='Sparklers - Multicolour 15cm', description='Multicolour sparklers, 15cm', price=45.00, stock_quantity=500, category='Sparklers'),
+                Product(sku='004', name='Chakra - 5 Inch', description='5 inch chakra ground spinner', price=60.00, stock_quantity=150, category='Visual Effects'),
+                Product(sku='005', name='Rockets - 10 Pcs', description='Pack of 10 sky rockets', price=120.00, stock_quantity=80, category='Rocket'),
             ]
             db.session.bulk_save_objects(sample_products)
             db.session.commit()
@@ -133,8 +131,6 @@ def get_products():
             'name': p.name,
             'description': p.description or '',
             'price': float(p.price) if p.price is not None else 0.0,
-            'cost_price': float(p.cost_price) if p.cost_price is not None else 0.0,
-            'mrp': float(p.mrp) if p.mrp is not None else 0.0,
             'stock_quantity': p.stock_quantity or 0,
             'category': p.category or ''
         } for p in products
@@ -152,8 +148,6 @@ def get_product_by_sku(sku):
         'name': product.name,
         'description': product.description or '',
         'price': float(product.price) if product.price is not None else 0.0,
-        'cost_price': float(product.cost_price) if product.cost_price is not None else 0.0,
-        'mrp': float(product.mrp) if product.mrp is not None else 0.0,
         'stock_quantity': product.stock_quantity or 0,
         'category': product.category or ''
     })
@@ -165,7 +159,7 @@ def add_product():
         data = request.get_json()
         if not data:
             return jsonify({'error': 'No data provided'}), 400
-        required_fields = ['sku', 'name', 'price', 'mrp']
+        required_fields = ['sku', 'name', 'price']
         for field in required_fields:
             if field not in data:
                 return jsonify({'error': f'Missing required field: {field}'}), 400
@@ -180,8 +174,6 @@ def add_product():
             name=str(data['name']),
             description=str(data.get('description', '')),
             price=float(data['price']),
-            cost_price=float(data.get('cost_price', 0)),
-            mrp=float(data['mrp']),
             stock_quantity=int(data.get('stock_quantity', 0)),
             category=str(data.get('category', ''))
         )
@@ -210,8 +202,6 @@ def update_product(product_id):
         product.name = str(data.get('name', product.name))
         product.description = str(data.get('description', product.description))
         product.price = float(data.get('price', product.price))
-        product.cost_price = float(data.get('cost_price', product.cost_price))
-        product.mrp = float(data.get('mrp', product.mrp))
         product.stock_quantity = int(data.get('stock_quantity', product.stock_quantity))
         product.category = str(data.get('category', product.category))
         db.session.commit()
@@ -306,7 +296,6 @@ def create_sale():
                 product_name=item['product_name'],
                 quantity=int(item['quantity']),
                 price=float(item['price']),
-                mrp=float(item['mrp']),
                 total=float(item['price']) * int(item['quantity'])
             )
             db.session.add(sale_item)
@@ -332,7 +321,6 @@ def get_sale(sale_id):
             'product_name': i.product_name,
             'quantity': i.quantity,
             'price': float(i.price) if i.price is not None else 0.0,
-            'mrp': float(i.mrp) if i.mrp is not None else 0.0,
             'total': float(i.total) if i.total is not None else 0.0
         } for i in sale.items
     ]

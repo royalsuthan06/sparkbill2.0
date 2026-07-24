@@ -285,7 +285,7 @@
                                     Stock</th>
                                 <th
                                     class="p-padding-cell font-body-sm text-body-sm text-on-surface font-bold uppercase tracking-wider text-right">
-                                    Price / MRP</th>
+                                    Price</th>
                                 <th
                                     class="p-padding-cell font-body-sm text-body-sm text-on-surface font-bold uppercase tracking-wider text-right w-24">
                                     Qty</th>
@@ -375,22 +375,33 @@
         <section class="flex flex-col md:flex-row md:items-end justify-between gap-4 py-2">
             <div>
                 <h1 class="text-display-bold text-on-surface">Arun Crackers Inventory</h1>
-                <p class="text-body-md text-on-surface-variant">Manage cracker stock levels, pricing, and product
-                    catalog.</p>
+                <p class="text-body-md text-on-surface-variant">Manage cracker stock levels, pricing, and product catalog. <span id="inventory-count-display" class="font-semibold text-primary"></span></p>
             </div>
             <div class="flex flex-wrap gap-2 items-center">
                 <div class="flex gap-2 items-center">
-                    <button
-                        class="bg-surface border border-outline-variant rounded px-3 py-1.5 text-body-sm hover:bg-surface-container-low flex items-center gap-1 shadow-sm">
-                        Category <span class="material-symbols-outlined text-sm">expand_more</span>
-                    </button>
-                    <button
-                        class="bg-surface border border-outline-variant rounded px-3 py-1.5 text-body-sm hover:bg-surface-container-low flex items-center gap-1 shadow-sm">
-                        Price Range <span class="material-symbols-outlined text-sm">expand_more</span>
-                    </button>
-                    <button
-                        class="bg-surface border border-outline-variant rounded px-3 py-1.5 text-body-sm hover:bg-surface-container-low flex items-center gap-1 shadow-sm">
-                        Stock Status <span class="material-symbols-outlined text-sm">expand_more</span>
+                    <select id="filter-category"
+                        class="bg-surface border border-outline-variant rounded px-3 py-1.5 text-body-sm hover:bg-surface-container-low shadow-sm outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all text-on-surface cursor-pointer">
+                        <option value="all">All Categories</option>
+                    </select>
+                    <select id="filter-price"
+                        class="bg-surface border border-outline-variant rounded px-3 py-1.5 text-body-sm hover:bg-surface-container-low shadow-sm outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all text-on-surface cursor-pointer">
+                        <option value="all">All Prices</option>
+                        <option value="under-100">Under ₹100</option>
+                        <option value="100-500">₹100 - ₹500</option>
+                        <option value="500-1000">₹500 - ₹1000</option>
+                        <option value="over-1000">Over ₹1000</option>
+                    </select>
+                    <select id="filter-stock"
+                        class="bg-surface border border-outline-variant rounded px-3 py-1.5 text-body-sm hover:bg-surface-container-low shadow-sm outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all text-on-surface cursor-pointer">
+                        <option value="all">All Stock Statuses</option>
+                        <option value="healthy">Healthy (>= 60)</option>
+                        <option value="warning">Warning (30-59)</option>
+                        <option value="low">Low Stock (&lt; 30)</option>
+                        <option value="out">Out of Stock</option>
+                    </select>
+                    <button id="reset-filters-btn"
+                        class="bg-surface border border-outline-variant rounded px-3 py-1.5 text-body-sm text-on-surface-variant hover:text-primary hover:bg-surface-container-low flex items-center gap-1 shadow-sm transition-all">
+                        <span class="material-symbols-outlined text-sm">filter_alt_off</span> Reset
                     </button>
                 </div>
                 <button
@@ -437,10 +448,7 @@
                                 Stock Level</th>
                             <th
                                 class="px-4 py-3 text-[12px] font-bold text-on-surface uppercase tracking-wider text-right">
-                                Cost Price</th>
-                            <th
-                                class="px-4 py-3 text-[12px] font-bold text-on-surface uppercase tracking-wider text-right">
-                                MRP</th>
+                                Price</th>
                             <th
                                 class="px-4 py-3 text-[12px] font-bold text-on-surface uppercase tracking-wider text-center">
                                 Actions</th>
@@ -460,15 +468,30 @@
                     <h1 class="text-display-bold text-on-surface">Analytics Dashboard</h1>
                     <p class="text-body-md text-on-surface-variant">Real-time performance metrics for Arun Crackers</p>
                 </div>
-                <div class="flex items-center bg-surface-container-lowest border border-outline-variant rounded p-1">
-                    <button class="px-3 py-1 text-sm font-bold bg-primary text-white rounded shadow-sm"
-                        data-period="today">Today</button>
-                    <button
-                        class="px-3 py-1 text-sm font-bold text-on-surface-variant hover:bg-surface-container-low rounded"
-                        data-period="yesterday">Yesterday</button>
-                    <button
-                        class="px-3 py-1 text-sm font-bold text-on-surface-variant hover:bg-surface-container-low rounded"
-                        data-period="7d">Last 7 Days</button>
+                <div class="flex flex-wrap items-center gap-2">
+                    <div class="flex items-center bg-surface-container-lowest border border-outline-variant rounded p-1" id="period-btn-group">
+                        <button class="px-3 py-1 text-sm font-bold bg-primary text-white rounded shadow-sm"
+                            data-period="today">Today</button>
+                        <button
+                            class="px-3 py-1 text-sm font-bold text-on-surface-variant hover:bg-surface-container-low rounded"
+                            data-period="yesterday">Yesterday</button>
+                        <button
+                            class="px-3 py-1 text-sm font-bold text-on-surface-variant hover:bg-surface-container-low rounded"
+                            data-period="7d">Last 7 Days</button>
+                        <button
+                            class="px-3 py-1 text-sm font-bold text-on-surface-variant hover:bg-surface-container-low rounded"
+                            data-period="custom">Custom</button>
+                    </div>
+                    <div id="custom-date-container" class="hidden flex items-center gap-2 border border-outline-variant rounded bg-surface-container-lowest p-1 shadow-sm">
+                        <div class="flex items-center gap-1.5 pl-1.5">
+                            <span class="material-symbols-outlined text-[16px] text-on-surface-variant">calendar_today</span>
+                            <input type="date" id="custom-start-date" class="bg-transparent border-none py-0.5 px-1 text-body-sm font-data-md text-on-surface outline-none focus:ring-0 w-[125px] h-7" />
+                        </div>
+                        <span class="text-on-surface-variant text-[10px] font-bold uppercase">to</span>
+                        <div class="flex items-center gap-1.5 pr-1.5">
+                            <input type="date" id="custom-end-date" class="bg-transparent border-none py-0.5 px-1 text-body-sm font-data-md text-on-surface outline-none focus:ring-0 w-[125px] h-7" />
+                        </div>
+                    </div>
                 </div>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-4 gap-gutter">
@@ -587,25 +610,11 @@
                             id="product-stock" type="number" value="0" />
                     </div>
                 </div>
-                <div class="grid grid-cols-3 gap-4">
-                    <div class="space-y-1">
-                        <label class="text-[11px] font-bold uppercase text-on-surface-variant">Cost Price</label>
-                        <input
-                            class="w-full bg-white border border-outline-variant rounded px-3 py-2 outline-none focus:border-primary text-on-surface"
-                            id="product-cost-price" type="number" step="0.01" value="0" />
-                    </div>
-                    <div class="space-y-1">
-                        <label class="text-[11px] font-bold uppercase text-on-surface-variant">Selling Price</label>
-                        <input
-                            class="w-full bg-white border border-outline-variant rounded px-3 py-2 outline-none focus:border-primary text-on-surface"
-                            id="product-price" type="number" step="0.01" value="0" />
-                    </div>
-                    <div class="space-y-1">
-                        <label class="text-[11px] font-bold uppercase text-on-surface-variant">MRP</label>
-                        <input
-                            class="w-full bg-white border border-outline-variant rounded px-3 py-2 outline-none focus:border-primary text-on-surface"
-                            id="product-mrp" type="number" step="0.01" value="0" />
-                    </div>
+                <div class="space-y-1">
+                    <label class="text-[11px] font-bold uppercase text-on-surface-variant">Price</label>
+                    <input
+                        class="w-full bg-white border border-outline-variant rounded px-3 py-2 outline-none focus:border-primary text-on-surface"
+                        id="product-price" type="number" step="0.01" value="0" />
                 </div>
             </div>
             <div class="p-4 bg-surface-container-low border-t border-outline-variant flex justify-end gap-3">
@@ -662,6 +671,9 @@
             </div>
         </div>
     </div>
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container" class="fixed right-4 top-4 z-[999] flex flex-col gap-2 pointer-events-none"></div>
 
     <script src="/static/js/app.js"></script>
 </body>
