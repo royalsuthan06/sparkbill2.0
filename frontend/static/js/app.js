@@ -280,6 +280,18 @@ function setupEventListeners() {
     document.getElementById('sale-modal-cancel').addEventListener('click', closeSaleModal);
     document.getElementById('sale-modal-print').addEventListener('click', () => printCurrentSale());
 
+    // PDF Modal
+    document.getElementById('pdf-modal-close').addEventListener('click', closePdfModal);
+    document.getElementById('pdf-modal-backdrop').addEventListener('click', closePdfModal);
+    document.getElementById('pdf-modal-cancel').addEventListener('click', closePdfModal);
+    document.getElementById('pdf-modal-print-btn').addEventListener('click', () => {
+        const iframe = document.getElementById('pdf-iframe');
+        if (iframe && iframe.contentWindow) {
+            iframe.contentWindow.focus();
+            iframe.contentWindow.print();
+        }
+    });
+
     // Hotkeys
     document.addEventListener('keydown', handleHotkeys);
 }
@@ -423,11 +435,9 @@ async function checkout() {
             const result = await res.json();
             showToast('Sale completed successfully!', 'success');
             
-            // Auto-print invoice PDF
+            // Auto-open print preview PDF in modal
             if (result && result.id) {
-                fetch(`${API_BASE}/sales/${result.id}/print`).catch(err => {
-                    console.error('Auto-print error:', err);
-                });
+                showPdfModal(result.id);
             }
             
             cartItems = [];
@@ -627,6 +637,17 @@ function closeSaleModal() {
     currentViewingSaleId = null;
 }
 
+function closePdfModal() {
+    document.getElementById('pdf-modal').classList.add('hidden');
+    document.getElementById('pdf-iframe').src = '';
+}
+
+function showPdfModal(saleId) {
+    const iframe = document.getElementById('pdf-iframe');
+    iframe.src = `/api/sales/${saleId}/pdf_inline`;
+    document.getElementById('pdf-modal').classList.remove('hidden');
+}
+
 async function viewSale(id) {
     try {
         const res = await fetch(`${API_BASE}/sales/${id}`);
@@ -702,19 +723,12 @@ async function viewSale(id) {
 }
 
 function printSale(id) {
-    viewSale(id);
-    fetch(`${API_BASE}/sales/${id}/print`).catch(err => {
-        console.error('Print error:', err);
-        showToast('Failed to print invoice', 'error');
-    });
+    showPdfModal(id);
 }
 
 function printCurrentSale() {
     if (!currentViewingSaleId) return;
-    fetch(`${API_BASE}/sales/${currentViewingSaleId}/print`).catch(err => {
-        console.error('Print error:', err);
-        showToast('Failed to print invoice', 'error');
-    });
+    showPdfModal(currentViewingSaleId);
 }
 
 function handleHotkeys(e) {

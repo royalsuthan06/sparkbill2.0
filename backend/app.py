@@ -366,7 +366,7 @@ def generate_invoice_pdf(sale):
     pdf_path = os.path.join(invoices_dir, f"{sale.invoice_number}.pdf")
     
     # Page setup - A4
-    doc = SimpleDocTemplate(pdf_path, pagesize=A4, rightMargin=40, leftMargin=40, topMargin=40, bottomMargin=40)
+    doc = SimpleDocTemplate(pdf_path, pagesize=A4, rightMargin=54, leftMargin=54, topMargin=54, bottomMargin=54)
     story = []
     
     styles = getSampleStyleSheet()
@@ -453,7 +453,6 @@ def generate_invoice_pdf(sale):
     
     # Invoice Header Banner
     story.append(Paragraph("Arun Crackers", title_style))
-    story.append(Paragraph("Ignite POS - Premium Point of Sale", subtitle_style))
     story.append(Spacer(1, 10))
     
     # Customer and Invoice Info Grid
@@ -468,7 +467,7 @@ def generate_invoice_pdf(sale):
          Paragraph("", info_header_style), Paragraph("", info_val_style)]
     ]
     
-    info_table = Table(info_data, colWidths=[110, 150, 110, 150])
+    info_table = Table(info_data, colWidths=[110, 133.5, 110, 133.5])
     info_table.setStyle(TableStyle([
         ('ALIGN', (0,0), (-1,-1), 'LEFT'),
         ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
@@ -504,7 +503,7 @@ def generate_invoice_pdf(sale):
         ])
         sno += 1
         
-    items_table = Table(table_data, colWidths=[40, 240, 80, 70, 90])
+    items_table = Table(table_data, colWidths=[40, 207, 80, 70, 90])
     items_table.setStyle(TableStyle([
         ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#cc1100')), # Crimson header
         ('ALIGN', (0, 0), (-1, 0), 'LEFT'),
@@ -524,7 +523,7 @@ def generate_invoice_pdf(sale):
         [Paragraph("", info_header_style), Paragraph("Amount Paid:", info_header_style), Paragraph(f"INR {float(sale.amount_paid):.2f}", info_header_style)],
         [Paragraph("", info_header_style), Paragraph("Balance:", info_header_style), Paragraph(f"INR {float(sale.balance):.2f}", info_header_style)]
     ]
-    total_table = Table(total_data, colWidths=[280, 120, 120])
+    total_table = Table(total_data, colWidths=[247, 120, 120])
     total_table.setStyle(TableStyle([
         ('ALIGN', (0,0), (-1,-1), 'RIGHT'),
         ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
@@ -548,17 +547,9 @@ def print_sale_invoice(sale_id):
     try:
         sale = Sale.query.get_or_404(sale_id)
         pdf_path = generate_invoice_pdf(sale)
-        
-        # open the PDF file in OS default viewer
         if os.path.exists(pdf_path):
-            if sys.platform == 'win32':
-                os.startfile(pdf_path)
-            elif sys.platform == 'darwin':
-                import subprocess
-                subprocess.Popen(['open', pdf_path])
-            else:
-                import subprocess
-                subprocess.Popen(['xdg-open', pdf_path])
+            # We don't trigger the OS startfile anymore to prevent opening a background browser.
+            # Instead, the client now displays the PDF inline in the app.
             return jsonify({'success': True, 'invoice_path': pdf_path}), 200
         else:
             return jsonify({'error': 'Invoice PDF file not found after generation'}), 500
@@ -577,6 +568,23 @@ def download_sale_invoice_pdf(sale_id):
         return send_from_directory(directory, filename, as_attachment=True)
     except Exception as e:
         print(f"Error serving pdf: {e}")
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/sales/<int:sale_id>/pdf_inline', methods=['GET'])
+def download_sale_invoice_pdf_inline(sale_id):
+    try:
+        sale = Sale.query.get_or_404(sale_id)
+        pdf_path = generate_invoice_pdf(sale)
+        directory = os.path.dirname(pdf_path)
+        filename = os.path.basename(pdf_path)
+        # return with as_attachment=False so it opens inline in iframe.
+        response = send_from_directory(directory, filename, as_attachment=False)
+        response.headers['Content-Disposition'] = f'inline; filename="{filename}"'
+        response.headers['Content-Type'] = 'application/pdf'
+        return response
+    except Exception as e:
+        print(f"Error serving pdf inline: {e}")
         return jsonify({'error': str(e)}), 500
 
 
