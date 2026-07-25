@@ -280,9 +280,7 @@
                                 <th
                                     class="p-padding-cell font-body-sm text-body-sm text-on-surface font-bold uppercase tracking-wider">
                                     Item Name</th>
-                                <th
-                                    class="p-padding-cell font-body-sm text-body-sm text-on-surface font-bold uppercase tracking-wider text-center">
-                                    Stock</th>
+
                                 <th
                                     class="p-padding-cell font-body-sm text-body-sm text-on-surface font-bold uppercase tracking-wider text-right">
                                     Price</th>
@@ -326,19 +324,7 @@
                     <span class="text-on-primary font-data-sm text-data-sm" id="units-display">Items: 0 Units</span>
                 </div>
             </div>
-            <div class="bg-surface border border-outline-variant p-4 flex flex-col gap-4 shadow-sm">
-                <div>
-                    <label class="block text-on-surface-variant font-body-sm text-body-sm mb-1"
-                        for="received-input">Amount Received</label>
-                    <input
-                        class="w-full bg-background border border-outline p-3 font-data-lg text-data-lg text-on-surface input-focus-ring outline-none"
-                        id="received-input" placeholder="0.00" step="0.01" type="number" />
-                </div>
-                <div class="flex justify-between items-center px-1">
-                    <span class="text-on-surface-variant font-body-sm">Balance to Return</span>
-                    <span class="font-data-lg text-headline-sm text-primary" id="balance-val">0.00</span>
-                </div>
-            </div>
+
             <div class="bg-surface-container-low border border-outline-variant p-3 rounded flex items-center gap-3">
                 <span class="material-symbols-outlined text-secondary">print</span>
                 <div>
@@ -391,14 +377,7 @@
                         <option value="500-1000">₹500 - ₹1000</option>
                         <option value="over-1000">Over ₹1000</option>
                     </select>
-                    <select id="filter-stock"
-                        class="bg-surface border border-outline-variant rounded px-3 py-1.5 text-body-sm hover:bg-surface-container-low shadow-sm outline-none focus:ring-1 focus:ring-primary focus:border-primary transition-all text-on-surface cursor-pointer">
-                        <option value="all">All Stock Statuses</option>
-                        <option value="healthy">Healthy (>= 60)</option>
-                        <option value="warning">Warning (30-59)</option>
-                        <option value="low">Low Stock (&lt; 30)</option>
-                        <option value="out">Out of Stock</option>
-                    </select>
+
                     <button id="reset-filters-btn"
                         class="bg-surface border border-outline-variant rounded px-3 py-1.5 text-body-sm text-on-surface-variant hover:text-primary hover:bg-surface-container-low flex items-center gap-1 shadow-sm transition-all">
                         <span class="material-symbols-outlined text-sm">filter_alt_off</span> Reset
@@ -411,20 +390,10 @@
                 </button>
             </div>
         </section>
-        <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-gutter">
+        <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-2 gap-gutter">
             <div class="bg-surface p-4 border border-outline-variant rounded shadow-sm">
                 <span class="text-[11px] font-bold text-on-surface-variant uppercase tracking-wider">Total SKUs</span>
                 <span class="block text-display-bold text-on-surface mt-1" id="stat-total-skus">0</span>
-            </div>
-            <div class="bg-surface p-4 border border-outline-variant rounded shadow-sm">
-                <span class="text-[11px] font-bold text-on-surface-variant uppercase tracking-wider">Low Stock
-                    Items</span>
-                <span class="block text-display-bold text-error mt-1" id="stat-low-stock">0</span>
-            </div>
-            <div class="bg-surface p-4 border border-outline-variant rounded shadow-sm">
-                <span class="text-[11px] font-bold text-on-surface-variant uppercase tracking-wider">Inventory
-                    Value</span>
-                <span class="block text-display-bold text-on-surface mt-1" id="stat-inventory-value">₹0</span>
             </div>
             <div class="bg-surface p-4 border border-outline-variant rounded shadow-sm">
                 <span class="text-[11px] font-bold text-on-surface-variant uppercase tracking-wider">Categories</span>
@@ -443,9 +412,7 @@
                                 Name</th>
                             <th class="px-4 py-3 text-[12px] font-bold text-on-surface uppercase tracking-wider">
                                 Category</th>
-                            <th
-                                class="px-4 py-3 text-[12px] font-bold text-on-surface uppercase tracking-wider text-center">
-                                Stock Level</th>
+
                             <th
                                 class="px-4 py-3 text-[12px] font-bold text-on-surface uppercase tracking-wider text-right">
                                 Price</th>
@@ -569,46 +536,38 @@
                             id="product-name" type="text" />
                     </div>
                 </div>
-                <div class="grid grid-cols-2 gap-4">
-                    <div class="space-y-1">
-                        <label class="text-[11px] font-bold uppercase text-on-surface-variant">Category</label>
-                        <select
-                            class="w-full bg-white border border-outline-variant rounded px-3 py-2 outline-none focus:border-primary text-on-surface"
-                            id="product-category">
-                            <option>One Sound Crackers</option>
-                            <option>Ground Chakkars</option>
-                            <option>Spinner Chakkars</option>
-                            <option>Flower Pots</option>
-                            <option>Atom Bomb</option>
-                            <option>Paper Bomb</option>
-                            <option>Rockets</option>
-                            <option>Bijili Crackers</option>
-                            <option>Twinkling Star</option>
-                            <option>Pencils</option>
-                            <option>Fancy Novelties</option>
-                            <option>Kids Special</option>
-                            <option>Fountain</option>
-                            <option>Deluxe Crackers ( Big )</option>
-                            <option>Garland ( Half Count )</option>
-                            <option>Garland ( Full Count )</option>
-                            <option>Aerial Novelties ( Single Pipe )</option>
-                            <option>Fancy Repeating Shots</option>
-                            <option>Fancy Multi Shots</option>
-                            <option>7 CM Sparklers</option>
-                            <option>10 CM Sparklers</option>
-                            <option>12 CM Sparklers</option>
-                            <option>30 CM Sparklers</option>
-                            <option>50 CM Sparklers</option>
-                            <option>New Significant Varities</option>
-                            <option>Gift Box</option>
-                        </select>
-                    </div>
-                    <div class="space-y-1">
-                        <label class="text-[11px] font-bold uppercase text-on-surface-variant">Stock Level</label>
-                        <input
-                            class="w-full bg-white border border-outline-variant rounded px-3 py-2 outline-none focus:border-primary text-on-surface"
-                            id="product-stock" type="number" value="0" />
-                    </div>
+                <div class="space-y-1">
+                    <label class="text-[11px] font-bold uppercase text-on-surface-variant">Category</label>
+                    <select
+                        class="w-full bg-white border border-outline-variant rounded px-3 py-2 outline-none focus:border-primary text-on-surface"
+                        id="product-category">
+                        <option>One Sound Crackers</option>
+                        <option>Ground Chakkars</option>
+                        <option>Spinner Chakkars</option>
+                        <option>Flower Pots</option>
+                        <option>Atom Bomb</option>
+                        <option>Paper Bomb</option>
+                        <option>Rockets</option>
+                        <option>Bijili Crackers</option>
+                        <option>Twinkling Star</option>
+                        <option>Pencils</option>
+                        <option>Fancy Novelties</option>
+                        <option>Kids Special</option>
+                        <option>Fountain</option>
+                        <option>Deluxe Crackers ( Big )</option>
+                        <option>Garland ( Half Count )</option>
+                        <option>Garland ( Full Count )</option>
+                        <option>Aerial Novelties ( Single Pipe )</option>
+                        <option>Fancy Repeating Shots</option>
+                        <option>Fancy Multi Shots</option>
+                        <option>7 CM Sparklers</option>
+                        <option>10 CM Sparklers</option>
+                        <option>12 CM Sparklers</option>
+                        <option>30 CM Sparklers</option>
+                        <option>50 CM Sparklers</option>
+                        <option>New Significant Varities</option>
+                        <option>Gift Box</option>
+                    </select>
                 </div>
                 <div class="space-y-1">
                     <label class="text-[11px] font-bold uppercase text-on-surface-variant">Price</label>

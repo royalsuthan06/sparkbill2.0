@@ -6,3 +6,12 @@ __pycache__/
 venv/
 *.log
 .DS_Store
+# Ignore compiled executables and build folders
+dist/
+build/
+*.spec
+
+# Ignore virtual environments
+venv/
+.venv/
+

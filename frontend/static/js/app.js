@@ -37,8 +37,6 @@ async function loadStats() {
         const res = await fetch(`${API_BASE}/stats`);
         const stats = await res.json();
         document.getElementById('stat-total-skus').textContent = stats.total_skus;
-        document.getElementById('stat-low-stock').textContent = stats.low_stock_items;
-        document.getElementById('stat-inventory-value').textContent = `₹${stats.inventory_value.toFixed(2)}`;
         document.getElementById('stat-categories').textContent = [...new Set(products.map(p => p.category))].length;
     } catch (err) {
         console.error('Failed to load stats:', err);
@@ -85,7 +83,6 @@ function renderInventoryTable() {
 
     const categoryFilter = document.getElementById('filter-category')?.value || 'all';
     const priceFilter = document.getElementById('filter-price')?.value || 'all';
-    const stockFilter = document.getElementById('filter-stock')?.value || 'all';
 
     let filtered = products;
 
@@ -105,17 +102,7 @@ function renderInventoryTable() {
         }
     }
 
-    if (stockFilter !== 'all') {
-        if (stockFilter === 'low') {
-            filtered = filtered.filter(p => p.stock_quantity < 30);
-        } else if (stockFilter === 'warning') {
-            filtered = filtered.filter(p => p.stock_quantity >= 30 && p.stock_quantity < 60);
-        } else if (stockFilter === 'healthy') {
-            filtered = filtered.filter(p => p.stock_quantity >= 60);
-        } else if (stockFilter === 'out') {
-            filtered = filtered.filter(p => p.stock_quantity === 0);
-        }
-    }
+
 
     const countDisplay = document.getElementById('inventory-count-display');
     if (countDisplay) {
@@ -127,33 +114,11 @@ function renderInventoryTable() {
     }
 
     tbody.innerHTML = filtered.map(p => {
-        let badgeClass = 'bg-emerald-100 text-emerald-700 border-emerald-200';
-        let dotClass = 'bg-emerald-500';
-        let status = 'Healthy';
-        if (p.stock_quantity === 0) {
-            badgeClass = 'bg-slate-100 text-slate-700 border-slate-200';
-            dotClass = 'bg-slate-500';
-            status = 'Out of Stock';
-        } else if (p.stock_quantity < 30) {
-            badgeClass = 'bg-red-100 text-red-700 border-red-200';
-            dotClass = 'bg-red-500';
-            status = 'Low Stock';
-        } else if (p.stock_quantity < 60) {
-            badgeClass = 'bg-amber-100 text-amber-700 border-amber-200';
-            dotClass = 'bg-amber-500';
-            status = 'Warning';
-        }
         return `
             <tr class="zebra-row hover:bg-surface-container transition-colors cursor-default">
                 <td class="px-4 py-2 font-mono text-primary font-semibold text-[13px]">${p.sku}</td>
                 <td class="px-4 py-2 text-on-surface font-semibold outline-none">${p.name}</td>
                 <td class="px-4 py-2 text-on-surface-variant outline-none">${p.category || '-'}</td>
-                <td class="px-4 py-2 text-center">
-                    <span class="inline-flex items-center px-2 py-0.5 rounded-full ${badgeClass} text-[11px] font-semibold border">
-                        <span class="w-1.5 h-1.5 rounded-full ${dotClass} mr-1.5"></span>
-                        ${p.stock_quantity} ${status}
-                    </span>
-                </td>
                 <td class="px-4 py-2 font-mono text-right text-on-surface outline-none">₹${p.price.toFixed(2)}</td>
                 <td class="px-4 py-2 text-center">
                     <button class="text-on-surface-variant hover:text-primary transition-colors p-1 rounded-md" onclick="openEditProductModal(${p.id})">
@@ -232,7 +197,6 @@ function setupEventListeners() {
     });
     document.getElementById('void-btn').addEventListener('click', voidCart);
     document.getElementById('checkout-btn').addEventListener('click', checkout);
-    document.getElementById('received-input').addEventListener('input', updateBalance);
 
     // Inventory
     document.getElementById('add-product-btn').addEventListener('click', openAddProductModal);
@@ -244,7 +208,6 @@ function setupEventListeners() {
     // Filters
     document.getElementById('filter-category').addEventListener('change', renderInventoryTable);
     document.getElementById('filter-price').addEventListener('change', renderInventoryTable);
-    document.getElementById('filter-stock').addEventListener('change', renderInventoryTable);
     document.getElementById('reset-filters-btn').addEventListener('click', resetFilters);
 
     // Reports Filters
@@ -294,13 +257,6 @@ function addToCart() {
     }
 
     const existing = cartItems.find(ci => ci.product_id === product.id);
-    const currentCartQty = existing ? existing.quantity : 0;
-    const totalQtyAfterAdd = currentCartQty + qty;
-
-    if (totalQtyAfterAdd > product.stock_quantity) {
-        showToast(`Not enough stock for ${product.name}! Only ${product.stock_quantity} left in stock!`, 'error');
-        return;
-    }
 
     if (existing) {
         existing.quantity += qty;
@@ -324,17 +280,11 @@ function renderCart() {
     const tbody = document.getElementById('bill-table-body');
     let sno = 1;
     tbody.innerHTML = cartItems.map(item => {
-        const product = products.find(p => p.id === item.product_id);
-        const stock = product ? product.stock_quantity : 0;
         const total = item.quantity * item.price;
-        let stockClass = '';
-        if (stock <30) stockClass='text-error';
-        else if (stock <60) stockClass='text-yellow-600';
         return `
             <tr class="zebra-row">
                 <td class="p-padding-cell font-data-md">${sno++}</td>
                 <td class="p-padding-cell font-body-md text-on-surface">${item.product_name}</td>
-                <td class="p-padding-cell text-center font-data-md ${stockClass}">${stock}</td>
                 <td class="p-padding-cell font-data-md text-right text-on-surface-variant">
                     ₹${item.price.toFixed(2)}
                 </td>
@@ -356,19 +306,12 @@ function renderCart() {
     document.getElementById('subtotal-display').textContent = subtotal.toFixed(2);
     document.getElementById('grand-total-val').textContent = subtotal.toFixed(2);
     document.getElementById('units-display').textContent = `Items: ${totalItems} Units`;
-    updateBalance();
 }
 
 function updateCartItemQty(productId, qty) {
     const item = cartItems.find(i => i.product_id === productId);
-    const product = products.find(p => p.id === productId);
     const newQty = parseInt(qty) || 1;
-    if (item && product) {
-        if (newQty > product.stock_quantity) {
-            showToast(`Not enough stock for ${product.name}! Only ${product.stock_quantity} left in stock!`, 'error');
-            renderCart(); // reset to previous value
-            return;
-        }
+    if (item) {
         item.quantity = newQty;
         if (item.quantity <=0) removeFromCart(productId);
         else renderCart();
@@ -384,16 +327,8 @@ function voidCart() {
     if (confirm('Are you sure you want to void this bill?')) {
         cartItems = [];
         renderCart();
-        document.getElementById('received-input').value = '';
         document.getElementById('product-preview').textContent = '-';
     }
-}
-
-function updateBalance() {
-    const received = parseFloat(document.getElementById('received-input').value) || 0;
-    const subtotal = cartItems.reduce((sum, i) => sum + (i.price * i.quantity), 0);
-    const balance = received - subtotal;
-    document.getElementById('balance-val').textContent = balance.toFixed(2);
 }
 
 async function checkout() {
@@ -404,7 +339,6 @@ async function checkout() {
 
     const customerName = document.getElementById('customer-name').value;
     const customerMobile = document.getElementById('customer-mobile').value;
-    const received = parseFloat(document.getElementById('received-input').value) || 0;
     const totalAmount = cartItems.reduce((sum, i) => sum + (i.price * i.quantity), 0);
 
     const saleData = {
@@ -412,9 +346,9 @@ async function checkout() {
         customer_mobile: customerMobile,
         total_amount: totalAmount,
         discount: 0,
-        amount_paid: received,
-        balance: Math.max(0, received - totalAmount),
-        payment_method: received >= totalAmount ? 'Cash' : 'Partial',
+        amount_paid: totalAmount,
+        balance: 0,
+        payment_method: 'Cash',
         items: cartItems.map(i => ({
             ...i,
             total: i.price * i.quantity
@@ -429,12 +363,20 @@ async function checkout() {
         });
 
         if (res.ok) {
+            const result = await res.json();
             showToast('Sale completed successfully!', 'success');
+            
+            // Auto-print invoice PDF
+            if (result && result.id) {
+                fetch(`${API_BASE}/sales/${result.id}/print`).catch(err => {
+                    console.error('Auto-print error:', err);
+                });
+            }
+            
             cartItems = [];
             renderCart();
             document.getElementById('customer-name').value = '';
             document.getElementById('customer-mobile').value = '';
-            document.getElementById('received-input').value = '';
             document.getElementById('sku-input').value = '';
             document.getElementById('product-preview').textContent = '-';
             await loadProducts();
@@ -455,8 +397,7 @@ function openAddProductModal() {
     document.getElementById('product-modal-title').textContent = 'Add Product';
     document.getElementById('product-sku').value = '';
     document.getElementById('product-name').value = '';
-    document.getElementById('product-category').value = 'Sparklers';
-    document.getElementById('product-stock').value = 0;
+    document.getElementById('product-category').value = 'One Sound Crackers';
     document.getElementById('product-price').value = 0;
     document.getElementById('product-modal').classList.remove('hidden');
 }
@@ -468,8 +409,7 @@ function openEditProductModal(id) {
     document.getElementById('product-modal-title').textContent = 'Edit Product';
     document.getElementById('product-sku').value = product.sku;
     document.getElementById('product-name').value = product.name;
-    document.getElementById('product-category').value = product.category || 'Sparklers';
-    document.getElementById('product-stock').value = product.stock_quantity;
+    document.getElementById('product-category').value = product.category || 'One Sound Crackers';
     document.getElementById('product-price').value = product.price;
     document.getElementById('product-modal').classList.remove('hidden');
 }
@@ -481,7 +421,6 @@ function closeProductModal() {
 function resetFilters() {
     document.getElementById('filter-category').value = 'all';
     document.getElementById('filter-price').value = 'all';
-    document.getElementById('filter-stock').value = 'all';
     renderInventoryTable();
 }
 
@@ -584,7 +523,6 @@ async function saveProduct() {
     const sku = document.getElementById('product-sku').value.trim();
     const name = document.getElementById('product-name').value.trim();
     const category = document.getElementById('product-category').value;
-    const stock = parseInt(document.getElementById('product-stock').value) || 0;
     const price = parseFloat(document.getElementById('product-price').value) || 0;
 
     if (!sku || !name) {
@@ -592,7 +530,7 @@ async function saveProduct() {
         return;
     }
 
-    const data = { sku, name, category, stock_quantity: stock, price };
+    const data = { sku, name, category, stock_quantity: 0, price };
 
     try {
         let res;
@@ -708,48 +646,18 @@ async function viewSale(id) {
 
 function printSale(id) {
     viewSale(id);
+    fetch(`${API_BASE}/sales/${id}/print`).catch(err => {
+        console.error('Print error:', err);
+        showToast('Failed to print invoice', 'error');
+    });
 }
 
 function printCurrentSale() {
     if (!currentViewingSaleId) return;
-    const content = document.getElementById('sale-modal-body').innerHTML;
-    
-    const printWindow = window.open('', '_blank', 'width=800,height=600');
-    printWindow.document.write(`
-        <!DOCTYPE html>
-        <html>
-        <head>
-            <title>Invoice - ${currentViewingSaleId}</title>
-            <style>
-                body { font-family: 'Inter', sans-serif; padding: 40px; color: #0f172a; }
-                .invoice-header { text-align: center; margin-bottom: 30px; border-bottom: 2px solid #f43f5e; padding-bottom: 20px; }
-                .invoice-header h1 { margin: 0; color: #f43f5e; }
-                .invoice-header p { margin: 5px 0 0; color: #64748b; }
-                table { width: 100%; border-collapse: collapse; margin: 20px 0; }
-                th, td { padding: 10px; text-align: left; border-bottom: 1px solid #e2e8f0; }
-                th { background: #f8fafc; font-size: 12px; text-transform: uppercase; }
-                .totals { text-align: right; margin-top: 20px; }
-                .totals div { padding: 5px 0; }
-                .footer { text-align: center; margin-top: 40px; padding-top: 20px; border-top: 1px solid #e2e8f0; color: #64748b; font-size: 12px; }
-                @media print { body { padding: 0; } }
-            </style>
-        </head>
-        <body>
-            <div class="invoice-header">
-                <h1>Arun Crackers</h1>
-                <p>Ignite POS - Point of Sale System</p>
-                <p>Invoice #${currentViewingSaleId}</p>
-            </div>
-            ${content}
-            <div class="footer">
-                <p>Thank you for your purchase!</p>
-                <p>This is a computer-generated invoice.</p>
-            </div>
-            <script>window.onload = function() { window.print(); }<\/script>
-        </body>
-        </html>
-    `);
-    printWindow.document.close();
+    fetch(`${API_BASE}/sales/${currentViewingSaleId}/print`).catch(err => {
+        console.error('Print error:', err);
+        showToast('Failed to print invoice', 'error');
+    });
 }
 
 function handleHotkeys(e) {

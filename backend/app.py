@@ -1,68 +1,70 @@
+import os
+import sys
+
+# Locate and configure Python DLL for pythonnet/clr_loader in frozen environments
+if getattr(sys, 'frozen', False):
+    exe_dir = os.path.dirname(sys.executable)
+    search_dirs = [
+        os.path.join(exe_dir, '_internal'),
+        exe_dir
+    ]
+    if hasattr(sys, '_MEIPASS'):
+        search_dirs.insert(0, os.path.join(sys._MEIPASS, '_internal'))
+        search_dirs.insert(0, sys._MEIPASS)
+        
+    py_dll = None
+    for d in search_dirs:
+        if os.path.exists(d):
+            # Add to PATH so that clr_loader/Windows can find python3xx.dll and other dependency DLLs
+            if d not in os.environ['PATH']:
+                os.environ['PATH'] = d + os.pathsep + os.environ['PATH']
+            
+            for file in os.listdir(d):
+                if file.lower().startswith('python3') and file.lower().endswith('.dll'):
+                    py_dll = os.path.abspath(os.path.join(d, file))
+                    break
+    if py_dll:
+        os.environ['PYTHONNET_PYDLL'] = py_dll
+
 from flask import Flask, request, jsonify, send_from_directory
 from flask_cors import CORS
 from models import db, Product, Sale, SaleItem
 from datetime import datetime
-import os
-import webbrowser
 import threading
+import webview
 from dotenv import load_dotenv
+
+
+# ReportLab imports for PDF generation
+from reportlab.lib.pagesizes import A4
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib import colors
 
 # Load environment variables
 load_dotenv()
 
-app = Flask(__name__, static_folder='../frontend/static', template_folder='../frontend')
+# Define BASE_DIR
+if getattr(sys, 'frozen', False):
+    BASE_DIR = os.path.dirname(sys.executable)
+    bundle_dir = sys._MEIPASS
+else:
+    BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    bundle_dir = BASE_DIR
+
+static_folder = os.path.join(bundle_dir, 'frontend', 'static')
+template_folder = os.path.join(bundle_dir, 'frontend')
+
+app = Flask(__name__, static_folder=static_folder, template_folder=template_folder)
 CORS(app)
 
-basedir = os.path.abspath(os.path.dirname(__file__))
+# Ensure database directory exists next to exe or in project root
+DB_FOLDER = os.path.join(BASE_DIR, 'database')
+os.makedirs(DB_FOLDER, exist_ok=True)
+db_path = os.path.abspath(os.path.join(DB_FOLDER, 'arun_crackers_pos.db'))
+db_uri = f'sqlite:///{db_path}'
 
-# Database configuration logic with fallback
-DB_TYPE = os.getenv('DB_TYPE', '').lower()
-DB_USER = os.getenv('DB_USER', 'root')
-DB_PASSWORD = os.getenv('DB_PASSWORD', '')
-DB_HOST = os.getenv('DB_HOST', 'localhost')
-DB_NAME = os.getenv('DB_NAME', 'arun_crackers_pos')
-
-import socket
-
-def is_mysql_running(host='localhost', port=3306):
-    """Fast check if MySQL port is open."""
-    try:
-        with socket.create_connection((host, port), timeout=0.3):
-            return True
-    except Exception:
-        return False
-
-db_uri = None
-if DB_TYPE == 'sqlite':
-    db_path = os.path.abspath(os.path.join(basedir, '..', 'database', 'arun_crackers_pos.db'))
-    os.makedirs(os.path.dirname(db_path), exist_ok=True)
-    db_uri = f'sqlite:///{db_path}'
-elif DB_TYPE == 'mysql':
-    db_uri = f'mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/{DB_NAME}'
-else:
-    # Auto-detect: Fast port check first, then verify credentials if open
-    if is_mysql_running(DB_HOST) and DB_PASSWORD != 'your_password_here':
-        try:
-            import pymysql
-            conn = pymysql.connect(
-                host=DB_HOST,
-                user=DB_USER,
-                password=DB_PASSWORD,
-                connect_timeout=1
-            )
-            conn.close()
-            db_uri = f'mysql+pymysql://{DB_USER}:{DB_PASSWORD}@{DB_HOST}/{DB_NAME}'
-            print(f"[Database] Connected to MySQL database server at {DB_HOST}")
-        except Exception as err:
-            db_path = os.path.abspath(os.path.join(basedir, '..', 'database', 'arun_crackers_pos.db'))
-            os.makedirs(os.path.dirname(db_path), exist_ok=True)
-            db_uri = f'sqlite:///{db_path}'
-            print(f"[Database] MySQL not accessible ({err}). Using SQLite database at: {db_path}")
-    else:
-        db_path = os.path.abspath(os.path.join(basedir, '..', 'database', 'arun_crackers_pos.db'))
-        os.makedirs(os.path.dirname(db_path), exist_ok=True)
-        db_uri = f'sqlite:///{db_path}'
-        print(f"[Database] Using SQLite database at: {db_path}")
+print(f"[Database] Using SQLite database at: {db_path}")
 
 app.config['SQLALCHEMY_DATABASE_URI'] = db_uri
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
@@ -74,7 +76,14 @@ import json
 
 def seed_sample_data():
     """Seed sample data from inventory_data.json, adding any missing products."""
-    json_path = os.path.abspath(os.path.join(basedir, '..', 'database', 'inventory_data.json'))
+    # Check bundled path first, then fallback to BASE_DIR path
+    if getattr(sys, 'frozen', False):
+        json_path = os.path.join(sys._MEIPASS, 'database', 'inventory_data.json')
+        if not os.path.exists(json_path):
+            json_path = os.path.join(BASE_DIR, 'database', 'inventory_data.json')
+    else:
+        json_path = os.path.join(BASE_DIR, 'database', 'inventory_data.json')
+
     if os.path.exists(json_path):
         with open(json_path, 'r', encoding='utf-8') as f:
             items_data = json.load(f)
@@ -117,7 +126,7 @@ def seed_sample_data():
 
 @app.route('/')
 def index():
-    return send_from_directory('../frontend', 'index.html')
+    return send_from_directory(app.template_folder, 'index.html')
 
 
 # Products Routes
@@ -271,11 +280,6 @@ def create_sale():
             if not product:
                 return jsonify({'error': f"Product {item.get('product_name', '')} not found!"}), 400
 
-            if product.stock_quantity < int(item['quantity']):
-                return jsonify({
-                    'error': f"Not enough stock for {product.name}! Only {product.stock_quantity} left in stock!"
-                }), 400
-
         new_sale = Sale(
             invoice_number=invoice_number,
             customer_name=data.get('customer_name', ''),
@@ -299,9 +303,6 @@ def create_sale():
                 total=float(item['price']) * int(item['quantity'])
             )
             db.session.add(sale_item)
-
-            product = product_map[item['product_id']]
-            product.stock_quantity -= int(item['quantity'])
 
         db.session.commit()
         return jsonify({'id': new_sale.id, 'invoice_number': invoice_number}), 201
@@ -349,18 +350,234 @@ def get_stats():
     today_count = len(today_sales)
     
     total_skus = Product.query.count()
-    low_stock = Product.query.filter(Product.stock_quantity < 30).count()
-    
-    products = Product.query.all()
-    inventory_value = sum((float(p.price) if p.price is not None else 0.0) * (p.stock_quantity or 0) for p in products)
     
     return jsonify({
         'today_sales': round(today_total, 2),
         'today_count': today_count,
         'total_skus': total_skus,
-        'low_stock_items': low_stock,
-        'inventory_value': round(inventory_value, 2)
+        'low_stock_items': 0,
+        'inventory_value': 0.0
     })
+
+
+def generate_invoice_pdf(sale):
+    invoices_dir = os.path.join(BASE_DIR, 'invoices')
+    os.makedirs(invoices_dir, exist_ok=True)
+    pdf_path = os.path.join(invoices_dir, f"{sale.invoice_number}.pdf")
+    
+    # Page setup - A4
+    doc = SimpleDocTemplate(pdf_path, pagesize=A4, rightMargin=40, leftMargin=40, topMargin=40, bottomMargin=40)
+    story = []
+    
+    styles = getSampleStyleSheet()
+    
+    # Custom styles
+    # Primary theme colors - Deep warm Red for crackers and elegant styling
+    title_style = ParagraphStyle(
+        'InvoiceTitle',
+        parent=styles['Heading1'],
+        fontName='Helvetica-Bold',
+        fontSize=28,
+        textColor=colors.HexColor('#cc1100'),
+        spaceAfter=6
+    )
+    
+    subtitle_style = ParagraphStyle(
+        'InvoiceSubtitle',
+        parent=styles['Normal'],
+        fontName='Helvetica-Oblique',
+        fontSize=12,
+        textColor=colors.HexColor('#555555'),
+        spaceAfter=15
+    )
+    
+    info_header_style = ParagraphStyle(
+        'InfoHeader',
+        parent=styles['Normal'],
+        fontName='Helvetica-Bold',
+        fontSize=10,
+        textColor=colors.HexColor('#333333'),
+    )
+    
+    info_val_style = ParagraphStyle(
+        'InfoVal',
+        parent=styles['Normal'],
+        fontName='Helvetica',
+        fontSize=10,
+        textColor=colors.HexColor('#333333'),
+    )
+    
+    table_header_style = ParagraphStyle(
+        'TableHeader',
+        parent=styles['Normal'],
+        fontName='Helvetica-Bold',
+        fontSize=10,
+        textColor=colors.white,
+    )
+    
+    table_cell_style = ParagraphStyle(
+        'TableCell',
+        parent=styles['Normal'],
+        fontName='Helvetica',
+        fontSize=9,
+        textColor=colors.HexColor('#333333'),
+    )
+    
+    table_cell_right_style = ParagraphStyle(
+        'TableCellRight',
+        parent=styles['Normal'],
+        fontName='Helvetica',
+        fontSize=9,
+        alignment=2, # Right aligned
+        textColor=colors.HexColor('#333333'),
+    )
+
+    table_header_right_style = ParagraphStyle(
+        'TableHeaderRight',
+        parent=styles['Normal'],
+        fontName='Helvetica-Bold',
+        fontSize=10,
+        alignment=2, # Right aligned
+        textColor=colors.white,
+    )
+    
+    footer_style = ParagraphStyle(
+        'InvoiceFooter',
+        parent=styles['Normal'],
+        fontName='Helvetica',
+        fontSize=9,
+        textColor=colors.HexColor('#777777'),
+        alignment=1, # Center
+        spaceBefore=20
+    )
+    
+    # Invoice Header Banner
+    story.append(Paragraph("Arun Crackers", title_style))
+    story.append(Paragraph("Ignite POS - Premium Point of Sale", subtitle_style))
+    story.append(Spacer(1, 10))
+    
+    # Customer and Invoice Info Grid
+    date_str = sale.sale_date.strftime("%d-%m-%Y %I:%M %p") if sale.sale_date else datetime.now().strftime("%d-%m-%Y %I:%M %p")
+    
+    info_data = [
+        [Paragraph("Invoice Number:", info_header_style), Paragraph(sale.invoice_number, info_val_style),
+         Paragraph("Date & Time:", info_header_style), Paragraph(date_str, info_val_style)],
+        [Paragraph("Customer Name:", info_header_style), Paragraph(sale.customer_name or "Walk-in", info_val_style),
+         Paragraph("Payment Method:", info_header_style), Paragraph(sale.payment_method or "Cash", info_val_style)],
+        [Paragraph("Customer Mobile:", info_header_style), Paragraph(sale.customer_mobile or "N/A", info_val_style),
+         Paragraph("", info_header_style), Paragraph("", info_val_style)]
+    ]
+    
+    info_table = Table(info_data, colWidths=[110, 150, 110, 150])
+    info_table.setStyle(TableStyle([
+        ('ALIGN', (0,0), (-1,-1), 'LEFT'),
+        ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 6),
+        ('TOPPADDING', (0,0), (-1,-1), 6),
+        ('LEFTPADDING', (0,0), (-1,-1), 0),
+        ('RIGHTPADDING', (0,0), (-1,-1), 0),
+    ]))
+    
+    story.append(info_table)
+    story.append(Spacer(1, 20))
+    
+    # Items Table
+    # Table headers: SNo, Item Name, Price, Qty, Total
+    table_data = [
+        [
+            Paragraph("S.No", table_header_style),
+            Paragraph("Item Name", table_header_style),
+            Paragraph("Price", table_header_right_style),
+            Paragraph("Quantity", table_header_right_style),
+            Paragraph("Total", table_header_right_style),
+        ]
+    ]
+    
+    sno = 1
+    for item in sale.items:
+        table_data.append([
+            Paragraph(str(sno), table_cell_style),
+            Paragraph(item.product_name, table_cell_style),
+            Paragraph(f"INR {float(item.price):.2f}", table_cell_right_style),
+            Paragraph(str(item.quantity), table_cell_right_style),
+            Paragraph(f"INR {float(item.total):.2f}", table_cell_right_style),
+        ])
+        sno += 1
+        
+    items_table = Table(table_data, colWidths=[40, 240, 80, 70, 90])
+    items_table.setStyle(TableStyle([
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#cc1100')), # Crimson header
+        ('ALIGN', (0, 0), (-1, 0), 'LEFT'),
+        ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
+        ('TOPPADDING', (0, 0), (-1, -1), 8),
+        ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
+        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#fbfbfb')]), # Zebra patterning
+        ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#e0e0e0')),
+    ]))
+    
+    story.append(items_table)
+    story.append(Spacer(1, 15))
+    
+    # Totals Section
+    total_data = [
+        [Paragraph("", info_header_style), Paragraph("Total Amount:", info_header_style), Paragraph(f"INR {float(sale.total_amount):.2f}", info_header_style)],
+        [Paragraph("", info_header_style), Paragraph("Amount Paid:", info_header_style), Paragraph(f"INR {float(sale.amount_paid):.2f}", info_header_style)],
+        [Paragraph("", info_header_style), Paragraph("Balance:", info_header_style), Paragraph(f"INR {float(sale.balance):.2f}", info_header_style)]
+    ]
+    total_table = Table(total_data, colWidths=[280, 120, 120])
+    total_table.setStyle(TableStyle([
+        ('ALIGN', (0,0), (-1,-1), 'RIGHT'),
+        ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),
+        ('TOPPADDING', (0,0), (-1,-1), 4),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 4),
+    ]))
+    
+    story.append(total_table)
+    story.append(Spacer(1, 30))
+    
+    # Footer
+    story.append(Paragraph("Thank you for your business! We wish you a safe and sparky celebration!", footer_style))
+    story.append(Paragraph("This is a computer-generated invoice and does not require a physical signature.", footer_style))
+    
+    doc.build(story)
+    return pdf_path
+
+
+@app.route('/api/sales/<int:sale_id>/print', methods=['GET'])
+def print_sale_invoice(sale_id):
+    try:
+        sale = Sale.query.get_or_404(sale_id)
+        pdf_path = generate_invoice_pdf(sale)
+        
+        # open the PDF file in OS default viewer
+        if os.path.exists(pdf_path):
+            if sys.platform == 'win32':
+                os.startfile(pdf_path)
+            elif sys.platform == 'darwin':
+                import subprocess
+                subprocess.Popen(['open', pdf_path])
+            else:
+                import subprocess
+                subprocess.Popen(['xdg-open', pdf_path])
+            return jsonify({'success': True, 'invoice_path': pdf_path}), 200
+        else:
+            return jsonify({'error': 'Invoice PDF file not found after generation'}), 500
+    except Exception as e:
+        print(f"Error printing sale invoice: {e}")
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/api/sales/<int:sale_id>/pdf', methods=['GET'])
+def download_sale_invoice_pdf(sale_id):
+    try:
+        sale = Sale.query.get_or_404(sale_id)
+        pdf_path = generate_invoice_pdf(sale)
+        directory = os.path.dirname(pdf_path)
+        filename = os.path.basename(pdf_path)
+        return send_from_directory(directory, filename, as_attachment=True)
+    except Exception as e:
+        print(f"Error serving pdf: {e}")
+        return jsonify({'error': str(e)}), 500
 
 
 def init_db():
@@ -371,13 +588,20 @@ def init_db():
 
 def start_app():
     init_db()
-    # Only open the browser in the main process, not in the Werkzeug reloader child
-    if os.environ.get('WERKZEUG_RUN_MAIN') != 'true':
-        threading.Timer(1.2, lambda: webbrowser.open('http://127.0.0.1:5000')).start()
+    
+    # Run Flask on 127.0.0.1:5000 in a background daemon thread
+    flask_thread = threading.Thread(
+        target=lambda: app.run(host='127.0.0.1', port=5000, debug=False, use_reloader=False),
+        daemon=True
+    )
+    flask_thread.start()
+    
+    # Initialize pywebview desktop window
     print("=" * 60)
-    print(" SparkBill POS App is running at http://0.0.0.0:5000 (accessible on local network)")
+    print(" ArunCrackers POS App is running desktop window via pywebview...")
     print("=" * 60)
-    app.run(host='0.0.0.0', debug=True, port=5000)
+    webview.create_window("ArunCrackers", "http://127.0.0.1:5000", width=1280, height=800, resizable=True)
+    webview.start()
 
 
 if __name__ == '__main__':
