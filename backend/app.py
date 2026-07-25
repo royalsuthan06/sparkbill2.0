@@ -586,6 +586,16 @@ def init_db():
         seed_sample_data()
 
 
+class API:
+    def confirm_action(self, message, title="SparkBill POS"):
+        """Triggers a native OS confirmation dialog using pywebview."""
+        global window
+        return window.create_confirmation_dialog(title, message)
+
+api = API()
+window = None
+
+
 def start_app():
     init_db()
     
@@ -600,7 +610,34 @@ def start_app():
     print("=" * 60)
     print(" ArunCrackers POS App is running desktop window via pywebview...")
     print("=" * 60)
-    webview.create_window("ArunCrackers", "http://127.0.0.1:5000", width=1280, height=800, resizable=True)
+    
+    global window
+    icon_filename = "logo.ico"
+    icon_path = None
+    if getattr(sys, 'frozen', False):
+        exe_dir = os.path.dirname(sys.executable)
+        path1 = os.path.join(exe_dir, icon_filename)
+        path2 = os.path.join(sys._MEIPASS, icon_filename) if hasattr(sys, '_MEIPASS') else None
+        if os.path.exists(path1):
+            icon_path = path1
+        elif path2 and os.path.exists(path2):
+            icon_path = path2
+    else:
+        project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+        path_in_root = os.path.join(project_root, icon_filename)
+        if os.path.exists(path_in_root):
+            icon_path = path_in_root
+        elif os.path.exists(icon_filename):
+            icon_path = os.path.abspath(icon_filename)
+
+    window = webview.create_window(
+        title="SparkBill POS",
+        url="http://127.0.0.1:5000",
+        width=1280,
+        height=800,
+        resizable=True,
+        js_api=api
+    )
     webview.start()
 
 

@@ -167,45 +167,6 @@
             </nav>
         </div>
         <div class="flex items-center gap-4">
-            <div class="bg-tertiary-container border border-tertiary/20 px-3 py-1 flex items-center gap-2 rounded">
-                <span class="material-symbols-outlined text-tertiary text-[18px]">wifi</span>
-                <span
-                    class="font-data-sm text-data-sm uppercase tracking-wider text-on-tertiary-fixed-variant">Online</span>
-            </div>
-            <div class="relative">
-                <button
-                    class="clickable material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface p-1 rounded transition-colors"
-                    id="settings-btn">settings</button>
-                <div class="dropdown-menu absolute right-0 mt-2 w-48 bg-surface border border-outline-variant shadow-xl z-50 py-1 hidden"
-                    id="settings-menu">
-                    <a class="block px-4 py-2 text-body-sm text-on-surface hover:bg-surface-variant transition-colors"
-                        href="#">Printer Settings</a>
-                    <a class="block px-4 py-2 text-body-sm text-on-surface hover:bg-surface-variant transition-colors"
-                        href="#">Terminal Config</a>
-                    <a class="block px-4 py-2 text-body-sm text-on-surface hover:bg-surface-variant transition-colors"
-                        href="#">Backup & Sync</a>
-                    <div class="border-t border-outline-variant my-1"></div>
-                    <a class="block px-4 py-2 text-body-sm text-on-surface hover:bg-surface-variant transition-colors"
-                        href="#">Help</a>
-                </div>
-            </div>
-            <div class="relative">
-                <button
-                    class="clickable material-symbols-outlined text-on-surface-variant hover:bg-surface-container-high hover:text-on-surface p-1 rounded transition-colors"
-                    id="account-btn">account_circle</button>
-                <div class="dropdown-menu absolute right-0 mt-2 w-48 bg-surface border border-outline-variant shadow-xl z-50 py-1 hidden"
-                    id="account-menu">
-                    <a class="block px-4 py-2 text-body-sm text-on-surface hover:bg-surface-variant transition-colors"
-                        href="#">Admin Profile</a>
-                    <a class="block px-4 py-2 text-body-sm text-on-surface hover:bg-surface-variant transition-colors"
-                        href="#">Change Password</a>
-                    <a class="block px-4 py-2 text-body-sm text-on-surface hover:bg-surface-variant transition-colors"
-                        href="#">Switch User</a>
-                    <div class="border-t border-outline-variant my-1"></div>
-                    <a class="block px-4 py-2 text-body-sm text-error hover:bg-error-container transition-colors"
-                        href="#">Logout</a>
-                </div>
-            </div>
         </div>
     </header>
 
@@ -301,7 +262,7 @@
             </div>
         </div>
         <aside class="col-span-3 flex flex-col gap-gutter">
-            <div class="bg-surface border border-outline-variant p-4 flex flex-col gap-3 shadow-sm">
+            <div class="bg-surface border border-outline-variant p-4 flex flex-col gap-3 shadow-sm hidden">
                 <div class="flex justify-between items-center pb-1 border-b border-outline-variant">
                     <span class="text-on-surface-variant text-body-sm font-body-sm">Sub Total</span>
                     <span class="font-data-md text-data-md text-on-surface" id="subtotal-display">0.00</span>
@@ -325,13 +286,6 @@
                 </div>
             </div>
 
-            <div class="bg-surface-container-low border border-outline-variant p-3 rounded flex items-center gap-3">
-                <span class="material-symbols-outlined text-secondary">print</span>
-                <div>
-                    <p class="text-[11px] font-bold text-on-surface-variant uppercase">Selected Printer</p>
-                    <p class="text-body-sm text-on-surface">System Default - A4 Invoice</p>
-                </div>
-            </div>
             <div class="flex flex-col gap-2 mt-auto">
                 <div class="grid grid-cols-2 gap-2">
                     <button
@@ -627,6 +581,21 @@
                     id="sale-modal-print">
                     <span class="material-symbols-outlined text-[18px]">print</span> Print Invoice
                 </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Confirm Modal -->
+    <div id="custom-confirm-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9999] flex items-center justify-center hidden opacity-0 transition-opacity duration-200">
+        <div class="bg-surface border border-outline-variant w-full max-w-md p-6 rounded-xl shadow-2xl transform scale-95 transition-transform duration-200 mx-4">
+            <div class="flex items-center gap-3 mb-4">
+                <span class="material-symbols-outlined text-primary text-[24px]">help</span>
+                <h3 class="text-[16px] font-bold text-on-surface" id="custom-confirm-title">ArunCrackers</h3>
+            </div>
+            <p class="text-[14px] text-on-surface-variant mb-6" id="custom-confirm-message">Are you sure you want to proceed?</p>
+            <div class="flex justify-end gap-2">
+                <button id="custom-confirm-cancel" class="px-4 py-2 rounded-md text-[13px] font-bold text-on-surface-variant hover:bg-surface-container-high transition-colors">Cancel</button>
+                <button id="custom-confirm-ok" class="px-5 py-2 bg-primary text-white rounded-md text-[13px] font-bold hover:brightness-110 transition-all">OK</button>
             </div>
         </div>
     </div>

@@ -1,5 +1,50 @@
 const API_BASE = '/api';
 
+function askConfirmation(message) {
+    return new Promise((resolve) => {
+        const modal = document.getElementById('custom-confirm-modal');
+        const titleEl = document.getElementById('custom-confirm-title');
+        const msgEl = document.getElementById('custom-confirm-message');
+        const okBtn = document.getElementById('custom-confirm-ok');
+        const cancelBtn = document.getElementById('custom-confirm-cancel');
+
+        if (!modal || !titleEl || !msgEl || !okBtn || !cancelBtn) {
+            resolve(confirm(message));
+            return;
+        }
+
+        titleEl.textContent = "ArunCrackers";
+        msgEl.textContent = message;
+
+        modal.classList.remove('hidden');
+        modal.offsetHeight; // Force reflow
+        modal.classList.remove('opacity-0');
+        modal.querySelector('.transform').classList.remove('scale-95');
+        modal.querySelector('.transform').classList.add('scale-100');
+
+        function cleanUp(result) {
+            modal.classList.add('opacity-0');
+            modal.querySelector('.transform').classList.remove('scale-100');
+            modal.querySelector('.transform').classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+            }, 200);
+
+            okBtn.removeEventListener('click', onOk);
+            cancelBtn.removeEventListener('click', onCancel);
+
+            resolve(result);
+        }
+
+        function onOk() { cleanUp(true); }
+        function onCancel() { cleanUp(false); }
+
+        okBtn.addEventListener('click', onOk);
+        cancelBtn.addEventListener('click', onCancel);
+    });
+}
+
+
 let products = [];
 let cartItems = [];
 let currentView = 'billing';
@@ -120,9 +165,12 @@ function renderInventoryTable() {
                 <td class="px-4 py-2 text-on-surface font-semibold outline-none">${p.name}</td>
                 <td class="px-4 py-2 text-on-surface-variant outline-none">${p.category || '-'}</td>
                 <td class="px-4 py-2 font-mono text-right text-on-surface outline-none">₹${p.price.toFixed(2)}</td>
-                <td class="px-4 py-2 text-center">
+                <td class="px-4 py-2 text-center flex justify-center gap-2">
                     <button class="text-on-surface-variant hover:text-primary transition-colors p-1 rounded-md" onclick="openEditProductModal(${p.id})">
                         <span class="material-symbols-outlined text-[18px]">edit</span>
+                    </button>
+                    <button class="text-on-surface-variant hover:text-error transition-colors p-1 rounded-md" onclick="deleteProduct(${p.id}, '${p.name.replace(/'/g, "\\'")}')">
+                        <span class="material-symbols-outlined text-[18px]">delete</span>
                     </button>
                 </td>
             </tr>
@@ -162,20 +210,29 @@ function setupEventListeners() {
         el.addEventListener('click', () => switchView(el.dataset.view));
     });
 
-    // Dropdown menus
-    document.getElementById('settings-btn').addEventListener('click', (e) => {
-        e.stopPropagation();
-        document.getElementById('settings-menu').classList.toggle('hidden');
-        document.getElementById('account-menu').classList.add('hidden');
-    });
-    document.getElementById('account-btn').addEventListener('click', (e) => {
-        e.stopPropagation();
-        document.getElementById('account-menu').classList.toggle('hidden');
-        document.getElementById('settings-menu').classList.add('hidden');
-    });
+    // Dropdown menus (safely check existence)
+    const settingsBtn = document.getElementById('settings-btn');
+    const settingsMenu = document.getElementById('settings-menu');
+    const accountBtn = document.getElementById('account-btn');
+    const accountMenu = document.getElementById('account-menu');
+
+    if (settingsBtn && settingsMenu) {
+        settingsBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            settingsMenu.classList.toggle('hidden');
+            if (accountMenu) accountMenu.classList.add('hidden');
+        });
+    }
+    if (accountBtn && accountMenu) {
+        accountBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            accountMenu.classList.toggle('hidden');
+            if (settingsMenu) settingsMenu.classList.add('hidden');
+        });
+    }
     window.addEventListener('click', () => {
-        document.getElementById('settings-menu').classList.add('hidden');
-        document.getElementById('account-menu').classList.add('hidden');
+        if (settingsMenu) settingsMenu.classList.add('hidden');
+        if (accountMenu) accountMenu.classList.add('hidden');
     });
 
     // Billing
@@ -323,8 +380,8 @@ function removeFromCart(productId) {
     renderCart();
 }
 
-function voidCart() {
-    if (confirm('Are you sure you want to void this bill?')) {
+async function voidCart() {
+    if (await askConfirmation('Are you sure you want to void this bill?')) {
         cartItems = [];
         renderCart();
         document.getElementById('product-preview').textContent = '-';
@@ -704,6 +761,26 @@ function showToast(message, type = 'success') {
             }, 300);
         }
     }, 3500);
+}
+async function deleteProduct(id, name) {
+    if (await askConfirmation(`Are you sure you want to delete the product "${name}"?`)) {
+        try {
+            const res = await fetch(`${API_BASE}/products/${id}`, {
+                method: 'DELETE'
+            });
+            if (res.ok) {
+                showToast('Product deleted successfully!', 'success');
+                await loadProducts();
+                await loadStats();
+            } else {
+                const errorData = await res.json();
+                showToast(`Failed to delete product: ${errorData.error || 'Unknown error'}`, 'error');
+            }
+        } catch (err) {
+            console.error(err);
+            showToast(`An error occurred: ${err.message}`, 'error');
+        }
+    }
 }
 
 init();
