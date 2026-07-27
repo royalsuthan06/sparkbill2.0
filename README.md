@@ -1,51 +1,29 @@
 # Arun Crackers POS System
 
-A full-stack POS (Point of Sale) system for Arun Crackers, built with Flask backend, MySQL database, and HTML/CSS/JS frontend.
+A full-stack POS (Point of Sale) system for Arun Crackers, built with Flask backend, SQLite database, and HTML/CSS/JS frontend.
 
 ## Tech Stack
 
-- **Frontend**: HTML, CSS, JavaScript, Tailwind CSS
+- **Frontend**: HTML, CSS, JavaScript (vanilla), Tailwind CSS
 - **Backend**: Flask (Python)
-- **Database**: MySQL
+- **Database**: SQLite (auto-created, no setup needed)
 - **ORM**: Flask-SQLAlchemy
-- **CORS**: Flask-CORS
+- **PDF**: ReportLab
 
 ## Setup Instructions
 
 ### Prerequisites
 
 1. Python 3.8+
-2. MySQL Server
-3. pip package manager
+2. pip package manager
 
 ### 1. Clone or navigate to the project directory
 
 ```bash
-cd "c:\Mini project\Arun Crackers\arun_crackers_pos_app"
+cd "SparkBill"
 ```
 
-### 2. Set up MySQL Database
-
-- Start MySQL server
-- Create a database (or use the schema.sql file):
-
-```bash
-mysql -u root -p
-```
-
-Then run:
-```sql
-source database/schema.sql;
-```
-
-Or you can manually create the database and tables:
-```sql
-CREATE DATABASE arun_crackers_pos;
-USE arun_crackers_pos;
--- Then run the CREATE TABLE statements from database/schema.sql
-```
-
-### 3. Set up Python Virtual Environment (Optional but recommended)
+### 2. Set up Python Virtual Environment (Optional but recommended)
 
 ```bash
 cd backend
@@ -58,76 +36,74 @@ venv\Scripts\activate.bat
 source venv/bin/activate
 ```
 
-### 4. Install Python Dependencies
+### 3. Install Python Dependencies
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### 5. Configure Database Connection
-
-Copy the example .env file and update with your MySQL credentials:
-
-```bash
-cd backend
-cp .env.example .env
-```
-
-Then edit the `.env` file to set your database username and password:
-```env
-# Database Configuration
-DB_USER=root
-DB_PASSWORD=your_actual_mysql_password
-DB_HOST=localhost
-DB_NAME=arun_crackers_pos
-```
-
-### 6. Run the Backend
+### 4. Run the Backend
 
 ```bash
 cd backend
 python app.py
 ```
 
+The SQLite database is created automatically on first run at `database/arun_crackers_pos.db`. Sample products are seeded from `database/inventory_data.json`.
+
 The server will start at `http://localhost:5000`
 
-### 7. Access the Application
+### 5. Access the Application
 
 Open your browser and go to `http://localhost:5000`
+
+### 6. Run Tests
+
+```bash
+cd backend
+python -m pytest test_app.py -v
+```
 
 ## Project Structure
 
 ```
-arun_crackers_pos_app/
+SparkBill/
 ├── backend/
 │   ├── app.py                 # Flask application with API routes
 │   ├── models.py              # SQLAlchemy models
+│   ├── test_app.py            # pytest tests
 │   ├── requirements.txt       # Python dependencies
-│   ├── .env.example           # Example environment variables
-│   └── .env                   # Your actual environment variables (gitignored)
+│   └── .env                   # Environment variables (gitignored)
 ├── database/
-│   └── schema.sql             # Database schema with sample data
+│   ├── schema.sql             # Database schema reference
+│   └── inventory_data.json    # Product seed data (153 products)
 ├── frontend/
 │   ├── index.html             # Main HTML file
 │   └── static/
 │       ├── css/
-│       │   └── style.css      # Custom CSS (empty for now, using Tailwind)
+│       │   └── style.css      # Custom CSS
 │       └── js/
-│           └── app.js         # Frontend JavaScript
-├── .gitignore                 # Git ignore file
-└── README.md                  # This file
+│           ├── api.js         # API helpers, SKU lookup, toast notifications
+│           ├── billing.js     # Cart management, checkout, payment
+│           ├── inventory.js   # Product CRUD, filters
+│           ├── reports.js     # Sales reports, PDF view, sale details
+│           └── app.js         # Init, navigation, hotkeys, event wiring
+├── .gitignore
+└── README.md
 ```
 
 ## Features
 
-- **Quick Billing**: Add products by SKU/Barcode
-- **Inventory Management**: Add and view products
-- **Sales Reports**: View all sales records
+- **Quick Billing**: Typeahead SKU search (matches SKU or product name), arrow-key cart navigation
+- **Cart Keyboard Controls**: Delete key enters row-select mode, Arrow Up/Down to navigate, Enter to delete, Escape to exit
+- **Inventory Management**: Add, edit, delete products with category and price filters
+- **Sales Reports**: Filter by today/yesterday/7 days/custom date range, view sale details, reprint PDFs
+- **PDF Invoices**: Auto-generated at sale time, cached for instant reprint
 - **Hotkeys**:
   - F1: Focus SKU input
   - F2: Focus Quantity input
   - F3: Focus Customer Name
-  - F8: Void last item
+  - F8: Void cart
   - F12: Checkout & Print
 
 ## Default Sample Products

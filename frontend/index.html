@@ -263,16 +263,7 @@
             </div>
         </div>
         <aside class="col-span-3 flex flex-col gap-gutter">
-            <div class="bg-surface border border-outline-variant p-4 flex flex-col gap-3 shadow-sm hidden">
-                <div class="flex justify-between items-center pb-1 border-b border-outline-variant">
-                    <span class="text-on-surface-variant text-body-sm font-body-sm">Sub Total</span>
-                    <span class="font-data-md text-data-md text-on-surface" id="subtotal-display">0.00</span>
-                </div>
-                <div class="flex justify-between items-center">
-                    <span class="text-on-surface-variant text-body-sm font-body-sm">Discount</span>
-                    <span class="font-data-md text-data-md text-tertiary" id="discount-display">- 0.00</span>
-                </div>
-            </div>
+
             <div
                 class="bg-primary border border-primary p-6 flex flex-col items-end relative overflow-hidden group shadow-md">
                 <div
@@ -631,6 +622,10 @@
     <!-- Toast Notification Container -->
     <div id="toast-container" class="fixed right-4 top-4 z-[999] flex flex-col gap-2 pointer-events-none"></div>
 
+    <script src="/static/js/api.js"></script>
+    <script src="/static/js/billing.js"></script>
+    <script src="/static/js/inventory.js"></script>
+    <script src="/static/js/reports.js"></script>
     <script src="/static/js/app.js"></script>
 </body>
 

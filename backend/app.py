@@ -73,6 +73,8 @@ db.init_app(app)
 
 
 import json
+import random
+import string
 
 def seed_sample_data():
     """Seed sample data from inventory_data.json, adding any missing products."""
@@ -144,7 +146,7 @@ def get_products():
     ])
 
 
-@app.route('/api/products/<sku>', methods=['GET'])
+@app.route('/api/products/lookup/<sku>', methods=['GET'])
 def get_product_by_sku(sku):
     product = Product.query.filter_by(sku=sku).first()
     if not product:
@@ -170,6 +172,9 @@ def add_product():
             if field not in data:
                 return jsonify({'error': f'Missing required field: {field}'}), 400
         
+        if float(data['price']) < 0:
+            return jsonify({'error': 'Price cannot be negative'}), 400
+        
         # Check for duplicate SKU
         existing_product = Product.query.filter_by(sku=data['sku']).first()
         if existing_product:
@@ -193,15 +198,19 @@ def add_product():
 
 @app.route('/api/products/<int:product_id>', methods=['PUT'])
 def update_product(product_id):
+    product = Product.query.get(product_id)
+    if not product:
+        return jsonify({'error': 'Product not found'}), 404
     try:
         data = request.get_json()
-        product = Product.query.get_or_404(product_id)
         
-        # Check for duplicate SKU (if changing SKU)
         if 'sku' in data and data['sku'] != product.sku:
             existing_product = Product.query.filter_by(sku=data['sku']).first()
             if existing_product:
                 return jsonify({'error': 'A product with this SKU already exists!'}), 400
+        
+        if 'price' in data and float(data['price']) < 0:
+            return jsonify({'error': 'Price cannot be negative'}), 400
         
         product.sku = str(data.get('sku', product.sku))
         product.name = str(data.get('name', product.name))
@@ -252,7 +261,8 @@ def create_sale():
         if not data or 'items' not in data or len(data['items']) == 0:
             return jsonify({'error': 'No items in sale'}), 400
 
-        invoice_number = f'INV-{datetime.now().strftime("%Y%m%d%H%M%S")}'
+        suffix = ''.join(random.choices(string.digits, k=4))
+        invoice_number = f'INV-{datetime.now().strftime("%Y%m%d%H%M%S")}-{suffix}'
         
         calculated_total = sum(float(item['price']) * int(item['quantity']) for item in data['items'])
         if abs(calculated_total - float(data.get('total_amount', 0))) > 0.01:
@@ -260,6 +270,12 @@ def create_sale():
         
         if float(data.get('amount_paid', 0)) < 0:
             return jsonify({'error': 'Amount paid cannot be negative'}), 400
+
+        for item in data['items']:
+            if int(item.get('quantity', 0)) <= 0:
+                return jsonify({'error': 'Quantity must be greater than 0'}), 400
+            if float(item.get('price', 0)) < 0:
+                return jsonify({'error': 'Price cannot be negative'}), 400
 
         product_ids = [item['product_id'] for item in data['items']]
         query = Product.query.filter(Product.id.in_(product_ids))
@@ -300,6 +316,12 @@ def create_sale():
             db.session.add(sale_item)
 
         db.session.commit()
+
+        try:
+            generate_invoice_pdf(new_sale)
+        except Exception as pdf_err:
+            print(f"Warning: PDF generation failed for {invoice_number}: {pdf_err}")
+
         return jsonify({'id': new_sale.id, 'invoice_number': invoice_number}), 201
     except Exception as e:
         db.session.rollback()
@@ -349,8 +371,7 @@ def get_stats():
     return jsonify({
         'today_sales': round(today_total, 2),
         'today_count': today_count,
-        'total_skus': total_skus,
-        'low_stock_items': 0
+        'total_skus': total_skus
     })
 
 
@@ -536,14 +557,19 @@ def generate_invoice_pdf(sale):
     return pdf_path
 
 
+def get_cached_pdf_path(invoice_number):
+    invoices_dir = os.path.join(BASE_DIR, 'invoices')
+    return os.path.join(invoices_dir, f"{invoice_number}.pdf")
+
+
 @app.route('/api/sales/<int:sale_id>/print', methods=['GET'])
 def print_sale_invoice(sale_id):
     try:
         sale = Sale.query.get_or_404(sale_id)
-        pdf_path = generate_invoice_pdf(sale)
+        pdf_path = get_cached_pdf_path(sale.invoice_number)
+        if not os.path.exists(pdf_path):
+            generate_invoice_pdf(sale)
         if os.path.exists(pdf_path):
-            # We don't trigger the OS startfile anymore to prevent opening a background browser.
-            # Instead, the client now displays the PDF inline in the app.
             return jsonify({'success': True, 'invoice_path': pdf_path}), 200
         else:
             return jsonify({'error': 'Invoice PDF file not found after generation'}), 500
@@ -556,7 +582,9 @@ def print_sale_invoice(sale_id):
 def download_sale_invoice_pdf(sale_id):
     try:
         sale = Sale.query.get_or_404(sale_id)
-        pdf_path = generate_invoice_pdf(sale)
+        pdf_path = get_cached_pdf_path(sale.invoice_number)
+        if not os.path.exists(pdf_path):
+            generate_invoice_pdf(sale)
         directory = os.path.dirname(pdf_path)
         filename = os.path.basename(pdf_path)
         return send_from_directory(directory, filename, as_attachment=True)
@@ -569,10 +597,11 @@ def download_sale_invoice_pdf(sale_id):
 def download_sale_invoice_pdf_inline(sale_id):
     try:
         sale = Sale.query.get_or_404(sale_id)
-        pdf_path = generate_invoice_pdf(sale)
+        pdf_path = get_cached_pdf_path(sale.invoice_number)
+        if not os.path.exists(pdf_path):
+            generate_invoice_pdf(sale)
         directory = os.path.dirname(pdf_path)
         filename = os.path.basename(pdf_path)
-        # return with as_attachment=False so it opens inline in iframe.
         response = send_from_directory(directory, filename, as_attachment=False)
         response.headers['Content-Disposition'] = f'inline; filename="{filename}"'
         response.headers['Content-Type'] = 'application/pdf'
