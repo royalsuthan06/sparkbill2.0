@@ -100,7 +100,6 @@ def seed_sample_data():
                     name=str(item['name']),
                     description=str(item.get('description', '')),
                     price=float(item['price']),
-                    stock_quantity=int(item.get('stock_quantity', 100)),
                     category=str(item.get('category', 'General'))
                 ))
                 
@@ -112,11 +111,11 @@ def seed_sample_data():
         # Fallback if json doesn't exist and DB is empty
         if Product.query.first() is None:
             sample_products = [
-                Product(sku='001', name='Flower Pot - Special Large', description='Large flower pot crackers', price=250.00, stock_quantity=50, category='Flower Pots'),
-                Product(sku='002', name='Laxmi Bombs (28 Pcs)', description='Pack of 28 laxmi bombs', price=180.00, stock_quantity=100, category='Sound Crackers'),
-                Product(sku='003', name='Sparklers - Multicolour 15cm', description='Multicolour sparklers, 15cm', price=45.00, stock_quantity=500, category='Sparklers'),
-                Product(sku='004', name='Chakra - 5 Inch', description='5 inch chakra ground spinner', price=60.00, stock_quantity=150, category='Visual Effects'),
-                Product(sku='005', name='Rockets - 10 Pcs', description='Pack of 10 sky rockets', price=120.00, stock_quantity=80, category='Rocket'),
+                Product(sku='001', name='Flower Pot - Special Large', description='Large flower pot crackers', price=250.00, category='Flower Pots'),
+                Product(sku='002', name='Laxmi Bombs (28 Pcs)', description='Pack of 28 laxmi bombs', price=180.00, category='Sound Crackers'),
+                Product(sku='003', name='Sparklers - Multicolour 15cm', description='Multicolour sparklers, 15cm', price=45.00, category='Sparklers'),
+                Product(sku='004', name='Chakra - 5 Inch', description='5 inch chakra ground spinner', price=60.00, category='Visual Effects'),
+                Product(sku='005', name='Rockets - 10 Pcs', description='Pack of 10 sky rockets', price=120.00, category='Rocket'),
             ]
             db.session.bulk_save_objects(sample_products)
             db.session.commit()
@@ -140,7 +139,6 @@ def get_products():
             'name': p.name,
             'description': p.description or '',
             'price': float(p.price) if p.price is not None else 0.0,
-            'stock_quantity': p.stock_quantity or 0,
             'category': p.category or ''
         } for p in products
     ])
@@ -157,7 +155,6 @@ def get_product_by_sku(sku):
         'name': product.name,
         'description': product.description or '',
         'price': float(product.price) if product.price is not None else 0.0,
-        'stock_quantity': product.stock_quantity or 0,
         'category': product.category or ''
     })
 
@@ -183,7 +180,6 @@ def add_product():
             name=str(data['name']),
             description=str(data.get('description', '')),
             price=float(data['price']),
-            stock_quantity=int(data.get('stock_quantity', 0)),
             category=str(data.get('category', ''))
         )
         db.session.add(new_product)
@@ -211,7 +207,6 @@ def update_product(product_id):
         product.name = str(data.get('name', product.name))
         product.description = str(data.get('description', product.description))
         product.price = float(data.get('price', product.price))
-        product.stock_quantity = int(data.get('stock_quantity', product.stock_quantity))
         product.category = str(data.get('category', product.category))
         db.session.commit()
         return jsonify({'message': 'Product updated successfully'})
@@ -355,8 +350,7 @@ def get_stats():
         'today_sales': round(today_total, 2),
         'today_count': today_count,
         'total_skus': total_skus,
-        'low_stock_items': 0,
-        'inventory_value': 0.0
+        'low_stock_items': 0
     })
 
 

@@ -45,6 +45,12 @@ function askConfirmation(message) {
 }
 
 
+function findProductBySku(sku) {
+    return products.find(p => p.sku === sku)
+        || products.find(p => p.sku === sku.padStart(3, '0'))
+        || products.find(p => parseInt(p.sku) === parseInt(sku));
+}
+
 let products = [];
 let cartItems = [];
 let currentView = 'billing';
@@ -235,20 +241,103 @@ function setupEventListeners() {
         if (accountMenu) accountMenu.classList.add('hidden');
     });
 
-    // Billing
-    document.getElementById('sku-input').addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') addToCart();
-    });
-    document.getElementById('sku-input').addEventListener('input', (e) => {
-        const sku = e.target.value.trim();
+    // Billing - SKU input with typeahead
+    const skuInput = document.getElementById('sku-input');
+    const skuDropdown = document.getElementById('sku-dropdown');
+    let highlightedIndex = -1;
+
+    skuInput.addEventListener('input', (e) => {
+        const query = e.target.value.trim().toLowerCase();
         const preview = document.getElementById('product-preview');
-        if (!sku) {
+
+        if (!query) {
             preview.textContent = '-';
+            hideSkuDropdown();
             return;
         }
-        const product = products.find(p => p.sku === sku) || products.find(p => p.sku === sku.padStart(3, '0')) || products.find(p => parseInt(p.sku) === parseInt(sku));
-        preview.textContent = product ? product.name : 'Not found';
+
+        const matched = products.filter(p =>
+            p.sku.toLowerCase().includes(query) || p.name.toLowerCase().includes(query)
+        );
+
+        if (matched.length > 0) {
+            showSkuDropdown(matched);
+        } else {
+            hideSkuDropdown();
+        }
+
+        const product = findProductBySku(e.target.value.trim()) || (matched.length === 1 ? matched[0] : null);
+        preview.textContent = product ? product.name : (matched.length > 0 ? `${matched.length} product(s) found` : 'Not found');
     });
+
+    skuInput.addEventListener('keydown', (e) => {
+        const items = skuDropdown.querySelectorAll('.sku-dropdown-item');
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            highlightedIndex = Math.min(highlightedIndex + 1, items.length - 1);
+            updateHighlight(items);
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            highlightedIndex = Math.max(highlightedIndex - 1, -1);
+            updateHighlight(items);
+        } else if (e.key === 'Enter') {
+            e.preventDefault();
+            if (highlightedIndex >= 0 && items[highlightedIndex]) {
+                skuInput.value = items[highlightedIndex].dataset.sku;
+                hideSkuDropdown();
+                addToCart();
+            } else if (items.length > 0) {
+                skuInput.value = items[0].dataset.sku;
+                hideSkuDropdown();
+                addToCart();
+            } else {
+                hideSkuDropdown();
+                addToCart();
+            }
+        } else if (e.key === 'Escape') {
+            hideSkuDropdown();
+        }
+    });
+
+    skuInput.addEventListener('blur', () => {
+        setTimeout(hideSkuDropdown, 150);
+    });
+
+    function showSkuDropdown(matches) {
+        highlightedIndex = -1;
+        skuDropdown.innerHTML = matches.slice(0, 10).map(p =>
+            `<div class="sku-dropdown-item px-3 py-2 cursor-pointer hover:bg-primary/10 flex justify-between items-center" data-sku="${p.sku}">
+                <span class="font-data-md text-primary font-semibold text-[13px]">${p.sku}</span>
+                <span class="text-on-surface font-semibold text-[13px] mx-3 flex-1 truncate">${p.name}</span>
+                <span class="font-data-md text-on-surface-variant text-[12px]">₹${p.price.toFixed(2)}</span>
+            </div>`
+        ).join('');
+
+        skuDropdown.querySelectorAll('.sku-dropdown-item').forEach(item => {
+            item.addEventListener('mousedown', () => {
+                skuInput.value = item.dataset.sku;
+                hideSkuDropdown();
+                const product = findProductBySku(item.dataset.sku);
+                document.getElementById('product-preview').textContent = product ? product.name : '-';
+                document.getElementById('qty-input').focus();
+            });
+        });
+
+        skuDropdown.classList.remove('hidden');
+    }
+
+    function hideSkuDropdown() {
+        skuDropdown.classList.add('hidden');
+        skuDropdown.innerHTML = '';
+        highlightedIndex = -1;
+    }
+
+    function updateHighlight(items) {
+        items.forEach((item, i) => {
+            item.classList.toggle('bg-primary/10', i === highlightedIndex);
+            item.classList.toggle('bg-transparent', i !== highlightedIndex);
+        });
+    }
     document.getElementById('qty-input').addEventListener('keypress', (e) => {
         if (e.key === 'Enter') addToCart();
     });
@@ -319,7 +408,7 @@ function addToCart() {
         return;
     }
 
-    const product = products.find(p => p.sku === sku) || products.find(p => p.sku === sku.padStart(3, '0')) || products.find(p => parseInt(p.sku) === parseInt(sku));
+    const product = findProductBySku(sku);
     if (!product) {
         showToast('Product not found!', 'error');
         return;
@@ -342,25 +431,30 @@ function addToCart() {
     skuInput.value = '';
     qtyInput.value = 1;
     document.getElementById('product-preview').textContent = '-';
+    const dd = document.getElementById('sku-dropdown');
+    if (dd) { dd.classList.add('hidden'); dd.innerHTML = ''; }
     skuInput.focus();
 }
+
+let cartNavIndex = -1;
 
 function renderCart() {
     const tbody = document.getElementById('bill-table-body');
     let sno = 1;
-    tbody.innerHTML = cartItems.map(item => {
+    tbody.innerHTML = cartItems.map((item, idx) => {
         const total = item.quantity * item.price;
+        const isNav = idx === cartNavIndex;
         return `
-            <tr class="zebra-row">
-                <td class="p-padding-cell font-data-md">${sno++}</td>
-                <td class="p-padding-cell font-body-md text-on-surface">${item.product_name}</td>
-                <td class="p-padding-cell font-data-md text-right text-on-surface-variant">
+            <tr class="zebra-row transition-all ${isNav ? 'bg-error/15 border-l-4 border-l-error' : ''}">
+                <td class="p-padding-cell font-data-md ${isNav ? 'text-error font-bold' : ''}">${sno++}</td>
+                <td class="p-padding-cell font-body-md ${isNav ? 'text-error font-semibold' : 'text-on-surface'}">${item.product_name}</td>
+                <td class="p-padding-cell font-data-md text-right ${isNav ? 'text-error' : 'text-on-surface-variant'}">
                     ₹${item.price.toFixed(2)}
                 </td>
                 <td class="p-padding-cell text-right">
                     <input type="number" class="w-20 bg-transparent border border-outline-variant rounded p-1 text-center text-primary font-bold" value="${item.quantity}" min="1" onchange="updateCartItemQty(${item.product_id}, this.value)" />
                 </td>
-                <td class="p-padding-cell text-right font-semibold text-data-lg">₹${total.toFixed(2)}</td>
+                <td class="p-padding-cell text-right font-semibold text-data-lg ${isNav ? 'text-error' : ''}">₹${total.toFixed(2)}</td>
                 <td class="p-padding-cell text-center">
                     <button class="text-error hover:text-error/80" onclick="removeFromCart(${item.product_id})">
                         <span class="material-symbols-outlined text-[20px]">delete</span>
@@ -389,12 +483,25 @@ function updateCartItemQty(productId, qty) {
 
 function removeFromCart(productId) {
     cartItems = cartItems.filter(i => i.product_id !== productId);
+    cartNavIndex = -1;
     renderCart();
+}
+
+function removeFromCartByIndex(index) {
+    if (index >= 0 && index < cartItems.length) {
+        const removed = cartItems.splice(index, 1)[0];
+        cartNavIndex = -1;
+        renderCart();
+        showToast(`Removed "${removed.product_name}"`, 'success');
+    } else {
+        showToast('Invalid S.No!', 'error');
+    }
 }
 
 async function voidCart() {
     if (await askConfirmation('Are you sure you want to void this bill?')) {
         cartItems = [];
+        cartNavIndex = -1;
         renderCart();
         document.getElementById('product-preview').textContent = '-';
     }
@@ -597,7 +704,7 @@ async function saveProduct() {
         return;
     }
 
-    const data = { sku, name, category, stock_quantity: 0, price };
+    const data = { sku, name, category, price };
 
     try {
         let res;
@@ -737,6 +844,46 @@ function handleHotkeys(e) {
     if (e.key === 'F3') { e.preventDefault(); document.getElementById('customer-name').focus(); }
     if (e.key === 'F8') { e.preventDefault(); voidCart(); }
     if (e.key === 'F12') { e.preventDefault(); checkout(); }
+
+    if (currentView !== 'billing') return;
+    const active = document.activeElement;
+    const inInput = active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA');
+
+    if (e.key === 'Escape') {
+        e.preventDefault();
+        if (inInput) active.blur();
+        if (cartNavIndex >= 0) {
+            cartNavIndex = -1;
+            renderCart();
+        }
+        return;
+    }
+
+    if (e.key === 'Delete' && !inInput && cartItems.length > 0) {
+        e.preventDefault();
+        if (cartNavIndex === -1) {
+            cartNavIndex = 0;
+        } else {
+            cartNavIndex = Math.min(cartNavIndex, cartItems.length - 1);
+        }
+        renderCart();
+        return;
+    }
+
+    if (cartNavIndex >= 0) {
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            cartNavIndex = Math.min(cartNavIndex + 1, cartItems.length - 1);
+            renderCart();
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            cartNavIndex = Math.max(cartNavIndex - 1, 0);
+            renderCart();
+        } else if (e.key === 'Enter') {
+            e.preventDefault();
+            removeFromCartByIndex(cartNavIndex);
+        }
+    }
 }
 
 function showToast(message, type = 'success') {
