@@ -246,7 +246,7 @@ function setupEventListeners() {
             preview.textContent = '-';
             return;
         }
-        const product = products.find(p => p.sku === sku);
+        const product = products.find(p => p.sku === sku) || products.find(p => p.sku === sku.padStart(3, '0')) || products.find(p => parseInt(p.sku) === parseInt(sku));
         preview.textContent = product ? product.name : 'Not found';
     });
     document.getElementById('qty-input').addEventListener('keypress', (e) => {
@@ -319,7 +319,7 @@ function addToCart() {
         return;
     }
 
-    const product = products.find(p => p.sku === sku);
+    const product = products.find(p => p.sku === sku) || products.find(p => p.sku === sku.padStart(3, '0')) || products.find(p => parseInt(p.sku) === parseInt(sku));
     if (!product) {
         showToast('Product not found!', 'error');
         return;
