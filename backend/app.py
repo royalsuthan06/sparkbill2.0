@@ -53,7 +53,7 @@ static_folder = os.path.join(bundle_dir, 'frontend', 'static')
 template_folder = os.path.join(bundle_dir, 'frontend')
 
 app = Flask(__name__, static_folder=static_folder, template_folder=template_folder)
-CORS(app, origins=["http://127.0.0.1:5000"])
+CORS(app)
 
 # Ensure database directory exists next to exe or in project root
 DB_FOLDER = os.path.join(BASE_DIR, 'database')
@@ -68,17 +68,9 @@ db.init_app(app)
 
 
 @app.after_request
-def set_security_headers(response):
-    response.headers['Content-Security-Policy'] = (
-        "default-src 'self'; "
-        "script-src 'self' https://cdn.tailwindcss.com https://fonts.googleapis.com; "
-        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
-        "font-src https://fonts.gstatic.com; "
-        "img-src 'self' data:"
-    )
-    response.headers['X-Content-Type-Options'] = 'nosniff'
-    response.headers['X-Frame-Options'] = 'DENY'
-    response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
+def no_cache(response):
+    response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
+    response.headers['Pragma'] = 'no-cache'
     return response
 
 
@@ -412,6 +404,24 @@ def get_sale(sale_id):
         'sale_date': sale.sale_date.isoformat() if sale.sale_date else datetime.now().isoformat(),
         'items': items
     })
+
+
+@app.route('/api/sales/<int:sale_id>', methods=['DELETE'])
+def delete_sale(sale_id):
+    sale = db.session.get(Sale, sale_id)
+    if not sale:
+        return jsonify({'error': 'Sale not found'}), 404
+    try:
+        pdf_path = get_cached_pdf_path(sale.invoice_number)
+        if os.path.exists(pdf_path):
+            os.remove(pdf_path)
+        db.session.delete(sale)
+        db.session.commit()
+        return jsonify({'message': 'Sale deleted successfully'})
+    except Exception as e:
+        db.session.rollback()
+        print(f"Error deleting sale: {e}")
+        return jsonify({'error': 'Failed to delete sale'}), 500
 
 
 # Dashboard Stats Route

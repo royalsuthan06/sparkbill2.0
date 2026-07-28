@@ -214,6 +214,20 @@ def test_invoice_number_unique(client):
     assert r1.get_json()['invoice_number'] != r2.get_json()['invoice_number']
 
 
+def test_delete_sale(client):
+    res = client.post('/api/sales', json=_create_sale_payload(client))
+    sale_id = res.get_json()['id']
+    res2 = client.delete(f'/api/sales/{sale_id}')
+    assert res2.status_code == 200
+    res3 = client.get(f'/api/sales/{sale_id}')
+    assert res3.status_code == 404
+
+
+def test_delete_sale_not_found(client):
+    res = client.delete('/api/sales/9999')
+    assert res.status_code == 404
+
+
 # --- Stats Route ---
 
 def test_stats(client):
