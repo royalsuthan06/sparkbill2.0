@@ -15,3 +15,7 @@ build/
 venv/
 .venv/
 
+# Ignore generated invoices and runtime database
+invoices/
+database/arun_crackers_pos.db
+
