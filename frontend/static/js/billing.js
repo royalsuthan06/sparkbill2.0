@@ -54,11 +54,11 @@ function renderCart() {
                     ₹${item.price.toFixed(2)}
                 </td>
                 <td class="p-padding-cell text-right">
-                    <input type="number" class="w-20 bg-transparent border border-outline-variant rounded p-1 text-center text-primary font-bold" value="${item.quantity}" min="1" onchange="updateCartItemQty(${item.product_id}, this.value)" />
+                    <input type="number" class="w-20 bg-transparent border border-outline-variant rounded p-1 text-center text-primary font-bold cart-qty-input" data-product-id="${item.product_id}" value="${item.quantity}" min="1" />
                 </td>
                 <td class="p-padding-cell text-right font-semibold text-data-lg ${isNav ? 'text-error' : ''}">₹${total.toFixed(2)}</td>
                 <td class="p-padding-cell text-center">
-                    <button class="text-error hover:text-error/80" onclick="removeFromCart(${item.product_id})">
+                    <button class="text-error hover:text-error/80 remove-cart-btn" data-product-id="${item.product_id}">
                         <span class="material-symbols-outlined text-[20px]">delete</span>
                     </button>
                 </td>
@@ -115,6 +115,11 @@ async function checkout() {
         return;
     }
 
+    const checkoutBtn = document.getElementById('checkout-btn');
+    if (checkoutBtn.disabled) return;
+    checkoutBtn.disabled = true;
+    checkoutBtn.textContent = 'Processing...';
+
     const customerName = document.getElementById('customer-name').value;
     const customerMobile = document.getElementById('customer-mobile').value;
     const totalAmount = cartItems.reduce((sum, i) => sum + (i.price * i.quantity), 0);
@@ -164,5 +169,19 @@ async function checkout() {
     } catch (err) {
         console.error(err);
         showToast('An error occurred while processing the sale.', 'error');
+    } finally {
+        checkoutBtn.disabled = false;
+        checkoutBtn.textContent = 'Confirm & Print';
     }
 }
+
+document.addEventListener('click', (e) => {
+    const removeBtn = e.target.closest('.remove-cart-btn');
+    if (removeBtn) { removeFromCart(parseInt(removeBtn.dataset.productId)); return; }
+});
+
+document.addEventListener('change', (e) => {
+    if (e.target.classList.contains('cart-qty-input')) {
+        updateCartItemQty(parseInt(e.target.dataset.productId), e.target.value);
+    }
+});

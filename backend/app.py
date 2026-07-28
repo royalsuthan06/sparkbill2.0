@@ -1,5 +1,6 @@
 import os
 import sys
+import secrets
 
 # Locate and configure Python DLL for pythonnet/clr_loader in frozen environments
 if getattr(sys, 'frozen', False):
@@ -11,14 +12,13 @@ if getattr(sys, 'frozen', False):
     if hasattr(sys, '_MEIPASS'):
         search_dirs.insert(0, os.path.join(sys._MEIPASS, '_internal'))
         search_dirs.insert(0, sys._MEIPASS)
-        
+
     py_dll = None
     for d in search_dirs:
         if os.path.exists(d):
-            # Add to PATH so that clr_loader/Windows can find python3xx.dll and other dependency DLLs
             if d not in os.environ['PATH']:
                 os.environ['PATH'] = d + os.pathsep + os.environ['PATH']
-            
+
             for file in os.listdir(d):
                 if file.lower().startswith('python3') and file.lower().endswith('.dll'):
                     py_dll = os.path.abspath(os.path.join(d, file))
@@ -29,19 +29,20 @@ if getattr(sys, 'frozen', False):
 from flask import Flask, request, jsonify, send_from_directory, abort
 from flask_cors import CORS
 from models import db, Product, Sale, SaleItem, InvoiceCounter
-from datetime import datetime
+from datetime import datetime, timezone
 import threading
 import webview
+import logging
 
+logging.basicConfig(level=logging.INFO, format='%(asctime)s %(levelname)s %(message)s')
+logger = logging.getLogger(__name__)
 
-# ReportLab imports for PDF generation
 from reportlab.lib.pagesizes import A4
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib import colors
 from xml.sax.saxutils import escape as xml_escape
 
-# Define BASE_DIR
 if getattr(sys, 'frozen', False):
     BASE_DIR = os.path.dirname(sys.executable)
     bundle_dir = sys._MEIPASS
@@ -53,7 +54,8 @@ static_folder = os.path.join(bundle_dir, 'frontend', 'static')
 template_folder = os.path.join(bundle_dir, 'frontend')
 
 app = Flask(__name__, static_folder=static_folder, template_folder=template_folder)
-CORS(app)
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', secrets.token_hex(32))
+CORS(app, origins=['http://127.0.0.1:5000', 'http://localhost:5000'])
 
 # Ensure database directory exists next to exe or in project root
 DB_FOLDER = os.path.join(BASE_DIR, 'database')
@@ -71,6 +73,8 @@ db.init_app(app)
 def no_cache(response):
     response.headers['Cache-Control'] = 'no-store, no-cache, must-revalidate, max-age=0'
     response.headers['Pragma'] = 'no-cache'
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    response.headers['X-Frame-Options'] = 'DENY'
     return response
 
 
@@ -105,9 +109,9 @@ def seed_sample_data():
                 ))
                 
         if new_products:
-            db.session.bulk_save_objects(new_products)
+            db.session.add_all(new_products)
             db.session.commit()
-            print(f"[Database] Successfully seeded {len(new_products)} new products from inventory data.")
+            logger.info(f"Successfully seeded {len(new_products)} new products from inventory data.")
     else:
         # Fallback if json doesn't exist and DB is empty
         if Product.query.first() is None:
@@ -118,9 +122,9 @@ def seed_sample_data():
                 Product(sku='004', name='Chakra - 5 Inch', price=60.00, category='Visual Effects'),
                 Product(sku='005', name='Rockets - 10 Pcs', price=120.00, category='Rocket'),
             ]
-            db.session.bulk_save_objects(sample_products)
+            db.session.add_all(sample_products)
             db.session.commit()
-            print("[Database] Sample products seeded successfully.")
+            logger.info("Sample products seeded successfully.")
 
 
 
@@ -201,7 +205,7 @@ def add_product():
         return jsonify({'id': new_product.id}), 201
     except Exception as e:
         db.session.rollback()
-        print(f"Error adding product: {str(e)}")
+        logger.error(f"Error adding product: {str(e)}")
         return jsonify({'error': 'Failed to add product'}), 500
 
 
@@ -212,7 +216,9 @@ def update_product(product_id):
         return jsonify({'error': 'Product not found'}), 404
     try:
         data = request.get_json()
-        
+        if not data:
+            return jsonify({'error': 'No data provided'}), 400
+
         if 'sku' in data:
             sku = str(data['sku']).strip()
             if len(sku) > 50:
@@ -246,7 +252,7 @@ def update_product(product_id):
         return jsonify({'message': 'Product updated successfully'})
     except Exception as e:
         db.session.rollback()
-        print(f"Error updating product: {str(e)}")
+        logger.error(f"Error updating product: {str(e)}")
         return jsonify({'error': 'Failed to update product'}), 500
 
 
@@ -255,9 +261,14 @@ def delete_product(product_id):
     product = db.session.get(Product, product_id)
     if not product:
         return jsonify({'error': 'Product not found'}), 404
-    db.session.delete(product)
-    db.session.commit()
-    return jsonify({'message': 'Product deleted successfully'})
+    try:
+        db.session.delete(product)
+        db.session.commit()
+        return jsonify({'message': 'Product deleted successfully'})
+    except Exception as e:
+        db.session.rollback()
+        logger.error(f"Error deleting product: {e}")
+        return jsonify({'error': 'Failed to delete product'}), 500
 
 
 # Sales Routes
@@ -301,37 +312,12 @@ def create_sale():
         if payment_method not in valid_payment_methods:
             return jsonify({'error': f'Invalid payment method. Allowed: {", ".join(sorted(valid_payment_methods))}'}), 400
 
-        now = datetime.now()
-        year = now.year
-        counter_row = InvoiceCounter.query.filter_by(year=year).first()
-        if counter_row is None:
-            counter_row = InvoiceCounter(year=year, counter=0)
-            db.session.add(counter_row)
-            db.session.flush()
-        counter_row.counter += 1
-        if counter_row.counter > 9999:
-            return jsonify({'error': 'Invoice limit reached for this year'}), 500
-        suffix = f'{counter_row.counter:04d}'
-        invoice_number = f'INV-{now.strftime("%Y%m%d%H%M%S")}-{suffix}'
-        
-        calculated_total = sum(float(item['price']) * int(item['quantity']) for item in data['items'])
-        if abs(calculated_total - float(data.get('total_amount', 0))) > 0.01:
-            return jsonify({'error': 'Total amount mismatch'}), 400
-        
-        if float(data.get('amount_paid', 0)) < 0:
-            return jsonify({'error': 'Amount paid cannot be negative'}), 400
-
         for item in data['items']:
             qty = int(item.get('quantity', 0))
-            price = float(item.get('price', 0))
             if qty <= 0:
                 return jsonify({'error': 'Quantity must be greater than 0'}), 400
             if qty > 9999:
                 return jsonify({'error': 'Quantity cannot exceed 9999'}), 400
-            if price < 0:
-                return jsonify({'error': 'Price cannot be negative'}), 400
-            if price > 99999.99:
-                return jsonify({'error': 'Price cannot exceed 99999.99'}), 400
 
         product_ids = [item['product_id'] for item in data['items']]
         query = Product.query.filter(Product.id.in_(product_ids))
@@ -345,16 +331,36 @@ def create_sale():
         for item in data['items']:
             product = product_map.get(item['product_id'])
             if not product:
-                return jsonify({'error': 'Product not found'}), 400
+                return jsonify({'error': f'Product not found: {item["product_id"]}'}), 400
             item['_db_product_name'] = product.name
+            item['_db_price'] = float(product.price)
+
+        calculated_total = sum(item['_db_price'] * int(item['quantity']) for item in data['items'])
+        amount_paid = float(data.get('amount_paid', calculated_total))
+        if amount_paid < 0:
+            return jsonify({'error': 'Amount paid cannot be negative'}), 400
+        balance = round(calculated_total - amount_paid, 2)
+
+        now = datetime.now()
+        year = now.year
+        counter_row = InvoiceCounter.query.filter_by(year=year).first()
+        if counter_row is None:
+            counter_row = InvoiceCounter(year=year, counter=0)
+            db.session.add(counter_row)
+            db.session.flush()
+        counter_row.counter += 1
+        if counter_row.counter > 9999:
+            return jsonify({'error': 'Invoice limit reached for this year'}), 500
+        suffix = f'{counter_row.counter:04d}'
+        invoice_number = f'INV-{now.strftime("%Y%m%d%H%M%S")}-{suffix}'
 
         new_sale = Sale(
             invoice_number=invoice_number,
             customer_name=customer_name,
             customer_mobile=customer_mobile,
-            total_amount=data['total_amount'],
-            amount_paid=data['amount_paid'],
-            balance=data.get('balance', 0),
+            total_amount=calculated_total,
+            amount_paid=amount_paid,
+            balance=balance,
             payment_method=payment_method,
             sale_date=datetime.now()
         )
@@ -366,8 +372,8 @@ def create_sale():
                 product_id=item['product_id'],
                 product_name=item['_db_product_name'],
                 quantity=int(item['quantity']),
-                price=float(item['price']),
-                total=float(item['price']) * int(item['quantity'])
+                price=item['_db_price'],
+                total=item['_db_price'] * int(item['quantity'])
             )
             db.session.add(sale_item)
 
@@ -376,12 +382,12 @@ def create_sale():
         try:
             generate_invoice_pdf(new_sale)
         except Exception as pdf_err:
-            print(f"Warning: PDF generation failed for {invoice_number}: {pdf_err}")
+            logger.warning(f"PDF generation failed for {invoice_number}: {pdf_err}")
 
         return jsonify({'id': new_sale.id, 'invoice_number': invoice_number}), 201
     except Exception as e:
         db.session.rollback()
-        print(f"Error creating sale: {e}")
+        logger.error(f"Error creating sale: {e}")
         return jsonify({'error': 'Failed to create sale'}), 500
 
 
@@ -428,7 +434,7 @@ def delete_sale(sale_id):
         return jsonify({'message': 'Sale deleted successfully'})
     except Exception as e:
         db.session.rollback()
-        print(f"Error deleting sale: {e}")
+        logger.error(f"Error deleting sale: {e}")
         return jsonify({'error': 'Failed to delete sale'}), 500
 
 
@@ -642,7 +648,7 @@ def print_sale_invoice(sale_id):
         else:
             return jsonify({'error': 'Invoice PDF file not found after generation'}), 500
     except Exception as e:
-        print(f"Error printing sale invoice: {e}")
+        logger.error(f"Error printing sale invoice: {e}")
         return jsonify({'error': 'Failed to print invoice'}), 500
 
 
@@ -659,7 +665,7 @@ def download_sale_invoice_pdf(sale_id):
         filename = os.path.basename(pdf_path)
         return send_from_directory(directory, filename, as_attachment=True)
     except Exception as e:
-        print(f"Error serving pdf: {e}")
+        logger.error(f"Error serving pdf: {e}")
         return jsonify({'error': 'Failed to download invoice'}), 500
 
 
@@ -679,7 +685,7 @@ def download_sale_invoice_pdf_inline(sale_id):
         response.headers['Content-Type'] = 'application/pdf'
         return response
     except Exception as e:
-        print(f"Error serving pdf inline: {e}")
+        logger.error(f"Error serving pdf inline: {e}")
         return jsonify({'error': 'Failed to display invoice'}), 500
 
 
@@ -700,9 +706,9 @@ def start_app():
     flask_thread.start()
     
     # Initialize pywebview desktop window
-    print("=" * 60)
-    print(" ArunCrackers POS App is running desktop window via pywebview...")
-    print("=" * 60)
+    logger.info("=" * 60)
+    logger.info(" ArunCrackers POS App is running desktop window via pywebview...")
+    logger.info("=" * 60)
     
     icon_filename = "logo.ico"
     icon_path = None

@@ -15,13 +15,13 @@ function renderReportsTable(sales) {
                 <td class="px-4 py-2 text-right font-semibold">₹${s.total_amount.toFixed(2)}</td>
                 <td class="px-4 py-2">
                     <div class="flex justify-center gap-2">
-                        <button class="p-1 hover:text-primary transition-colors" title="View Details" onclick="viewSale(${s.id})">
+                        <button class="p-1 hover:text-primary transition-colors view-sale-btn" data-id="${s.id}" title="View Details">
                             <span class="material-symbols-outlined text-[20px]">visibility</span>
                         </button>
-                        <button class="p-1 hover:text-primary transition-colors" title="Reprint Bill" onclick="printSale(${s.id})">
+                        <button class="p-1 hover:text-primary transition-colors print-sale-btn" data-id="${s.id}" title="Reprint Bill">
                             <span class="material-symbols-outlined text-[20px]">print</span>
                         </button>
-                        <button class="p-1 hover:text-error transition-colors" title="Delete Bill" onclick="deleteSale(${s.id}, '${escapeHtml(s.invoice_number)}')">
+                        <button class="p-1 hover:text-error transition-colors delete-sale-btn" data-id="${s.id}" data-invoice="${escapeHtml(s.invoice_number)}" title="Delete Bill">
                             <span class="material-symbols-outlined text-[20px]">delete</span>
                         </button>
                     </div>
@@ -227,3 +227,12 @@ async function deleteSale(id, invoiceNumber) {
         }
     }
 }
+
+document.addEventListener('click', (e) => {
+    const viewBtn = e.target.closest('.view-sale-btn');
+    if (viewBtn) { viewSale(parseInt(viewBtn.dataset.id)); return; }
+    const printBtn = e.target.closest('.print-sale-btn');
+    if (printBtn) { printSale(parseInt(printBtn.dataset.id)); return; }
+    const deleteBtn = e.target.closest('.delete-sale-btn');
+    if (deleteBtn) { deleteSale(parseInt(deleteBtn.dataset.id), deleteBtn.dataset.invoice); return; }
+});

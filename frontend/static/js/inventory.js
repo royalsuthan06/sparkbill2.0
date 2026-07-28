@@ -30,10 +30,15 @@ async function saveProduct() {
     const sku = document.getElementById('product-sku').value.trim();
     const name = document.getElementById('product-name').value.trim();
     const category = document.getElementById('product-category').value;
-    const price = parseFloat(document.getElementById('product-price').value) || 0;
+    const price = parseFloat(document.getElementById('product-price').value);
 
     if (!sku || !name) {
         showToast('Please fill SKU and product name!', 'error');
+        return;
+    }
+
+    if (isNaN(price) || price < 0) {
+        showToast('Please enter a valid price!', 'error');
         return;
     }
 

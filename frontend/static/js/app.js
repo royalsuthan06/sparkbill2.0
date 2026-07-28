@@ -18,6 +18,7 @@ function updateDate() {
 async function loadProducts() {
     try {
         const res = await fetch(`${API_BASE}/products`);
+        if (!res.ok) throw new Error('Failed to fetch products');
         products = await res.json();
         populateCategoryFilter();
         renderInventoryTable();
@@ -29,6 +30,7 @@ async function loadProducts() {
 async function loadStats() {
     try {
         const res = await fetch(`${API_BASE}/stats`);
+        if (!res.ok) throw new Error('Failed to fetch stats');
         const stats = await res.json();
         document.getElementById('stat-total-skus').textContent = stats.total_skus;
         document.getElementById('stat-categories').textContent = [...new Set(products.map(p => p.category))].length;
@@ -40,6 +42,7 @@ async function loadStats() {
 async function loadSales() {
     try {
         const res = await fetch(`${API_BASE}/sales`);
+        if (!res.ok) throw new Error('Failed to fetch sales');
         allSales = await res.json();
         filterReports();
     } catch (err) {
