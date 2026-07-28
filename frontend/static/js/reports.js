@@ -21,6 +21,9 @@ function renderReportsTable(sales) {
                         <button class="p-1 hover:text-primary transition-colors" title="Reprint Bill" onclick="printSale(${s.id})">
                             <span class="material-symbols-outlined text-[20px]">print</span>
                         </button>
+                        <button class="p-1 hover:text-error transition-colors" title="Delete Bill" onclick="deleteSale(${s.id}, '${escapeHtml(s.invoice_number)}')">
+                            <span class="material-symbols-outlined text-[20px]">delete</span>
+                        </button>
                     </div>
                 </td>
             </tr>
@@ -203,4 +206,24 @@ function printSale(id) {
 function printCurrentSale() {
     if (!currentViewingSaleId) return;
     showPdfModal(currentViewingSaleId);
+}
+
+async function deleteSale(id, invoiceNumber) {
+    if (await askConfirmation(`Are you sure you want to delete invoice ${invoiceNumber}? This cannot be undone.`)) {
+        try {
+            const res = await fetch(`${API_BASE}/sales/${id}`, { method: 'DELETE' });
+            if (res.ok) {
+                showToast('Invoice deleted successfully!', 'success');
+                closeSaleModal();
+                await loadSales();
+                await loadStats();
+            } else {
+                const errorData = await res.json();
+                showToast(errorData.error || 'Failed to delete invoice', 'error');
+            }
+        } catch (err) {
+            console.error(err);
+            showToast('An error occurred while deleting the invoice.', 'error');
+        }
+    }
 }
