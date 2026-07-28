@@ -49,7 +49,7 @@ function renderCart() {
         return `
             <tr class="zebra-row transition-all ${isNav ? 'bg-error/15 border-l-4 border-l-error' : ''}">
                 <td class="p-padding-cell font-data-md ${isNav ? 'text-error font-bold' : ''}">${sno++}</td>
-                <td class="p-padding-cell font-body-md ${isNav ? 'text-error font-semibold' : 'text-on-surface'}">${item.product_name}</td>
+                <td class="p-padding-cell font-body-md ${isNav ? 'text-error font-semibold' : 'text-on-surface'}">${escapeHtml(item.product_name)}</td>
                 <td class="p-padding-cell font-data-md text-right ${isNav ? 'text-error' : 'text-on-surface-variant'}">
                     ₹${item.price.toFixed(2)}
                 </td>
@@ -163,6 +163,6 @@ async function checkout() {
         }
     } catch (err) {
         console.error(err);
-        alert(`An error occurred: ${err.message}`);
+        showToast('An error occurred while processing the sale.', 'error');
     }
 }

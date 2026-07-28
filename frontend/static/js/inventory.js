@@ -100,7 +100,7 @@ function populateCategoryFilter() {
 
     let html = '<option value="all">All Categories</option>';
     categories.forEach(cat => {
-        html += `<option value="${cat}">${cat}</option>`;
+        html += `<option value="${escapeHtml(cat)}">${escapeHtml(cat)}</option>`;
     });
 
     filterCategory.innerHTML = html;
@@ -149,15 +149,15 @@ function renderInventoryTable() {
     tbody.innerHTML = filtered.map(p => {
         return `
             <tr class="zebra-row hover:bg-surface-container transition-colors cursor-default">
-                <td class="px-4 py-2 font-mono text-primary font-semibold text-[13px]">${p.sku}</td>
-                <td class="px-4 py-2 text-on-surface font-semibold outline-none">${p.name}</td>
-                <td class="px-4 py-2 text-on-surface-variant outline-none">${p.category || '-'}</td>
+                <td class="px-4 py-2 font-mono text-primary font-semibold text-[13px]">${escapeHtml(p.sku)}</td>
+                <td class="px-4 py-2 text-on-surface font-semibold outline-none">${escapeHtml(p.name)}</td>
+                <td class="px-4 py-2 text-on-surface-variant outline-none">${escapeHtml(p.category) || '-'}</td>
                 <td class="px-4 py-2 font-mono text-right text-on-surface outline-none">₹${p.price.toFixed(2)}</td>
                 <td class="px-4 py-2 text-center flex justify-center gap-2">
                     <button class="text-on-surface-variant hover:text-primary transition-colors p-1 rounded-md edit-product-btn" data-id="${p.id}">
                         <span class="material-symbols-outlined text-[18px]">edit</span>
                     </button>
-                    <button class="text-on-surface-variant hover:text-error transition-colors p-1 rounded-md delete-product-btn" data-id="${p.id}" data-name="${p.name.replace(/"/g, '&quot;')}">
+                    <button class="text-on-surface-variant hover:text-error transition-colors p-1 rounded-md delete-product-btn" data-id="${p.id}" data-name="${escapeHtml(p.name)}">
                         <span class="material-symbols-outlined text-[18px]">delete</span>
                     </button>
                 </td>

@@ -52,7 +52,7 @@ static_folder = os.path.join(bundle_dir, 'frontend', 'static')
 template_folder = os.path.join(bundle_dir, 'frontend')
 
 app = Flask(__name__, static_folder=static_folder, template_folder=template_folder)
-CORS(app)
+CORS(app, origins=["http://127.0.0.1:5000"])
 
 # Ensure database directory exists next to exe or in project root
 DB_FOLDER = os.path.join(BASE_DIR, 'database')
@@ -60,12 +60,25 @@ os.makedirs(DB_FOLDER, exist_ok=True)
 db_path = os.path.abspath(os.path.join(DB_FOLDER, 'arun_crackers_pos.db'))
 db_uri = f'sqlite:///{db_path}'
 
-print(f"[Database] Using SQLite database at: {db_path}")
-
 app.config['SQLALCHEMY_DATABASE_URI'] = db_uri
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app)
+
+
+@app.after_request
+def set_security_headers(response):
+    response.headers['Content-Security-Policy'] = (
+        "default-src 'self'; "
+        "script-src 'self' https://cdn.tailwindcss.com https://fonts.googleapis.com; "
+        "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; "
+        "font-src https://fonts.gstatic.com; "
+        "img-src 'self' data:"
+    )
+    response.headers['X-Content-Type-Options'] = 'nosniff'
+    response.headers['X-Frame-Options'] = 'DENY'
+    response.headers['Referrer-Policy'] = 'strict-origin-when-cross-origin'
+    return response
 
 
 import json
@@ -165,19 +178,32 @@ def add_product():
             if field not in data:
                 return jsonify({'error': f'Missing required field: {field}'}), 400
         
-        if float(data['price']) < 0:
+        sku = str(data['sku']).strip()
+        name = str(data['name']).strip()
+        category = str(data.get('category', '')).strip()
+        price = float(data['price'])
+
+        if len(sku) > 50:
+            return jsonify({'error': 'SKU must be 50 characters or fewer'}), 400
+        if len(name) > 255:
+            return jsonify({'error': 'Product name must be 255 characters or fewer'}), 400
+        if len(category) > 100:
+            return jsonify({'error': 'Category must be 100 characters or fewer'}), 400
+        if price < 0:
             return jsonify({'error': 'Price cannot be negative'}), 400
+        if price > 99999.99:
+            return jsonify({'error': 'Price cannot exceed 99999.99'}), 400
         
         # Check for duplicate SKU
-        existing_product = Product.query.filter_by(sku=data['sku']).first()
+        existing_product = Product.query.filter_by(sku=sku).first()
         if existing_product:
             return jsonify({'error': 'A product with this SKU already exists!'}), 400
         
         new_product = Product(
-            sku=str(data['sku']),
-            name=str(data['name']),
-            price=float(data['price']),
-            category=str(data.get('category', ''))
+            sku=sku,
+            name=name,
+            price=price,
+            category=category
         )
         db.session.add(new_product)
         db.session.commit()
@@ -185,7 +211,7 @@ def add_product():
     except Exception as e:
         db.session.rollback()
         print(f"Error adding product: {str(e)}")
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'error': 'Failed to add product'}), 500
 
 
 @app.route('/api/products/<int:product_id>', methods=['PUT'])
@@ -196,24 +222,41 @@ def update_product(product_id):
     try:
         data = request.get_json()
         
-        if 'sku' in data and data['sku'] != product.sku:
-            existing_product = Product.query.filter_by(sku=data['sku']).first()
-            if existing_product:
-                return jsonify({'error': 'A product with this SKU already exists!'}), 400
+        if 'sku' in data:
+            sku = str(data['sku']).strip()
+            if len(sku) > 50:
+                return jsonify({'error': 'SKU must be 50 characters or fewer'}), 400
+            if sku != product.sku:
+                existing_product = Product.query.filter_by(sku=sku).first()
+                if existing_product:
+                    return jsonify({'error': 'A product with this SKU already exists!'}), 400
+            product.sku = sku
         
-        if 'price' in data and float(data['price']) < 0:
-            return jsonify({'error': 'Price cannot be negative'}), 400
+        if 'name' in data:
+            name = str(data['name']).strip()
+            if len(name) > 255:
+                return jsonify({'error': 'Product name must be 255 characters or fewer'}), 400
+            product.name = name
         
-        product.sku = str(data.get('sku', product.sku))
-        product.name = str(data.get('name', product.name))
-        product.price = float(data.get('price', product.price))
-        product.category = str(data.get('category', product.category))
+        if 'price' in data:
+            price = float(data['price'])
+            if price < 0:
+                return jsonify({'error': 'Price cannot be negative'}), 400
+            if price > 99999.99:
+                return jsonify({'error': 'Price cannot exceed 99999.99'}), 400
+            product.price = price
+        
+        if 'category' in data:
+            category = str(data['category']).strip()
+            if len(category) > 100:
+                return jsonify({'error': 'Category must be 100 characters or fewer'}), 400
+            product.category = category
         db.session.commit()
         return jsonify({'message': 'Product updated successfully'})
     except Exception as e:
         db.session.rollback()
         print(f"Error updating product: {str(e)}")
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'error': 'Failed to update product'}), 500
 
 
 @app.route('/api/products/<int:product_id>', methods=['DELETE'])
@@ -253,6 +296,16 @@ def create_sale():
         if not data or 'items' not in data or len(data['items']) == 0:
             return jsonify({'error': 'No items in sale'}), 400
 
+        if len(data['items']) > 100:
+            return jsonify({'error': 'Sale cannot contain more than 100 items'}), 400
+
+        customer_name = str(data.get('customer_name', '')).strip()
+        customer_mobile = str(data.get('customer_mobile', '')).strip()
+        if len(customer_name) > 255:
+            return jsonify({'error': 'Customer name must be 255 characters or fewer'}), 400
+        if len(customer_mobile) > 20:
+            return jsonify({'error': 'Customer mobile must be 20 characters or fewer'}), 400
+
         suffix = ''.join(random.choices(string.digits, k=4))
         invoice_number = f'INV-{datetime.now().strftime("%Y%m%d%H%M%S")}-{suffix}'
         
@@ -264,10 +317,16 @@ def create_sale():
             return jsonify({'error': 'Amount paid cannot be negative'}), 400
 
         for item in data['items']:
-            if int(item.get('quantity', 0)) <= 0:
+            qty = int(item.get('quantity', 0))
+            price = float(item.get('price', 0))
+            if qty <= 0:
                 return jsonify({'error': 'Quantity must be greater than 0'}), 400
-            if float(item.get('price', 0)) < 0:
+            if qty > 9999:
+                return jsonify({'error': 'Quantity cannot exceed 9999'}), 400
+            if price < 0:
                 return jsonify({'error': 'Price cannot be negative'}), 400
+            if price > 99999.99:
+                return jsonify({'error': 'Price cannot exceed 99999.99'}), 400
 
         product_ids = [item['product_id'] for item in data['items']]
         query = Product.query.filter(Product.id.in_(product_ids))
@@ -317,7 +376,7 @@ def create_sale():
     except Exception as e:
         db.session.rollback()
         print(f"Error creating sale: {e}")
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'error': 'Failed to create sale'}), 500
 
 
 @app.route('/api/sales/<int:sale_id>', methods=['GET'])
@@ -564,12 +623,12 @@ def print_sale_invoice(sale_id):
         if not os.path.exists(pdf_path):
             generate_invoice_pdf(sale)
         if os.path.exists(pdf_path):
-            return jsonify({'success': True, 'invoice_path': pdf_path}), 200
+            return jsonify({'success': True, 'invoice_number': sale.invoice_number}), 200
         else:
             return jsonify({'error': 'Invoice PDF file not found after generation'}), 500
     except Exception as e:
         print(f"Error printing sale invoice: {e}")
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'error': 'Failed to print invoice'}), 500
 
 
 @app.route('/api/sales/<int:sale_id>/pdf', methods=['GET'])
@@ -586,7 +645,7 @@ def download_sale_invoice_pdf(sale_id):
         return send_from_directory(directory, filename, as_attachment=True)
     except Exception as e:
         print(f"Error serving pdf: {e}")
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'error': 'Failed to download invoice'}), 500
 
 
 @app.route('/api/sales/<int:sale_id>/pdf_inline', methods=['GET'])
@@ -606,7 +665,7 @@ def download_sale_invoice_pdf_inline(sale_id):
         return response
     except Exception as e:
         print(f"Error serving pdf inline: {e}")
-        return jsonify({'error': str(e)}), 500
+        return jsonify({'error': 'Failed to display invoice'}), 500
 
 
 def init_db():

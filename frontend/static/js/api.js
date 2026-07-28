@@ -1,5 +1,15 @@
 const API_BASE = '/api';
 
+function escapeHtml(str) {
+    if (str == null) return '';
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+}
+
 function askConfirmation(message) {
     return new Promise((resolve) => {
         const modal = document.getElementById('custom-confirm-modal');
@@ -65,7 +75,7 @@ function showToast(message, type = 'success') {
     toast.innerHTML = `
         <span class="material-symbols-outlined text-[28px] ${iconColor}">${icon}</span>
         <div class="flex-1">
-            <p class="text-base font-bold text-on-surface">${message}</p>
+            <p class="text-base font-bold text-on-surface">${escapeHtml(message)}</p>
         </div>
         <button class="material-symbols-outlined text-[20px] text-on-surface-variant hover:text-on-surface ml-3" onclick="this.parentElement.remove()">close</button>
     `;

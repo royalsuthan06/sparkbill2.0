@@ -8,9 +8,9 @@ function renderReportsTable(sales) {
         const date = new Date(s.sale_date);
         return `
             <tr class="data-grid-row border-b border-outline-variant hover:bg-surface-container-low transition-colors">
-                <td class="px-4 py-2 font-data-sm">${s.invoice_number}</td>
+                <td class="px-4 py-2 font-data-sm">${escapeHtml(s.invoice_number)}</td>
                 <td class="px-4 py-2">${date.toLocaleDateString('en-IN')} ${date.toLocaleTimeString('en-IN', {hour:'2-digit', minute:'2-digit'})}</td>
-                <td class="px-4 py-2">${s.customer_name || 'Walk-in'}</td>
+                <td class="px-4 py-2">${escapeHtml(s.customer_name) || 'Walk-in'}</td>
                 <td class="px-4 py-2 text-right font-data-sm">${s.items || 0}</td>
                 <td class="px-4 py-2 text-right font-semibold">₹${s.total_amount.toFixed(2)}</td>
                 <td class="px-4 py-2">
@@ -136,7 +136,7 @@ async function viewSale(id) {
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <span class="text-[11px] font-bold uppercase text-on-surface-variant">Invoice Number</span>
-                        <p class="font-data-md text-data-md text-on-surface">${sale.invoice_number}</p>
+                        <p class="font-data-md text-data-md text-on-surface">${escapeHtml(sale.invoice_number)}</p>
                     </div>
                     <div>
                         <span class="text-[11px] font-bold uppercase text-on-surface-variant">Date & Time</span>
@@ -144,11 +144,11 @@ async function viewSale(id) {
                     </div>
                     <div>
                         <span class="text-[11px] font-bold uppercase text-on-surface-variant">Customer</span>
-                        <p class="font-data-md text-data-md text-on-surface">${sale.customer_name || 'Walk-in'}</p>
+                        <p class="font-data-md text-data-md text-on-surface">${escapeHtml(sale.customer_name) || 'Walk-in'}</p>
                     </div>
                     <div>
                         <span class="text-[11px] font-bold uppercase text-on-surface-variant">Payment Method</span>
-                        <p class="font-data-md text-data-md text-on-surface">${sale.payment_method}</p>
+                        <p class="font-data-md text-data-md text-on-surface">${escapeHtml(sale.payment_method)}</p>
                     </div>
                 </div>
                 <div class="border-t border-outline-variant pt-4">
@@ -164,7 +164,7 @@ async function viewSale(id) {
                         <tbody>
                             ${sale.items.map(item => `
                                 <tr class="border-b border-outline-variant/50">
-                                    <td class="py-2 font-body-md text-on-surface">${item.product_name}</td>
+                                    <td class="py-2 font-body-md text-on-surface">${escapeHtml(item.product_name)}</td>
                                     <td class="py-2 font-data-md text-data-md text-center text-on-surface">${item.quantity}</td>
                                     <td class="py-2 font-data-md text-data-md text-right text-on-surface">₹${parseFloat(item.price).toFixed(2)}</td>
                                     <td class="py-2 font-data-md text-data-md text-right font-semibold text-on-surface">₹${parseFloat(item.total).toFixed(2)}</td>
@@ -192,7 +192,7 @@ async function viewSale(id) {
         document.getElementById('sale-modal').classList.remove('hidden');
     } catch (err) {
         console.error(err);
-        alert('Failed to load sale details');
+        showToast('Failed to load sale details', 'error');
     }
 }
 

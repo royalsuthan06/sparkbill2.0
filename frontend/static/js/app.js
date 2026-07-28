@@ -130,9 +130,9 @@ function setupEventListeners() {
     function showSkuDropdown(matches) {
         highlightedIndex = -1;
         skuDropdown.innerHTML = matches.slice(0, 10).map(p =>
-            `<div class="sku-dropdown-item px-3 py-2 cursor-pointer hover:bg-primary/10 flex justify-between items-center" data-sku="${p.sku}">
-                <span class="font-data-md text-primary font-semibold text-[13px]">${p.sku}</span>
-                <span class="text-on-surface font-semibold text-[13px] mx-3 flex-1 truncate">${p.name}</span>
+            `<div class="sku-dropdown-item px-3 py-2 cursor-pointer hover:bg-primary/10 flex justify-between items-center" data-sku="${escapeHtml(p.sku)}">
+                <span class="font-data-md text-primary font-semibold text-[13px]">${escapeHtml(p.sku)}</span>
+                <span class="text-on-surface font-semibold text-[13px] mx-3 flex-1 truncate">${escapeHtml(p.name)}</span>
                 <span class="font-data-md text-on-surface-variant text-[12px]">₹${p.price.toFixed(2)}</span>
             </div>`
         ).join('');
