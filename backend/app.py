@@ -39,6 +39,7 @@ from reportlab.lib.pagesizes import A4
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib import colors
+from xml.sax.saxutils import escape as xml_escape
 
 # Define BASE_DIR
 if getattr(sys, 'frozen', False):
@@ -301,10 +302,14 @@ def create_sale():
 
         customer_name = str(data.get('customer_name', '')).strip()
         customer_mobile = str(data.get('customer_mobile', '')).strip()
+        payment_method = str(data.get('payment_method', 'Cash')).strip()
         if len(customer_name) > 255:
             return jsonify({'error': 'Customer name must be 255 characters or fewer'}), 400
         if len(customer_mobile) > 20:
             return jsonify({'error': 'Customer mobile must be 20 characters or fewer'}), 400
+        valid_payment_methods = {'Cash', 'UPI', 'Card', 'Online'}
+        if payment_method not in valid_payment_methods:
+            return jsonify({'error': f'Invalid payment method. Allowed: {", ".join(sorted(valid_payment_methods))}'}), 400
 
         suffix = ''.join(random.choices(string.digits, k=4))
         invoice_number = f'INV-{datetime.now().strftime("%Y%m%d%H%M%S")}-{suffix}'
@@ -340,16 +345,17 @@ def create_sale():
         for item in data['items']:
             product = product_map.get(item['product_id'])
             if not product:
-                return jsonify({'error': f"Product {item.get('product_name', '')} not found!"}), 400
+                return jsonify({'error': 'Product not found'}), 400
+            item['_db_product_name'] = product.name
 
         new_sale = Sale(
             invoice_number=invoice_number,
-            customer_name=data.get('customer_name', ''),
-            customer_mobile=data.get('customer_mobile', ''),
+            customer_name=customer_name,
+            customer_mobile=customer_mobile,
             total_amount=data['total_amount'],
             amount_paid=data['amount_paid'],
             balance=data.get('balance', 0),
-            payment_method=data.get('payment_method', 'Cash'),
+            payment_method=payment_method,
             sale_date=datetime.now()
         )
         db.session.add(new_sale)
@@ -358,7 +364,7 @@ def create_sale():
             sale_item = SaleItem(
                 sale=new_sale,
                 product_id=item['product_id'],
-                product_name=item['product_name'],
+                product_name=item['_db_product_name'],
                 quantity=int(item['quantity']),
                 price=float(item['price']),
                 total=float(item['price']) * int(item['quantity'])
@@ -448,15 +454,6 @@ def generate_invoice_pdf(sale):
         spaceAfter=6
     )
     
-    subtitle_style = ParagraphStyle(
-        'InvoiceSubtitle',
-        parent=styles['Normal'],
-        fontName='Helvetica-Oblique',
-        fontSize=12,
-        textColor=colors.HexColor('#555555'),
-        spaceAfter=15
-    )
-    
     info_header_style = ParagraphStyle(
         'InfoHeader',
         parent=styles['Normal'],
@@ -525,11 +522,11 @@ def generate_invoice_pdf(sale):
     date_str = sale.sale_date.strftime("%d-%m-%Y %I:%M %p") if sale.sale_date else datetime.now().strftime("%d-%m-%Y %I:%M %p")
     
     info_data = [
-        [Paragraph("Invoice Number:", info_header_style), Paragraph(sale.invoice_number, info_val_style),
-         Paragraph("Date & Time:", info_header_style), Paragraph(date_str, info_val_style)],
-        [Paragraph("Customer Name:", info_header_style), Paragraph(sale.customer_name or "Walk-in", info_val_style),
-         Paragraph("Payment Method:", info_header_style), Paragraph(sale.payment_method or "Cash", info_val_style)],
-        [Paragraph("Customer Mobile:", info_header_style), Paragraph(sale.customer_mobile or "N/A", info_val_style),
+        [Paragraph("Invoice Number:", info_header_style), Paragraph(xml_escape(sale.invoice_number), info_val_style),
+         Paragraph("Date & Time:", info_header_style), Paragraph(xml_escape(date_str), info_val_style)],
+        [Paragraph("Customer Name:", info_header_style), Paragraph(xml_escape(sale.customer_name or "Walk-in"), info_val_style),
+         Paragraph("Payment Method:", info_header_style), Paragraph(xml_escape(sale.payment_method or "Cash"), info_val_style)],
+        [Paragraph("Customer Mobile:", info_header_style), Paragraph(xml_escape(sale.customer_mobile or "N/A"), info_val_style),
          Paragraph("", info_header_style), Paragraph("", info_val_style)]
     ]
     
@@ -562,7 +559,7 @@ def generate_invoice_pdf(sale):
     for item in sale.items:
         table_data.append([
             Paragraph(str(sno), table_cell_style),
-            Paragraph(item.product_name, table_cell_style),
+            Paragraph(xml_escape(item.product_name), table_cell_style),
             Paragraph(f"INR {float(item.price):.2f}", table_cell_right_style),
             Paragraph(str(item.quantity), table_cell_right_style),
             Paragraph(f"INR {float(item.total):.2f}", table_cell_right_style),

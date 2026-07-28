@@ -179,14 +179,14 @@
                         for="customer-name">Purchaser Name (F3)</label>
                     <input
                         class="bg-transparent border-b border-outline-variant py-1 font-body-md text-on-surface focus:border-primary outline-none transition-all"
-                        id="customer-name" placeholder="Walk-in Customer" type="text" />
+                        id="customer-name" placeholder="Walk-in Customer" type="text" maxlength="255" />
                 </div>
                 <div class="flex flex-col w-48">
                     <label class="text-on-surface-variant font-body-sm text-[11px] uppercase tracking-wider mb-0.5"
                         for="customer-mobile">Mobile Number</label>
                     <input
                         class="bg-transparent border-b border-outline-variant py-1 font-data-md text-on-surface focus:border-primary outline-none transition-all"
-                        id="customer-mobile" placeholder="9875346550" type="text" />
+                        id="customer-mobile" placeholder="9875346550" type="text" maxlength="20" />
                 </div>
                 <div class="flex flex-col w-32">
                     <label class="text-on-surface-variant font-body-sm text-[11px] uppercase tracking-wider mb-0.5">Bill
@@ -202,7 +202,7 @@
                         <div class="relative">
                             <input autofocus
                                 class="w-full bg-surface-container-low border border-outline p-3 font-data-md text-data-md text-on-surface input-focus-ring placeholder:text-outline transition-all outline-none"
-                                id="sku-input" placeholder="Scan Barcode or Type SKU..." type="text" />
+                                id="sku-input" placeholder="Scan Barcode or Type SKU..." type="text" maxlength="50" />
                             <div class="absolute right-3 top-1/2 -translate-y-1/2">
                                 <span
                                     class="bg-surface-container-high text-on-surface-variant px-2 py-0.5 rounded font-data-sm text-[10px] border border-outline-variant">F1</span>
@@ -467,13 +467,13 @@
                         <label class="text-[11px] font-bold uppercase text-on-surface-variant">SKU / S.No</label>
                         <input
                             class="w-full bg-white border border-outline-variant rounded px-3 py-2 outline-none focus:border-primary text-on-surface"
-                            id="product-sku" type="text" />
+                            id="product-sku" type="text" maxlength="50" />
                     </div>
                     <div class="space-y-1">
                         <label class="text-[11px] font-bold uppercase text-on-surface-variant">Product Name</label>
                         <input
                             class="w-full bg-white border border-outline-variant rounded px-3 py-2 outline-none focus:border-primary text-on-surface"
-                            id="product-name" type="text" />
+                            id="product-name" type="text" maxlength="255" />
                     </div>
                 </div>
                 <div class="space-y-1">
