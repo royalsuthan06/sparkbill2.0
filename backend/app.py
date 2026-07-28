@@ -28,7 +28,7 @@ if getattr(sys, 'frozen', False):
 
 from flask import Flask, request, jsonify, send_from_directory, abort
 from flask_cors import CORS
-from models import db, Product, Sale, SaleItem
+from models import db, Product, Sale, SaleItem, InvoiceCounter
 from datetime import datetime
 import threading
 import webview
@@ -75,8 +75,6 @@ def no_cache(response):
 
 
 import json
-import random
-import string
 
 def seed_sample_data():
     """Seed sample data from inventory_data.json, adding any missing products."""
@@ -303,8 +301,18 @@ def create_sale():
         if payment_method not in valid_payment_methods:
             return jsonify({'error': f'Invalid payment method. Allowed: {", ".join(sorted(valid_payment_methods))}'}), 400
 
-        suffix = ''.join(random.choices(string.digits, k=4))
-        invoice_number = f'INV-{datetime.now().strftime("%Y%m%d%H%M%S")}-{suffix}'
+        now = datetime.now()
+        year = now.year
+        counter_row = InvoiceCounter.query.filter_by(year=year).first()
+        if counter_row is None:
+            counter_row = InvoiceCounter(year=year, counter=0)
+            db.session.add(counter_row)
+            db.session.flush()
+        counter_row.counter += 1
+        if counter_row.counter > 9999:
+            return jsonify({'error': 'Invoice limit reached for this year'}), 500
+        suffix = f'{counter_row.counter:04d}'
+        invoice_number = f'INV-{now.strftime("%Y%m%d%H%M%S")}-{suffix}'
         
         calculated_total = sum(float(item['price']) * int(item['quantity']) for item in data['items'])
         if abs(calculated_total - float(data.get('total_amount', 0))) > 0.01:

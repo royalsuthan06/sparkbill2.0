@@ -41,3 +41,11 @@ class SaleItem(db.Model):
     quantity = db.Column(db.Integer, nullable=False)
     price = db.Column(db.Numeric(10, 2), nullable=False)
     total = db.Column(db.Numeric(10, 2), nullable=False)
+
+
+class InvoiceCounter(db.Model):
+    __tablename__ = 'invoice_counter'
+
+    id = db.Column(db.Integer, primary_key=True)
+    year = db.Column(db.Integer, unique=True, nullable=False)
+    counter = db.Column(db.Integer, nullable=False, default=0)

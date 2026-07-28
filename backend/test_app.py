@@ -211,7 +211,12 @@ def test_get_sale_not_found(client):
 def test_invoice_number_unique(client):
     r1 = client.post('/api/sales', json=_create_sale_payload(client))
     r2 = client.post('/api/sales', json=_create_sale_payload(client))
-    assert r1.get_json()['invoice_number'] != r2.get_json()['invoice_number']
+    inv1 = r1.get_json()['invoice_number']
+    inv2 = r2.get_json()['invoice_number']
+    assert inv1 != inv2
+    suffix1 = int(inv1.rsplit('-', 1)[1])
+    suffix2 = int(inv2.rsplit('-', 1)[1])
+    assert suffix2 == suffix1 + 1
 
 
 def test_delete_sale(client):
