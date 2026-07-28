@@ -1,6 +1,7 @@
 import os
 import sys
 import secrets
+import json
 
 # Locate and configure Python DLL for pythonnet/clr_loader in frozen environments
 if getattr(sys, 'frozen', False):
@@ -29,7 +30,7 @@ if getattr(sys, 'frozen', False):
 from flask import Flask, request, jsonify, send_from_directory, abort
 from flask_cors import CORS
 from models import db, Product, Sale, SaleItem, InvoiceCounter
-from datetime import datetime, timezone
+from datetime import datetime
 import threading
 import webview
 import logging
@@ -75,10 +76,9 @@ def no_cache(response):
     response.headers['Pragma'] = 'no-cache'
     response.headers['X-Content-Type-Options'] = 'nosniff'
     response.headers['X-Frame-Options'] = 'DENY'
+    response.headers['Content-Security-Policy'] = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'"
     return response
 
-
-import json
 
 def seed_sample_data():
     """Seed sample data from inventory_data.json, adding any missing products."""
@@ -176,8 +176,15 @@ def add_product():
         sku = str(data['sku']).strip()
         name = str(data['name']).strip()
         category = str(data.get('category', '')).strip()
-        price = float(data['price'])
+        try:
+            price = float(data['price'])
+        except (ValueError, TypeError):
+            return jsonify({'error': 'Price must be a valid number'}), 400
 
+        if not sku:
+            return jsonify({'error': 'SKU cannot be empty'}), 400
+        if not name:
+            return jsonify({'error': 'Product name cannot be empty'}), 400
         if len(sku) > 50:
             return jsonify({'error': 'SKU must be 50 characters or fewer'}), 400
         if len(name) > 255:
@@ -236,7 +243,10 @@ def update_product(product_id):
             product.name = name
         
         if 'price' in data:
-            price = float(data['price'])
+            try:
+                price = float(data['price'])
+            except (ValueError, TypeError):
+                return jsonify({'error': 'Price must be a valid number'}), 400
             if price < 0:
                 return jsonify({'error': 'Price cannot be negative'}), 400
             if price > 99999.99:
@@ -262,6 +272,9 @@ def delete_product(product_id):
     if not product:
         return jsonify({'error': 'Product not found'}), 404
     try:
+        existing_sales = SaleItem.query.filter_by(product_id=product_id).first()
+        if existing_sales:
+            return jsonify({'error': 'Cannot delete product: it has existing sales records'}), 400
         db.session.delete(product)
         db.session.commit()
         return jsonify({'message': 'Product deleted successfully'})
@@ -313,7 +326,12 @@ def create_sale():
             return jsonify({'error': f'Invalid payment method. Allowed: {", ".join(sorted(valid_payment_methods))}'}), 400
 
         for item in data['items']:
-            qty = int(item.get('quantity', 0))
+            if 'product_id' not in item:
+                return jsonify({'error': 'Each item must have a product_id'}), 400
+            try:
+                qty = int(item.get('quantity', 0))
+            except (ValueError, TypeError):
+                return jsonify({'error': 'Quantity must be a valid integer'}), 400
             if qty <= 0:
                 return jsonify({'error': 'Quantity must be greater than 0'}), 400
             if qty > 9999:
