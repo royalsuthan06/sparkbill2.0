@@ -26,13 +26,12 @@ if getattr(sys, 'frozen', False):
     if py_dll:
         os.environ['PYTHONNET_PYDLL'] = py_dll
 
-from flask import Flask, request, jsonify, send_from_directory
+from flask import Flask, request, jsonify, send_from_directory, abort
 from flask_cors import CORS
 from models import db, Product, Sale, SaleItem
 from datetime import datetime
 import threading
 import webview
-from dotenv import load_dotenv
 
 
 # ReportLab imports for PDF generation
@@ -40,9 +39,6 @@ from reportlab.lib.pagesizes import A4
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib import colors
-
-# Load environment variables
-load_dotenv()
 
 # Define BASE_DIR
 if getattr(sys, 'frozen', False):
@@ -100,7 +96,6 @@ def seed_sample_data():
                 new_products.append(Product(
                     sku=str(item['sku']),
                     name=str(item['name']),
-                    description=str(item.get('description', '')),
                     price=float(item['price']),
                     category=str(item.get('category', 'General'))
                 ))
@@ -113,11 +108,11 @@ def seed_sample_data():
         # Fallback if json doesn't exist and DB is empty
         if Product.query.first() is None:
             sample_products = [
-                Product(sku='001', name='Flower Pot - Special Large', description='Large flower pot crackers', price=250.00, category='Flower Pots'),
-                Product(sku='002', name='Laxmi Bombs (28 Pcs)', description='Pack of 28 laxmi bombs', price=180.00, category='Sound Crackers'),
-                Product(sku='003', name='Sparklers - Multicolour 15cm', description='Multicolour sparklers, 15cm', price=45.00, category='Sparklers'),
-                Product(sku='004', name='Chakra - 5 Inch', description='5 inch chakra ground spinner', price=60.00, category='Visual Effects'),
-                Product(sku='005', name='Rockets - 10 Pcs', description='Pack of 10 sky rockets', price=120.00, category='Rocket'),
+                Product(sku='001', name='Flower Pot - Special Large', price=250.00, category='Flower Pots'),
+                Product(sku='002', name='Laxmi Bombs (28 Pcs)', price=180.00, category='Sound Crackers'),
+                Product(sku='003', name='Sparklers - Multicolour 15cm', price=45.00, category='Sparklers'),
+                Product(sku='004', name='Chakra - 5 Inch', price=60.00, category='Visual Effects'),
+                Product(sku='005', name='Rockets - 10 Pcs', price=120.00, category='Rocket'),
             ]
             db.session.bulk_save_objects(sample_products)
             db.session.commit()
@@ -139,7 +134,6 @@ def get_products():
             'id': p.id,
             'sku': p.sku,
             'name': p.name,
-            'description': p.description or '',
             'price': float(p.price) if p.price is not None else 0.0,
             'category': p.category or ''
         } for p in products
@@ -155,7 +149,6 @@ def get_product_by_sku(sku):
         'id': product.id,
         'sku': product.sku,
         'name': product.name,
-        'description': product.description or '',
         'price': float(product.price) if product.price is not None else 0.0,
         'category': product.category or ''
     })
@@ -183,7 +176,6 @@ def add_product():
         new_product = Product(
             sku=str(data['sku']),
             name=str(data['name']),
-            description=str(data.get('description', '')),
             price=float(data['price']),
             category=str(data.get('category', ''))
         )
@@ -198,7 +190,7 @@ def add_product():
 
 @app.route('/api/products/<int:product_id>', methods=['PUT'])
 def update_product(product_id):
-    product = Product.query.get(product_id)
+    product = db.session.get(Product, product_id)
     if not product:
         return jsonify({'error': 'Product not found'}), 404
     try:
@@ -214,7 +206,6 @@ def update_product(product_id):
         
         product.sku = str(data.get('sku', product.sku))
         product.name = str(data.get('name', product.name))
-        product.description = str(data.get('description', product.description))
         product.price = float(data.get('price', product.price))
         product.category = str(data.get('category', product.category))
         db.session.commit()
@@ -227,7 +218,9 @@ def update_product(product_id):
 
 @app.route('/api/products/<int:product_id>', methods=['DELETE'])
 def delete_product(product_id):
-    product = Product.query.get_or_404(product_id)
+    product = db.session.get(Product, product_id)
+    if not product:
+        return jsonify({'error': 'Product not found'}), 404
     db.session.delete(product)
     db.session.commit()
     return jsonify({'message': 'Product deleted successfully'})
@@ -244,7 +237,6 @@ def get_sales():
             'customer_name': s.customer_name or '',
             'customer_mobile': s.customer_mobile or '',
             'total_amount': float(s.total_amount) if s.total_amount is not None else 0.0,
-            'discount': float(s.discount) if s.discount is not None else 0.0,
             'amount_paid': float(s.amount_paid) if s.amount_paid is not None else 0.0,
             'balance': float(s.balance) if s.balance is not None else 0.0,
             'payment_method': s.payment_method or 'Cash',
@@ -296,7 +288,6 @@ def create_sale():
             customer_name=data.get('customer_name', ''),
             customer_mobile=data.get('customer_mobile', ''),
             total_amount=data['total_amount'],
-            discount=data.get('discount', 0),
             amount_paid=data['amount_paid'],
             balance=data.get('balance', 0),
             payment_method=data.get('payment_method', 'Cash'),
@@ -331,7 +322,9 @@ def create_sale():
 
 @app.route('/api/sales/<int:sale_id>', methods=['GET'])
 def get_sale(sale_id):
-    sale = Sale.query.get_or_404(sale_id)
+    sale = db.session.get(Sale, sale_id)
+    if not sale:
+        return jsonify({'error': 'Sale not found'}), 404
     items = [
         {
             'id': i.id,
@@ -348,7 +341,6 @@ def get_sale(sale_id):
         'customer_name': sale.customer_name or '',
         'customer_mobile': sale.customer_mobile or '',
         'total_amount': float(sale.total_amount) if sale.total_amount is not None else 0.0,
-        'discount': float(sale.discount) if sale.discount is not None else 0.0,
         'amount_paid': float(sale.amount_paid) if sale.amount_paid is not None else 0.0,
         'balance': float(sale.balance) if sale.balance is not None else 0.0,
         'payment_method': sale.payment_method or 'Cash',
@@ -565,7 +557,9 @@ def get_cached_pdf_path(invoice_number):
 @app.route('/api/sales/<int:sale_id>/print', methods=['GET'])
 def print_sale_invoice(sale_id):
     try:
-        sale = Sale.query.get_or_404(sale_id)
+        sale = db.session.get(Sale, sale_id)
+        if not sale:
+            return jsonify({'error': 'Sale not found'}), 404
         pdf_path = get_cached_pdf_path(sale.invoice_number)
         if not os.path.exists(pdf_path):
             generate_invoice_pdf(sale)
@@ -581,7 +575,9 @@ def print_sale_invoice(sale_id):
 @app.route('/api/sales/<int:sale_id>/pdf', methods=['GET'])
 def download_sale_invoice_pdf(sale_id):
     try:
-        sale = Sale.query.get_or_404(sale_id)
+        sale = db.session.get(Sale, sale_id)
+        if not sale:
+            return jsonify({'error': 'Sale not found'}), 404
         pdf_path = get_cached_pdf_path(sale.invoice_number)
         if not os.path.exists(pdf_path):
             generate_invoice_pdf(sale)
@@ -596,7 +592,9 @@ def download_sale_invoice_pdf(sale_id):
 @app.route('/api/sales/<int:sale_id>/pdf_inline', methods=['GET'])
 def download_sale_invoice_pdf_inline(sale_id):
     try:
-        sale = Sale.query.get_or_404(sale_id)
+        sale = db.session.get(Sale, sale_id)
+        if not sale:
+            return jsonify({'error': 'Sale not found'}), 404
         pdf_path = get_cached_pdf_path(sale.invoice_number)
         if not os.path.exists(pdf_path):
             generate_invoice_pdf(sale)
@@ -617,16 +615,6 @@ def init_db():
         seed_sample_data()
 
 
-class API:
-    def confirm_action(self, message, title="SparkBill POS"):
-        """Triggers a native OS confirmation dialog using pywebview."""
-        global window
-        return window.create_confirmation_dialog(title, message)
-
-api = API()
-window = None
-
-
 def start_app():
     init_db()
     
@@ -642,7 +630,6 @@ def start_app():
     print(" ArunCrackers POS App is running desktop window via pywebview...")
     print("=" * 60)
     
-    global window
     icon_filename = "logo.ico"
     icon_path = None
     if getattr(sys, 'frozen', False):
@@ -666,8 +653,7 @@ def start_app():
         url="http://127.0.0.1:5000",
         width=1280,
         height=800,
-        resizable=True,
-        js_api=api
+        resizable=True
     )
     webview.start()
 

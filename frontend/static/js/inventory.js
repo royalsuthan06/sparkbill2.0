@@ -154,10 +154,10 @@ function renderInventoryTable() {
                 <td class="px-4 py-2 text-on-surface-variant outline-none">${p.category || '-'}</td>
                 <td class="px-4 py-2 font-mono text-right text-on-surface outline-none">₹${p.price.toFixed(2)}</td>
                 <td class="px-4 py-2 text-center flex justify-center gap-2">
-                    <button class="text-on-surface-variant hover:text-primary transition-colors p-1 rounded-md" onclick="openEditProductModal(${p.id})">
+                    <button class="text-on-surface-variant hover:text-primary transition-colors p-1 rounded-md edit-product-btn" data-id="${p.id}">
                         <span class="material-symbols-outlined text-[18px]">edit</span>
                     </button>
-                    <button class="text-on-surface-variant hover:text-error transition-colors p-1 rounded-md" onclick="deleteProduct(${p.id}, '${p.name.replace(/'/g, "\\'")}')">
+                    <button class="text-on-surface-variant hover:text-error transition-colors p-1 rounded-md delete-product-btn" data-id="${p.id}" data-name="${p.name.replace(/"/g, '&quot;')}">
                         <span class="material-symbols-outlined text-[18px]">delete</span>
                     </button>
                 </td>
@@ -171,3 +171,15 @@ function resetFilters() {
     document.getElementById('filter-price').value = 'all';
     renderInventoryTable();
 }
+
+document.addEventListener('click', (e) => {
+    const editBtn = e.target.closest('.edit-product-btn');
+    if (editBtn) {
+        openEditProductModal(parseInt(editBtn.dataset.id));
+        return;
+    }
+    const deleteBtn = e.target.closest('.delete-product-btn');
+    if (deleteBtn) {
+        deleteProduct(parseInt(deleteBtn.dataset.id), deleteBtn.dataset.name);
+    }
+});

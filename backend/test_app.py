@@ -16,9 +16,14 @@ def client():
     app.config['TESTING'] = True
     app.config['SQLALCHEMY_DATABASE_URI'] = f'sqlite:///{db_path}'
 
+    import sqlalchemy as sa
     with app.app_context():
-        db.engine.dispose()
-        db._engine = None
+        engines = db._app_engines.setdefault(app, {})
+        for e in engines.values():
+            e.dispose()
+        engines.clear()
+        engines[None] = sa.create_engine(f'sqlite:///{db_path}')
+
         db.create_all()
         p1 = Product(sku='T01', name='Test Sparkler', price=50.0, category='Sparklers')
         p2 = Product(sku='T02', name='Test Rocket', price=120.0, category='Rockets')
@@ -30,8 +35,10 @@ def client():
 
     with app.app_context():
         db.drop_all()
-        db.engine.dispose()
-        db._engine = None
+        engines = db._app_engines.get(app, {})
+        for e in engines.values():
+            e.dispose()
+        engines.clear()
     os.close(db_fd)
     os.unlink(db_path)
 

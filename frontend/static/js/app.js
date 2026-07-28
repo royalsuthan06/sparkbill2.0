@@ -65,31 +65,6 @@ function setupEventListeners() {
         el.addEventListener('click', () => switchView(el.dataset.view));
     });
 
-    // Dropdown menus (safely check existence)
-    const settingsBtn = document.getElementById('settings-btn');
-    const settingsMenu = document.getElementById('settings-menu');
-    const accountBtn = document.getElementById('account-btn');
-    const accountMenu = document.getElementById('account-menu');
-
-    if (settingsBtn && settingsMenu) {
-        settingsBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            settingsMenu.classList.toggle('hidden');
-            if (accountMenu) accountMenu.classList.add('hidden');
-        });
-    }
-    if (accountBtn && accountMenu) {
-        accountBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            accountMenu.classList.toggle('hidden');
-            if (settingsMenu) settingsMenu.classList.add('hidden');
-        });
-    }
-    window.addEventListener('click', () => {
-        if (settingsMenu) settingsMenu.classList.add('hidden');
-        if (accountMenu) accountMenu.classList.add('hidden');
-    });
-
     // Billing - SKU input with typeahead
     const skuInput = document.getElementById('sku-input');
     const skuDropdown = document.getElementById('sku-dropdown');
