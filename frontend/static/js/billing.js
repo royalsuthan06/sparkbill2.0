@@ -118,22 +118,18 @@ async function checkout() {
     const checkoutBtn = document.getElementById('checkout-btn');
     if (checkoutBtn.disabled) return;
     checkoutBtn.disabled = true;
-    checkoutBtn.textContent = 'Processing...';
+    checkoutBtn.innerHTML = '<span class="text-xs uppercase tracking-[0.2em] mb-1 font-bold">Processing...</span>';
 
     const customerName = document.getElementById('customer-name').value;
     const customerMobile = document.getElementById('customer-mobile').value;
-    const totalAmount = cartItems.reduce((sum, i) => sum + (i.price * i.quantity), 0);
 
     const saleData = {
         customer_name: customerName,
         customer_mobile: customerMobile,
-        total_amount: totalAmount,
-        amount_paid: totalAmount,
-        balance: 0,
         payment_method: 'Cash',
         items: cartItems.map(i => ({
-            ...i,
-            total: i.price * i.quantity
+            product_id: i.product_id,
+            quantity: i.quantity
         }))
     };
 
@@ -171,7 +167,7 @@ async function checkout() {
         showToast('An error occurred while processing the sale.', 'error');
     } finally {
         checkoutBtn.disabled = false;
-        checkoutBtn.textContent = 'Confirm & Print';
+        checkoutBtn.innerHTML = '<span class="text-xs uppercase tracking-[0.2em] mb-1 font-bold">Confirm & Print</span>F12 - GENERATE INVOICE';
     }
 }
 

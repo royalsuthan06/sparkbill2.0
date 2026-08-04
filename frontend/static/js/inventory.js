@@ -1,24 +1,22 @@
-let editingProductId = null;
-
 function openAddProductModal() {
-    editingProductId = null;
+    SparkBill.editingProductId = null;
     document.getElementById('product-modal-title').textContent = 'Add Product';
     document.getElementById('product-sku').value = '';
     document.getElementById('product-name').value = '';
-    document.getElementById('product-category').value = 'One Sound Crackers';
     document.getElementById('product-price').value = 0;
+    populateProductCategoryDropdown();
     document.getElementById('product-modal').classList.remove('hidden');
 }
 
 function openEditProductModal(id) {
-    const product = products.find(p => p.id === id);
+    const product = SparkBill.products.find(p => p.id === id);
     if (!product) return;
-    editingProductId = id;
+    SparkBill.editingProductId = id;
     document.getElementById('product-modal-title').textContent = 'Edit Product';
     document.getElementById('product-sku').value = product.sku;
     document.getElementById('product-name').value = product.name;
-    document.getElementById('product-category').value = product.category || 'One Sound Crackers';
     document.getElementById('product-price').value = product.price;
+    populateProductCategoryDropdown(product.category);
     document.getElementById('product-modal').classList.remove('hidden');
 }
 
@@ -46,8 +44,8 @@ async function saveProduct() {
 
     try {
         let res;
-        if (editingProductId) {
-            res = await fetch(`${API_BASE}/products/${editingProductId}`, {
+        if (SparkBill.editingProductId) {
+            res = await fetch(`${API_BASE}/products/${SparkBill.editingProductId}`, {
                 method: 'PUT',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(data)
@@ -96,12 +94,38 @@ async function deleteProduct(id, name) {
     }
 }
 
+async function populateProductCategoryDropdown(selectValue) {
+    const select = document.getElementById('product-category');
+    if (!select) return;
+
+    try {
+        const res = await fetch(`${API_BASE}/categories`);
+        if (res.ok) {
+            const categories = await res.json();
+            select.innerHTML = categories.map(cat =>
+                `<option value="${escapeHtml(cat)}">${escapeHtml(cat)}</option>`
+            ).join('');
+        }
+    } catch (err) {
+        const categories = [...new Set(SparkBill.products.map(p => p.category).filter(Boolean))].sort();
+        select.innerHTML = categories.map(cat =>
+            `<option value="${escapeHtml(cat)}">${escapeHtml(cat)}</option>`
+        ).join('');
+    }
+
+    if (selectValue && select.querySelector(`option[value="${selectValue}"]`)) {
+        select.value = selectValue;
+    } else if (select.options.length > 0) {
+        select.selectedIndex = 0;
+    }
+}
+
 function populateCategoryFilter() {
     const filterCategory = document.getElementById('filter-category');
     if (!filterCategory) return;
 
     const currentValue = filterCategory.value || 'all';
-    const categories = [...new Set(products.map(p => p.category).filter(Boolean))].sort();
+    const categories = [...new Set(SparkBill.products.map(p => p.category).filter(Boolean))].sort();
 
     let html = '<option value="all">All Categories</option>';
     categories.forEach(cat => {
@@ -124,7 +148,7 @@ function renderInventoryTable() {
     const categoryFilter = document.getElementById('filter-category')?.value || 'all';
     const priceFilter = document.getElementById('filter-price')?.value || 'all';
 
-    let filtered = products;
+    let filtered = SparkBill.products;
 
     if (categoryFilter !== 'all') {
         filtered = filtered.filter(p => p.category === categoryFilter);
@@ -144,10 +168,10 @@ function renderInventoryTable() {
 
     const countDisplay = document.getElementById('inventory-count-display');
     if (countDisplay) {
-        if (filtered.length === products.length) {
-            countDisplay.textContent = `(Showing all ${products.length} products)`;
+        if (filtered.length === SparkBill.products.length) {
+            countDisplay.textContent = `(Showing all ${SparkBill.products.length} products)`;
         } else {
-            countDisplay.textContent = `(Showing ${filtered.length} of ${products.length} products)`;
+            countDisplay.textContent = `(Showing ${filtered.length} of ${SparkBill.products.length} products)`;
         }
     }
 

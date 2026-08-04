@@ -1,11 +1,55 @@
-let products = [];
-let currentView = 'billing';
+const SparkBill = {
+    products: [],
+    allSales: [],
+    currentView: 'billing',
+    cartItems: [],
+    cartNavIndex: -1,
+    editingProductId: null,
+    activePeriod: 'today',
+    currentViewingSaleId: null
+};
+
+let products = SparkBill.products;
+
+Object.defineProperty(window, 'products', {
+    get() { return SparkBill.products; },
+    set(v) { SparkBill.products = v; products = v; }
+});
+
+Object.defineProperty(window, 'allSales', {
+    get() { return SparkBill.allSales; },
+    set(v) { SparkBill.allSales = v; }
+});
+
+Object.defineProperty(window, 'cartItems', {
+    get() { return SparkBill.cartItems; },
+    set(v) { SparkBill.cartItems = v; }
+});
+
+Object.defineProperty(window, 'cartNavIndex', {
+    get() { return SparkBill.cartNavIndex; },
+    set(v) { SparkBill.cartNavIndex = v; }
+});
+
+Object.defineProperty(window, 'editingProductId', {
+    get() { return SparkBill.editingProductId; },
+    set(v) { SparkBill.editingProductId = v; }
+});
+
+Object.defineProperty(window, 'activePeriod', {
+    get() { return SparkBill.activePeriod; },
+    set(v) { SparkBill.activePeriod = v; }
+});
+
+Object.defineProperty(window, 'currentViewingSaleId', {
+    get() { return SparkBill.currentViewingSaleId; },
+    set(v) { SparkBill.currentViewingSaleId = v; }
+});
 
 async function init() {
     updateDate();
     await loadProducts();
     await loadStats();
-    await loadSales();
     setupEventListeners();
     switchView('billing');
 }
@@ -19,7 +63,8 @@ async function loadProducts() {
     try {
         const res = await fetch(`${API_BASE}/products`);
         if (!res.ok) throw new Error('Failed to fetch products');
-        products = await res.json();
+        SparkBill.products = await res.json();
+        products = SparkBill.products;
         populateCategoryFilter();
         renderInventoryTable();
     } catch (err) {
@@ -33,7 +78,7 @@ async function loadStats() {
         if (!res.ok) throw new Error('Failed to fetch stats');
         const stats = await res.json();
         document.getElementById('stat-total-skus').textContent = stats.total_skus;
-        document.getElementById('stat-categories').textContent = [...new Set(products.map(p => p.category))].length;
+        document.getElementById('stat-categories').textContent = [...new Set(SparkBill.products.map(p => p.category))].length;
     } catch (err) {
         console.error('Failed to load stats:', err);
     }
@@ -43,7 +88,8 @@ async function loadSales() {
     try {
         const res = await fetch(`${API_BASE}/sales`);
         if (!res.ok) throw new Error('Failed to fetch sales');
-        allSales = await res.json();
+        const data = await res.json();
+        SparkBill.allSales = data.sales || data;
         filterReports();
     } catch (err) {
         console.error('Failed to load sales:', err);
@@ -51,7 +97,7 @@ async function loadSales() {
 }
 
 function switchView(viewName) {
-    currentView = viewName;
+    SparkBill.currentView = viewName;
     document.querySelectorAll('[data-view]').forEach(el => {
         el.classList.toggle('nav-active', el.dataset.view === viewName);
     });
@@ -63,15 +109,14 @@ function switchView(viewName) {
 }
 
 function setupEventListeners() {
-    // Navigation
     document.querySelectorAll('[data-view]').forEach(el => {
         el.addEventListener('click', () => switchView(el.dataset.view));
     });
 
-    // Billing - SKU input with typeahead
     const skuInput = document.getElementById('sku-input');
     const skuDropdown = document.getElementById('sku-dropdown');
     let highlightedIndex = -1;
+    let skuDropdownMouseDown = false;
 
     skuInput.addEventListener('input', (e) => {
         const query = e.target.value.trim().toLowerCase();
@@ -83,7 +128,7 @@ function setupEventListeners() {
             return;
         }
 
-        const matched = products.filter(p =>
+        const matched = SparkBill.products.filter(p =>
             p.sku.toLowerCase().includes(query) || p.name.toLowerCase().includes(query)
         );
 
@@ -126,8 +171,15 @@ function setupEventListeners() {
         }
     });
 
+    skuInput.addEventListener('mousedown', () => {
+        skuDropdownMouseDown = false;
+    });
+
     skuInput.addEventListener('blur', () => {
-        setTimeout(hideSkuDropdown, 150);
+        if (!skuDropdownMouseDown) {
+            hideSkuDropdown();
+        }
+        skuDropdownMouseDown = false;
     });
 
     function showSkuDropdown(matches) {
@@ -142,6 +194,7 @@ function setupEventListeners() {
 
         skuDropdown.querySelectorAll('.sku-dropdown-item').forEach(item => {
             item.addEventListener('mousedown', () => {
+                skuDropdownMouseDown = true;
                 skuInput.value = item.dataset.sku;
                 hideSkuDropdown();
                 const product = findProductBySku(item.dataset.sku);
@@ -172,32 +225,27 @@ function setupEventListeners() {
     document.getElementById('void-btn').addEventListener('click', voidCart);
     document.getElementById('checkout-btn').addEventListener('click', checkout);
 
-    // Inventory
     document.getElementById('add-product-btn').addEventListener('click', openAddProductModal);
     document.getElementById('product-modal-close').addEventListener('click', closeProductModal);
     document.getElementById('product-modal-backdrop').addEventListener('click', closeProductModal);
     document.getElementById('product-modal-cancel').addEventListener('click', closeProductModal);
     document.getElementById('product-modal-save').addEventListener('click', saveProduct);
 
-    // Filters
     document.getElementById('filter-category').addEventListener('change', renderInventoryTable);
     document.getElementById('filter-price').addEventListener('change', renderInventoryTable);
     document.getElementById('reset-filters-btn').addEventListener('click', resetFilters);
 
-    // Reports Filters
     document.querySelectorAll('#period-btn-group [data-period]').forEach(btn => {
         btn.addEventListener('click', () => handlePeriodChange(btn.dataset.period));
     });
     document.getElementById('custom-start-date').addEventListener('change', filterReports);
     document.getElementById('custom-end-date').addEventListener('change', filterReports);
 
-    // Sale Modal
     document.getElementById('sale-modal-close').addEventListener('click', closeSaleModal);
     document.getElementById('sale-modal-backdrop').addEventListener('click', closeSaleModal);
     document.getElementById('sale-modal-cancel').addEventListener('click', closeSaleModal);
     document.getElementById('sale-modal-print').addEventListener('click', () => printCurrentSale());
 
-    // PDF Modal
     document.getElementById('pdf-modal-close').addEventListener('click', closePdfModal);
     document.getElementById('pdf-modal-backdrop').addEventListener('click', closePdfModal);
     document.getElementById('pdf-modal-cancel').addEventListener('click', closePdfModal);
@@ -209,7 +257,6 @@ function setupEventListeners() {
         }
     });
 
-    // Hotkeys
     document.addEventListener('keydown', handleHotkeys);
 }
 
@@ -220,43 +267,43 @@ function handleHotkeys(e) {
     if (e.key === 'F8') { e.preventDefault(); voidCart(); }
     if (e.key === 'F12') { e.preventDefault(); checkout(); }
 
-    if (currentView !== 'billing') return;
+    if (SparkBill.currentView !== 'billing') return;
     const active = document.activeElement;
     const inInput = active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA');
 
     if (e.key === 'Escape') {
         e.preventDefault();
         if (inInput) active.blur();
-        if (cartNavIndex >= 0) {
-            cartNavIndex = -1;
+        if (SparkBill.cartNavIndex >= 0) {
+            SparkBill.cartNavIndex = -1;
             renderCart();
         }
         return;
     }
 
-    if (e.key === 'Delete' && !inInput && cartItems.length > 0) {
+    if (e.key === 'Delete' && !inInput && SparkBill.cartItems.length > 0) {
         e.preventDefault();
-        if (cartNavIndex === -1) {
-            cartNavIndex = 0;
+        if (SparkBill.cartNavIndex === -1) {
+            SparkBill.cartNavIndex = 0;
         } else {
-            cartNavIndex = Math.min(cartNavIndex, cartItems.length - 1);
+            SparkBill.cartNavIndex = Math.min(SparkBill.cartNavIndex, SparkBill.cartItems.length - 1);
         }
         renderCart();
         return;
     }
 
-    if (cartNavIndex >= 0) {
+    if (SparkBill.cartNavIndex >= 0) {
         if (e.key === 'ArrowDown') {
             e.preventDefault();
-            cartNavIndex = Math.min(cartNavIndex + 1, cartItems.length - 1);
+            SparkBill.cartNavIndex = Math.min(SparkBill.cartNavIndex + 1, SparkBill.cartItems.length - 1);
             renderCart();
         } else if (e.key === 'ArrowUp') {
             e.preventDefault();
-            cartNavIndex = Math.max(cartNavIndex - 1, 0);
+            SparkBill.cartNavIndex = Math.max(SparkBill.cartNavIndex - 1, 0);
             renderCart();
         } else if (e.key === 'Enter') {
             e.preventDefault();
-            removeFromCartByIndex(cartNavIndex);
+            removeFromCartByIndex(SparkBill.cartNavIndex);
         }
     }
 }

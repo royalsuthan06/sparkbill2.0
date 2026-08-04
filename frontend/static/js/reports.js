@@ -1,16 +1,13 @@
-let allSales = [];
-let activePeriod = 'today';
-let currentViewingSaleId = null;
-
 function renderReportsTable(sales) {
     const tbody = document.getElementById('reports-table-body');
     tbody.innerHTML = sales.map(s => {
         const date = new Date(s.sale_date);
+        const customerDisplay = escapeHtml(s.customer_name || 'Walk-in');
         return `
             <tr class="data-grid-row border-b border-outline-variant hover:bg-surface-container-low transition-colors">
                 <td class="px-4 py-2 font-data-sm">${escapeHtml(s.invoice_number)}</td>
                 <td class="px-4 py-2">${date.toLocaleDateString('en-IN')} ${date.toLocaleTimeString('en-IN', {hour:'2-digit', minute:'2-digit'})}</td>
-                <td class="px-4 py-2">${escapeHtml(s.customer_name) || 'Walk-in'}</td>
+                <td class="px-4 py-2">${customerDisplay}</td>
                 <td class="px-4 py-2 text-right font-data-sm">${s.items || 0}</td>
                 <td class="px-4 py-2 text-right font-semibold">₹${s.total_amount.toFixed(2)}</td>
                 <td class="px-4 py-2">
@@ -32,7 +29,7 @@ function renderReportsTable(sales) {
 }
 
 function filterReports() {
-    if (!allSales || allSales.length === 0) {
+    if (!SparkBill.allSales || SparkBill.allSales.length === 0) {
         updateReportStats(0, 0, 0);
         renderReportsTable([]);
         return;
@@ -44,27 +41,27 @@ function filterReports() {
 
     let startDate, endDate;
 
-    if (activePeriod === 'today') {
+    if (SparkBill.activePeriod === 'today') {
         startDate = getStartOfDay(today);
         endDate = getEndOfDay(today);
-    } else if (activePeriod === 'yesterday') {
+    } else if (SparkBill.activePeriod === 'yesterday') {
         const yesterday = new Date(today);
         yesterday.setDate(today.getDate() - 1);
         startDate = getStartOfDay(yesterday);
         endDate = getEndOfDay(yesterday);
-    } else if (activePeriod === '7d') {
+    } else if (SparkBill.activePeriod === '7d') {
         const sevenDaysAgo = new Date(today);
         sevenDaysAgo.setDate(today.getDate() - 6);
         startDate = getStartOfDay(sevenDaysAgo);
         endDate = getEndOfDay(today);
-    } else if (activePeriod === 'custom') {
+    } else if (SparkBill.activePeriod === 'custom') {
         const startVal = document.getElementById('custom-start-date').value;
         const endVal = document.getElementById('custom-end-date').value;
         startDate = startVal ? getStartOfDay(new Date(startVal)) : new Date(0);
         endDate = endVal ? getEndOfDay(new Date(endVal)) : getEndOfDay(today);
     }
 
-    const filtered = allSales.filter(sale => {
+    const filtered = SparkBill.allSales.filter(sale => {
         const saleDate = new Date(sale.sale_date);
         return saleDate >= startDate && saleDate <= endDate;
     });
@@ -77,14 +74,25 @@ function filterReports() {
     renderReportsTable(filtered);
 }
 
+const periodLabels = {
+    today: 'DAILY SALES',
+    yesterday: "YESTERDAY'S SALES",
+    '7d': 'LAST 7 DAYS SALES',
+    custom: 'CUSTOM PERIOD SALES'
+};
+
 function updateReportStats(totalSales, totalCount, avgBill) {
     document.getElementById('report-today-sales').textContent = `₹${totalSales.toFixed(2)}`;
     document.getElementById('report-today-count').textContent = totalCount;
     document.getElementById('report-avg-bill').textContent = `₹${avgBill.toFixed(2)}`;
+    const labelEl = document.getElementById('report-period-label');
+    if (labelEl) {
+        labelEl.textContent = periodLabels[SparkBill.activePeriod] || 'SALES';
+    }
 }
 
 function handlePeriodChange(period) {
-    activePeriod = period;
+    SparkBill.activePeriod = period;
     
     document.querySelectorAll('#period-btn-group [data-period]').forEach(btn => {
         if (btn.dataset.period === period) {
@@ -111,7 +119,7 @@ function handlePeriodChange(period) {
 
 function closeSaleModal() {
     document.getElementById('sale-modal').classList.add('hidden');
-    currentViewingSaleId = null;
+    SparkBill.currentViewingSaleId = null;
 }
 
 function closePdfModal() {
@@ -130,7 +138,7 @@ async function viewSale(id) {
         const res = await fetch(`${API_BASE}/sales/${id}`);
         if (!res.ok) throw new Error('Failed to fetch sale');
         const sale = await res.json();
-        currentViewingSaleId = id;
+        SparkBill.currentViewingSaleId = id;
 
         const date = new Date(sale.sale_date);
         const body = document.getElementById('sale-modal-body');
@@ -147,7 +155,7 @@ async function viewSale(id) {
                     </div>
                     <div>
                         <span class="text-[11px] font-bold uppercase text-on-surface-variant">Customer</span>
-                        <p class="font-data-md text-data-md text-on-surface">${escapeHtml(sale.customer_name) || 'Walk-in'}</p>
+                        <p class="font-data-md text-data-md text-on-surface">${escapeHtml(sale.customer_name || 'Walk-in')}</p>
                     </div>
                     <div>
                         <span class="text-[11px] font-bold uppercase text-on-surface-variant">Payment Method</span>
@@ -204,8 +212,8 @@ function printSale(id) {
 }
 
 function printCurrentSale() {
-    if (!currentViewingSaleId) return;
-    showPdfModal(currentViewingSaleId);
+    if (!SparkBill.currentViewingSaleId) return;
+    showPdfModal(SparkBill.currentViewingSaleId);
 }
 
 async function deleteSale(id, invoiceNumber) {

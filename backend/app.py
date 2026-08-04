@@ -2,36 +2,21 @@ import os
 import sys
 import secrets
 import json
+import re
+import threading
 
-# Locate and configure Python DLL for pythonnet/clr_loader in frozen environments
-if getattr(sys, 'frozen', False):
-    exe_dir = os.path.dirname(sys.executable)
-    search_dirs = [
-        os.path.join(exe_dir, '_internal'),
-        exe_dir
-    ]
-    if hasattr(sys, '_MEIPASS'):
-        search_dirs.insert(0, os.path.join(sys._MEIPASS, '_internal'))
-        search_dirs.insert(0, sys._MEIPASS)
+from dotenv import load_dotenv
+load_dotenv()
 
-    py_dll = None
-    for d in search_dirs:
-        if os.path.exists(d):
-            if d not in os.environ['PATH']:
-                os.environ['PATH'] = d + os.pathsep + os.environ['PATH']
-
-            for file in os.listdir(d):
-                if file.lower().startswith('python3') and file.lower().endswith('.dll'):
-                    py_dll = os.path.abspath(os.path.join(d, file))
-                    break
-    if py_dll:
-        os.environ['PYTHONNET_PYDLL'] = py_dll
+try:
+    from flask_utils import configure_frozen_path
+    configure_frozen_path()
+except ImportError:
+    pass
 
 from flask import Flask, request, jsonify, send_from_directory, abort
-from flask_cors import CORS
 from models import db, Product, Sale, SaleItem, InvoiceCounter
 from datetime import datetime
-import threading
 import webview
 import logging
 
@@ -56,9 +41,9 @@ template_folder = os.path.join(bundle_dir, 'frontend')
 
 app = Flask(__name__, static_folder=static_folder, template_folder=template_folder)
 app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', secrets.token_hex(32))
-CORS(app, origins=['http://127.0.0.1:5000', 'http://localhost:5000'])
 
-# Ensure database directory exists next to exe or in project root
+_invoice_lock = threading.Lock()
+
 DB_FOLDER = os.path.join(BASE_DIR, 'database')
 os.makedirs(DB_FOLDER, exist_ok=True)
 db_path = os.path.abspath(os.path.join(DB_FOLDER, 'arun_crackers_pos.db'))
@@ -76,13 +61,17 @@ def no_cache(response):
     response.headers['Pragma'] = 'no-cache'
     response.headers['X-Content-Type-Options'] = 'nosniff'
     response.headers['X-Frame-Options'] = 'DENY'
-    response.headers['Content-Security-Policy'] = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self'"
+    response.headers['Content-Security-Policy'] = (
+        "default-src 'self'; "
+        "script-src 'self'; "
+        "style-src 'self' 'unsafe-inline'; "
+        "img-src 'self' data:; "
+        "font-src 'self'"
+    )
     return response
 
 
 def seed_sample_data():
-    """Seed sample data from inventory_data.json, adding any missing products."""
-    # Check bundled path first, then fallback to BASE_DIR path
     if getattr(sys, 'frozen', False):
         json_path = os.path.join(sys._MEIPASS, 'database', 'inventory_data.json')
         if not os.path.exists(json_path):
@@ -94,7 +83,6 @@ def seed_sample_data():
         with open(json_path, 'r', encoding='utf-8') as f:
             items_data = json.load(f)
         
-        # Get existing SKUs from the database
         existing_products = Product.query.with_entities(Product.sku).all()
         existing_skus = {p.sku for p in existing_products}
         
@@ -113,7 +101,6 @@ def seed_sample_data():
             db.session.commit()
             logger.info(f"Successfully seeded {len(new_products)} new products from inventory data.")
     else:
-        # Fallback if json doesn't exist and DB is empty
         if Product.query.first() is None:
             sample_products = [
                 Product(sku='001', name='Flower Pot - Special Large', price=250.00, category='Flower Pots'),
@@ -133,7 +120,6 @@ def index():
     return send_from_directory(app.template_folder, 'index.html')
 
 
-# Products Routes
 @app.route('/api/products', methods=['GET'])
 def get_products():
     products = Product.query.all()
@@ -146,6 +132,12 @@ def get_products():
             'category': p.category or ''
         } for p in products
     ])
+
+
+@app.route('/api/categories', methods=['GET'])
+def get_categories():
+    categories = db.session.query(Product.category).distinct().filter(Product.category.isnot(None)).filter(Product.category != '').order_by(Product.category).all()
+    return jsonify([c[0] for c in categories])
 
 
 @app.route('/api/products/lookup/<sku>', methods=['GET'])
@@ -196,7 +188,6 @@ def add_product():
         if price > 99999.99:
             return jsonify({'error': 'Price cannot exceed 99999.99'}), 400
         
-        # Check for duplicate SKU
         existing_product = Product.query.filter_by(sku=sku).first()
         if existing_product:
             return jsonify({'error': 'A product with this SKU already exists!'}), 400
@@ -284,24 +275,35 @@ def delete_product(product_id):
         return jsonify({'error': 'Failed to delete product'}), 500
 
 
-# Sales Routes
 @app.route('/api/sales', methods=['GET'])
 def get_sales():
-    sales = Sale.query.order_by(Sale.sale_date.desc()).all()
-    return jsonify([
-        {
-            'id': s.id,
-            'invoice_number': s.invoice_number,
-            'customer_name': s.customer_name or '',
-            'customer_mobile': s.customer_mobile or '',
-            'total_amount': float(s.total_amount) if s.total_amount is not None else 0.0,
-            'amount_paid': float(s.amount_paid) if s.amount_paid is not None else 0.0,
-            'balance': float(s.balance) if s.balance is not None else 0.0,
-            'payment_method': s.payment_method or 'Cash',
-            'sale_date': s.sale_date.isoformat() if s.sale_date else datetime.now().isoformat(),
-            'items': len(s.items)
-        } for s in sales
-    ])
+    page = request.args.get('page', 1, type=int)
+    per_page = request.args.get('per_page', 100, type=int)
+    per_page = min(per_page, 500)
+
+    pagination = Sale.query.order_by(Sale.sale_date.desc()).paginate(
+        page=page, per_page=per_page, error_out=False
+    )
+    return jsonify({
+        'sales': [
+            {
+                'id': s.id,
+                'invoice_number': s.invoice_number,
+                'customer_name': s.customer_name or '',
+                'customer_mobile': s.customer_mobile or '',
+                'total_amount': float(s.total_amount) if s.total_amount is not None else 0.0,
+                'amount_paid': float(s.amount_paid) if s.amount_paid is not None else 0.0,
+                'balance': float(s.balance) if s.balance is not None else 0.0,
+                'payment_method': s.payment_method or 'Cash',
+                'sale_date': s.sale_date.isoformat() if s.sale_date else datetime.now().isoformat(),
+                'items': len(s.items)
+            } for s in pagination.items
+        ],
+        'total': pagination.total,
+        'page': pagination.page,
+        'per_page': pagination.per_page,
+        'pages': pagination.pages
+    })
 
 
 @app.route('/api/sales', methods=['POST'])
@@ -329,6 +331,10 @@ def create_sale():
             if 'product_id' not in item:
                 return jsonify({'error': 'Each item must have a product_id'}), 400
             try:
+                item['product_id'] = int(item['product_id'])
+            except (ValueError, TypeError):
+                return jsonify({'error': 'product_id must be a valid integer'}), 400
+            try:
                 qty = int(item.get('quantity', 0))
             except (ValueError, TypeError):
                 return jsonify({'error': 'Quantity must be a valid integer'}), 400
@@ -338,11 +344,7 @@ def create_sale():
                 return jsonify({'error': 'Quantity cannot exceed 9999'}), 400
 
         product_ids = [item['product_id'] for item in data['items']]
-        query = Product.query.filter(Product.id.in_(product_ids))
-        if 'sqlite' not in app.config['SQLALCHEMY_DATABASE_URI']:
-            products = query.with_for_update().all()
-        else:
-            products = query.all()
+        products = Product.query.filter(Product.id.in_(product_ids)).all()
 
         product_map = {p.id: p for p in products}
 
@@ -359,18 +361,19 @@ def create_sale():
             return jsonify({'error': 'Amount paid cannot be negative'}), 400
         balance = round(calculated_total - amount_paid, 2)
 
-        now = datetime.now()
-        year = now.year
-        counter_row = InvoiceCounter.query.filter_by(year=year).first()
-        if counter_row is None:
-            counter_row = InvoiceCounter(year=year, counter=0)
-            db.session.add(counter_row)
-            db.session.flush()
-        counter_row.counter += 1
-        if counter_row.counter > 9999:
-            return jsonify({'error': 'Invoice limit reached for this year'}), 500
-        suffix = f'{counter_row.counter:04d}'
-        invoice_number = f'INV-{now.strftime("%Y%m%d%H%M%S")}-{suffix}'
+        with _invoice_lock:
+            now = datetime.now()
+            year = now.year
+            counter_row = InvoiceCounter.query.filter_by(year=year).first()
+            if counter_row is None:
+                counter_row = InvoiceCounter(year=year, counter=0)
+                db.session.add(counter_row)
+                db.session.flush()
+            counter_row.counter += 1
+            if counter_row.counter > 9999:
+                return jsonify({'error': 'Invoice limit reached for this year'}), 500
+            suffix = f'{counter_row.counter:04d}'
+            invoice_number = f'INV-{now.strftime("%Y%m%d%H%M%S")}-{suffix}'
 
         new_sale = Sale(
             invoice_number=invoice_number,
@@ -433,7 +436,7 @@ def get_sale(sale_id):
         'amount_paid': float(sale.amount_paid) if sale.amount_paid is not None else 0.0,
         'balance': float(sale.balance) if sale.balance is not None else 0.0,
         'payment_method': sale.payment_method or 'Cash',
-        'sale_date': sale.sale_date.isoformat() if sale.sale_date else datetime.now().isoformat(),
+        'sale_date': sale.sale_date.isoformat() if sale.sale_date else '',
         'items': items
     })
 
@@ -456,7 +459,6 @@ def delete_sale(sale_id):
         return jsonify({'error': 'Failed to delete sale'}), 500
 
 
-# Dashboard Stats Route
 @app.route('/api/stats', methods=['GET'])
 def get_stats():
     today = datetime.now().date()
@@ -479,14 +481,11 @@ def generate_invoice_pdf(sale):
     os.makedirs(invoices_dir, exist_ok=True)
     pdf_path = os.path.join(invoices_dir, f"{sale.invoice_number}.pdf")
     
-    # Page setup - A4
     doc = SimpleDocTemplate(pdf_path, pagesize=A4, rightMargin=54, leftMargin=54, topMargin=54, bottomMargin=54)
     story = []
     
     styles = getSampleStyleSheet()
     
-    # Custom styles
-    # Primary theme colors - Deep warm Red for crackers and elegant styling
     title_style = ParagraphStyle(
         'InvoiceTitle',
         parent=styles['Heading1'],
@@ -533,7 +532,7 @@ def generate_invoice_pdf(sale):
         parent=styles['Normal'],
         fontName='Helvetica',
         fontSize=9,
-        alignment=2, # Right aligned
+        alignment=2,
         textColor=colors.HexColor('#333333'),
     )
 
@@ -542,7 +541,7 @@ def generate_invoice_pdf(sale):
         parent=styles['Normal'],
         fontName='Helvetica-Bold',
         fontSize=10,
-        alignment=2, # Right aligned
+        alignment=2,
         textColor=colors.white,
     )
     
@@ -552,15 +551,13 @@ def generate_invoice_pdf(sale):
         fontName='Helvetica',
         fontSize=9,
         textColor=colors.HexColor('#777777'),
-        alignment=1, # Center
+        alignment=1,
         spaceBefore=20
     )
     
-    # Invoice Header Banner
     story.append(Paragraph("Arun Crackers", title_style))
     story.append(Spacer(1, 10))
     
-    # Customer and Invoice Info Grid
     date_str = sale.sale_date.strftime("%d-%m-%Y %I:%M %p") if sale.sale_date else datetime.now().strftime("%d-%m-%Y %I:%M %p")
     
     info_data = [
@@ -585,8 +582,6 @@ def generate_invoice_pdf(sale):
     story.append(info_table)
     story.append(Spacer(1, 20))
     
-    # Items Table
-    # Table headers: SNo, Item Name, Price, Qty, Total
     table_data = [
         [
             Paragraph("S.No", table_header_style),
@@ -610,19 +605,18 @@ def generate_invoice_pdf(sale):
         
     items_table = Table(table_data, colWidths=[40, 207, 80, 70, 90])
     items_table.setStyle(TableStyle([
-        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#cc1100')), # Crimson header
+        ('BACKGROUND', (0, 0), (-1, 0), colors.HexColor('#cc1100')),
         ('ALIGN', (0, 0), (-1, 0), 'LEFT'),
         ('VALIGN', (0, 0), (-1, -1), 'MIDDLE'),
         ('TOPPADDING', (0, 0), (-1, -1), 8),
         ('BOTTOMPADDING', (0, 0), (-1, -1), 8),
-        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#fbfbfb')]), # Zebra patterning
+        ('ROWBACKGROUNDS', (0, 1), (-1, -1), [colors.white, colors.HexColor('#fbfbfb')]),
         ('GRID', (0, 0), (-1, -1), 0.5, colors.HexColor('#e0e0e0')),
     ]))
     
     story.append(items_table)
     story.append(Spacer(1, 15))
     
-    # Totals Section
     total_data = [
         [Paragraph("", info_header_style), Paragraph("Total Amount:", info_header_style), Paragraph(f"INR {float(sale.total_amount):.2f}", info_header_style)],
         [Paragraph("", info_header_style), Paragraph("Amount Paid:", info_header_style), Paragraph(f"INR {float(sale.amount_paid):.2f}", info_header_style)],
@@ -639,7 +633,6 @@ def generate_invoice_pdf(sale):
     story.append(total_table)
     story.append(Spacer(1, 30))
     
-    # Footer
     story.append(Paragraph("Thank you for your business! We wish you a safe and sparky celebration!", footer_style))
     story.append(Paragraph("This is a computer-generated invoice and does not require a physical signature.", footer_style))
     
@@ -652,22 +645,8 @@ def get_cached_pdf_path(invoice_number):
     return os.path.join(invoices_dir, f"{invoice_number}.pdf")
 
 
-@app.route('/api/sales/<int:sale_id>/print', methods=['GET'])
-def print_sale_invoice(sale_id):
-    try:
-        sale = db.session.get(Sale, sale_id)
-        if not sale:
-            return jsonify({'error': 'Sale not found'}), 404
-        pdf_path = get_cached_pdf_path(sale.invoice_number)
-        if not os.path.exists(pdf_path):
-            generate_invoice_pdf(sale)
-        if os.path.exists(pdf_path):
-            return jsonify({'success': True, 'invoice_number': sale.invoice_number}), 200
-        else:
-            return jsonify({'error': 'Invoice PDF file not found after generation'}), 500
-    except Exception as e:
-        logger.error(f"Error printing sale invoice: {e}")
-        return jsonify({'error': 'Failed to print invoice'}), 500
+def _sanitize_filename(name):
+    return re.sub(r'[^A-Za-z0-9_\-.]', '_', name)
 
 
 @app.route('/api/sales/<int:sale_id>/pdf', methods=['GET'])
@@ -697,7 +676,7 @@ def download_sale_invoice_pdf_inline(sale_id):
         if not os.path.exists(pdf_path):
             generate_invoice_pdf(sale)
         directory = os.path.dirname(pdf_path)
-        filename = os.path.basename(pdf_path)
+        filename = _sanitize_filename(os.path.basename(pdf_path))
         response = send_from_directory(directory, filename, as_attachment=False)
         response.headers['Content-Disposition'] = f'inline; filename="{filename}"'
         response.headers['Content-Type'] = 'application/pdf'
@@ -716,14 +695,21 @@ def init_db():
 def start_app():
     init_db()
     
-    # Run Flask on 127.0.0.1:5000 in a background daemon thread
-    flask_thread = threading.Thread(
-        target=lambda: app.run(host='127.0.0.1', port=5000, debug=False, use_reloader=False),
-        daemon=True
-    )
-    flask_thread.start()
+    try:
+        from waitress import serve
+        logger.info("Using waitress WSGI server")
+        server_thread = threading.Thread(
+            target=lambda: serve(app, host='127.0.0.1', port=5000),
+            daemon=True
+        )
+    except ImportError:
+        logger.warning("waitress not installed, falling back to Flask dev server")
+        server_thread = threading.Thread(
+            target=lambda: app.run(host='127.0.0.1', port=5000, debug=False, use_reloader=False),
+            daemon=True
+        )
+    server_thread.start()
     
-    # Initialize pywebview desktop window
     logger.info("=" * 60)
     logger.info(" ArunCrackers POS App is running desktop window via pywebview...")
     logger.info("=" * 60)
@@ -756,6 +742,4 @@ def start_app():
     webview.start()
 
 
-if __name__ == '__main__':
-    start_app()
 

@@ -4,18 +4,11 @@ __pycache__/
 *.pyd
 .env
 venv/
+.venv/
 *.log
 .DS_Store
-# Ignore compiled executables and build folders
 dist/
 build/
 *.spec
-
-# Ignore virtual environments
-venv/
-.venv/
-
-# Ignore generated invoices and runtime database
 invoices/
 database/arun_crackers_pos.db
-
