@@ -1,6 +1,3 @@
-let cartItems = [];
-let cartNavIndex = -1;
-
 function addToCart() {
     const skuInput = document.getElementById('sku-input');
     const qtyInput = document.getElementById('qty-input');
@@ -18,12 +15,12 @@ function addToCart() {
         return;
     }
 
-    const existing = cartItems.find(ci => ci.product_id === product.id);
+    const existing = SparkBill.cartItems.find(ci => ci.product_id === product.id);
 
     if (existing) {
         existing.quantity += qty;
     } else {
-        cartItems.push({
+        SparkBill.cartItems.push({
             product_id: product.id,
             product_name: product.name,
             price: product.price,
@@ -43,9 +40,9 @@ function addToCart() {
 function renderCart() {
     const tbody = document.getElementById('bill-table-body');
     let sno = 1;
-    tbody.innerHTML = cartItems.map((item, idx) => {
+    tbody.innerHTML = SparkBill.cartItems.map((item, idx) => {
         const total = item.quantity * item.price;
-        const isNav = idx === cartNavIndex;
+        const isNav = idx === SparkBill.cartNavIndex;
         return `
             <tr class="zebra-row transition-all ${isNav ? 'bg-error/15 border-l-4 border-l-error' : ''}">
                 <td class="p-padding-cell font-data-md ${isNav ? 'text-error font-bold' : ''}">${sno++}</td>
@@ -66,15 +63,15 @@ function renderCart() {
         `;
     }).join('');
 
-    const totalItems = cartItems.reduce((sum, i) => sum + i.quantity, 0);
-    const subtotal = cartItems.reduce((sum, i) => sum + (i.price * i.quantity), 0);
+    const totalItems = SparkBill.cartItems.reduce((sum, i) => sum + i.quantity, 0);
+    const subtotal = SparkBill.cartItems.reduce((sum, i) => sum + (i.price * i.quantity), 0);
     document.getElementById('subtotal-display').textContent = subtotal.toFixed(2);
     document.getElementById('grand-total-val').textContent = subtotal.toFixed(2);
     document.getElementById('units-display').textContent = `Items: ${totalItems} Units`;
 }
 
 function updateCartItemQty(productId, qty) {
-    const item = cartItems.find(i => i.product_id === productId);
+    const item = SparkBill.cartItems.find(i => i.product_id === productId);
     const newQty = parseInt(qty) || 1;
     if (item) {
         item.quantity = newQty;
@@ -84,15 +81,15 @@ function updateCartItemQty(productId, qty) {
 }
 
 function removeFromCart(productId) {
-    cartItems = cartItems.filter(i => i.product_id !== productId);
-    cartNavIndex = -1;
+    SparkBill.cartItems = SparkBill.cartItems.filter(i => i.product_id !== productId);
+    SparkBill.cartNavIndex = -1;
     renderCart();
 }
 
 function removeFromCartByIndex(index) {
-    if (index >= 0 && index < cartItems.length) {
-        const removed = cartItems.splice(index, 1)[0];
-        cartNavIndex = -1;
+    if (index >= 0 && index < SparkBill.cartItems.length) {
+        const removed = SparkBill.cartItems.splice(index, 1)[0];
+        SparkBill.cartNavIndex = -1;
         renderCart();
         showToast(`Removed "${removed.product_name}"`, 'success');
     } else {
@@ -102,15 +99,15 @@ function removeFromCartByIndex(index) {
 
 async function voidCart() {
     if (await askConfirmation('Are you sure you want to void this bill?')) {
-        cartItems = [];
-        cartNavIndex = -1;
+        SparkBill.cartItems = [];
+        SparkBill.cartNavIndex = -1;
         renderCart();
         document.getElementById('product-preview').textContent = '-';
     }
 }
 
 async function checkout() {
-    if (cartItems.length === 0) {
+    if (SparkBill.cartItems.length === 0) {
         showToast('Cart is empty!', 'error');
         return;
     }
@@ -127,7 +124,7 @@ async function checkout() {
         customer_name: customerName,
         customer_mobile: customerMobile,
         payment_method: 'Cash',
-        items: cartItems.map(i => ({
+        items: SparkBill.cartItems.map(i => ({
             product_id: i.product_id,
             quantity: i.quantity
         }))
@@ -148,8 +145,8 @@ async function checkout() {
                 showPdfModal(result.id);
             }
             
-            cartItems = [];
-            cartNavIndex = -1;
+            SparkBill.cartItems = [];
+            SparkBill.cartNavIndex = -1;
             renderCart();
             document.getElementById('customer-name').value = '';
             document.getElementById('customer-mobile').value = '';

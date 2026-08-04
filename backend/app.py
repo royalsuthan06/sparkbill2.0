@@ -4,6 +4,7 @@ import secrets
 import json
 import re
 import threading
+import time
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -14,7 +15,8 @@ try:
 except ImportError:
     pass
 
-from flask import Flask, request, jsonify, send_from_directory, abort
+from flask import Flask, request, jsonify, send_from_directory
+from sqlalchemy import func
 from models import db, Product, Sale, SaleItem, InvoiceCounter
 from datetime import datetime
 import webview
@@ -63,7 +65,7 @@ def no_cache(response):
     response.headers['X-Frame-Options'] = 'DENY'
     response.headers['Content-Security-Policy'] = (
         "default-src 'self'; "
-        "script-src 'self'; "
+        "script-src 'self' 'unsafe-eval'; "
         "style-src 'self' 'unsafe-inline'; "
         "img-src 'self' data:; "
         "font-src 'self'"
@@ -284,6 +286,13 @@ def get_sales():
     pagination = Sale.query.order_by(Sale.sale_date.desc()).paginate(
         page=page, per_page=per_page, error_out=False
     )
+
+    item_counts = dict(
+        db.session.query(SaleItem.sale_id, func.count(SaleItem.id))
+        .group_by(SaleItem.sale_id)
+        .all()
+    )
+
     return jsonify({
         'sales': [
             {
@@ -296,7 +305,7 @@ def get_sales():
                 'balance': float(s.balance) if s.balance is not None else 0.0,
                 'payment_method': s.payment_method or 'Cash',
                 'sale_date': s.sale_date.isoformat() if s.sale_date else datetime.now().isoformat(),
-                'items': len(s.items)
+                'items': item_counts.get(s.id, 0)
             } for s in pagination.items
         ],
         'total': pagination.total,
@@ -323,6 +332,8 @@ def create_sale():
             return jsonify({'error': 'Customer name must be 255 characters or fewer'}), 400
         if len(customer_mobile) > 20:
             return jsonify({'error': 'Customer mobile must be 20 characters or fewer'}), 400
+        if customer_mobile and not re.match(r'^\+?[0-9]{7,15}$', customer_mobile):
+            return jsonify({'error': 'Customer mobile must be 7-15 digits, optionally starting with +'}), 400
         valid_payment_methods = {'Cash', 'UPI', 'Card', 'Online'}
         if payment_method not in valid_payment_methods:
             return jsonify({'error': f'Invalid payment method. Allowed: {", ".join(sorted(valid_payment_methods))}'}), 400
@@ -359,6 +370,8 @@ def create_sale():
         amount_paid = float(data.get('amount_paid', calculated_total))
         if amount_paid < 0:
             return jsonify({'error': 'Amount paid cannot be negative'}), 400
+        if amount_paid > calculated_total + 0.001:
+            return jsonify({'error': 'Amount paid cannot exceed the total amount'}), 400
         balance = round(calculated_total - amount_paid, 2)
 
         with _invoice_lock:
@@ -699,7 +712,7 @@ def start_app():
         from waitress import serve
         logger.info("Using waitress WSGI server")
         server_thread = threading.Thread(
-            target=lambda: serve(app, host='127.0.0.1', port=5000),
+            target=lambda: serve(app, host='127.0.0.1', port=5000, threads=8),
             daemon=True
         )
     except ImportError:
@@ -732,14 +745,21 @@ def start_app():
         elif os.path.exists(icon_filename):
             icon_path = os.path.abspath(icon_filename)
 
-    window = webview.create_window(
-        title="SparkBill POS",
-        url="http://127.0.0.1:5000",
-        width=1280,
-        height=800,
-        resizable=True
-    )
-    webview.start()
+    try:
+        window = webview.create_window(
+            title="SparkBill POS",
+            url="http://127.0.0.1:5000",
+            width=1280,
+            height=800,
+            resizable=True
+        )
+        webview.start()
+    except Exception as e:
+        logger.error(f"Desktop window failed to start: {e}")
+        logger.error("The server is still running. Open http://127.0.0.1:5000 in a browser.")
+        while True:
+            time.sleep(3600)
 
 
-
+if __name__ == '__main__':
+    start_app()

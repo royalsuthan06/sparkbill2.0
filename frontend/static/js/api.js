@@ -55,9 +55,9 @@ function askConfirmation(message) {
 }
 
 function findProductBySku(sku) {
-    return products.find(p => p.sku === sku)
-        || products.find(p => p.sku === sku.padStart(3, '0'))
-        || products.find(p => parseInt(p.sku) === parseInt(sku));
+    return SparkBill.products.find(p => p.sku === sku)
+        || SparkBill.products.find(p => p.sku === sku.padStart(3, '0'))
+        || SparkBill.products.find(p => parseInt(p.sku) === parseInt(sku));
 }
 
 function showToast(message, type = 'success') {
@@ -77,8 +77,15 @@ function showToast(message, type = 'success') {
         <div class="flex-1">
             <p class="text-base font-bold text-on-surface">${escapeHtml(message)}</p>
         </div>
-        <button class="material-symbols-outlined text-[20px] text-on-surface-variant hover:text-on-surface ml-3" onclick="this.parentElement.remove()">close</button>
     `;
+
+    const closeBtn = document.createElement('button');
+    closeBtn.className = 'material-symbols-outlined text-[20px] text-on-surface-variant hover:text-on-surface ml-3';
+    closeBtn.textContent = 'close';
+    closeBtn.addEventListener('click', () => {
+        if (toast.parentNode) toast.remove();
+    });
+    toast.appendChild(closeBtn);
 
     container.appendChild(toast);
 

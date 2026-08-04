@@ -1,13 +1,12 @@
 import os
 import sys
-import json
 import tempfile
 import pytest
 
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'backend'))
 
 from app import app, db
-from models import Product, Sale, SaleItem
+from models import Product
 
 
 @pytest.fixture

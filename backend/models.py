@@ -1,11 +1,11 @@
 from flask_sqlalchemy import SQLAlchemy
-from datetime import datetime, timezone
+from datetime import datetime
 
 db = SQLAlchemy()
 
 
-def _utcnow():
-    return datetime.now(timezone.utc)
+def _now():
+    return datetime.now()
 
 
 class Product(db.Model):
@@ -16,8 +16,8 @@ class Product(db.Model):
     name = db.Column(db.String(255), nullable=False)
     price = db.Column(db.Numeric(10, 2), nullable=False)
     category = db.Column(db.String(100))
-    created_at = db.Column(db.DateTime, default=_utcnow)
-    updated_at = db.Column(db.DateTime, default=_utcnow, onupdate=_utcnow)
+    created_at = db.Column(db.DateTime, default=_now)
+    updated_at = db.Column(db.DateTime, default=_now, onupdate=_now)
 
 
 class Sale(db.Model):
@@ -31,7 +31,7 @@ class Sale(db.Model):
     amount_paid = db.Column(db.Numeric(10, 2), nullable=False)
     balance = db.Column(db.Numeric(10, 2), default=0)
     payment_method = db.Column(db.String(50))
-    sale_date = db.Column(db.DateTime, default=_utcnow)
+    sale_date = db.Column(db.DateTime, default=_now)
     items = db.relationship('SaleItem', backref='sale', cascade='all, delete-orphan', lazy=True)
 
 

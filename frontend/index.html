@@ -6,6 +6,7 @@
     <meta content="width=device-width, initial-scale=1.0" name="viewport" />
     <title>Arun Crackers | Ignite POS</title>
     <script src="/static/js/tailwindcss.js"></script>
+    <script src="/static/js/tailwind-config.js"></script>
     <link href="/static/css/fonts.css" rel="stylesheet" />
     <link href="/static/css/material-symbols.css" rel="stylesheet" />
     <style>
@@ -36,16 +37,7 @@
             outline: 2px solid #f43f5e;
             outline-offset: -1px;
             border-color: #f43f5e;
-        }
-
-        input[type="number"]::-webkit-inner-spin-button,
-        input[type="number"]::-webkit-outer-spin-button {
-            -webkit-appearance: none;
-            margin: 0;
-        }
-
-        input[type="number"] {
-            -moz-appearance: textfield;
+            box-shadow: 0 0 0 4px rgba(244, 63, 94, 0.1);
         }
 
         .zebra-row:nth-child(even) {
@@ -66,94 +58,6 @@
             backdrop-filter: blur(2px);
         }
     </style>
-    <script>
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        "surface-container-low": "#f8fafc",
-                        "on-secondary-fixed-variant": "#475569",
-                        "inverse-on-surface": "#f8fafc",
-                        "surface-bright": "#ffffff",
-                        "secondary": "#475569",
-                        "primary-fixed": "#ffe4e6",
-                        "on-background": "#0f172a",
-                        "surface": "#ffffff",
-                        "tertiary-fixed": "#dcfce7",
-                        "on-tertiary-fixed-variant": "#166534",
-                        "on-tertiary-container": "#14532d",
-                        "surface-container-lowest": "#ffffff",
-                        "error-container": "#fee2e2",
-                        "on-primary-fixed-variant": "#9f1239",
-                        "tertiary-fixed-dim": "#86efac",
-                        "on-surface-variant": "#64748b",
-                        "surface-variant": "#f1f5f9",
-                        "on-primary-fixed": "#4c0519",
-                        "secondary-fixed-dim": "#cbd5e1",
-                        "primary-fixed-dim": "#fda4af",
-                        "on-secondary": "#ffffff",
-                        "surface-container-highest": "#e2e8f0",
-                        "secondary-container": "#e2e8f0",
-                        "tertiary": "#10b981",
-                        "on-error": "#ffffff",
-                        "inverse-surface": "#1e293b",
-                        "outline": "#cbd5e1",
-                        "primary-container": "#f43f5e",
-                        "on-error-container": "#7f1d1d",
-                        "on-secondary-container": "#1e293b",
-                        "surface-container-high": "#f1f5f9",
-                        "on-primary": "#ffffff",
-                        "surface-tint": "#f43f5e",
-                        "outline-variant": "#e2e8f0",
-                        "on-tertiary": "#ffffff",
-                        "surface-dim": "#f1f5f9",
-                        "error": "#ef4444",
-                        "secondary-fixed": "#f1f5f9",
-                        "on-tertiary-fixed": "#064e3b",
-                        "inverse-primary": "#fb7185",
-                        "background": "#f8fafc",
-                        "surface-container": "#f1f5f9",
-                        "on-secondary-fixed": "#0f172a",
-                        "on-primary-container": "#ffffff",
-                        "primary": "#f43f5e",
-                        "on-surface": "#0f172a",
-                        "tertiary-container": "#dcfce7"
-                    },
-                    borderRadius: {
-                        DEFAULT: "0.125rem",
-                        lg: "0.25rem",
-                        xl: "0.5rem",
-                        full: "0.75rem"
-                    },
-                    spacing: {
-                        unit: "4px",
-                        gutter: "8px",
-                        "padding-cell": "6px 8px",
-                        "margin-screen": "12px"
-                    },
-                    fontFamily: {
-                        "headline-sm": ["Inter"],
-                        "display-bold": ["Inter"],
-                        "data-md": ["JetBrains Mono"],
-                        "data-lg": ["JetBrains Mono"],
-                        "data-sm": ["JetBrains Mono"],
-                        "body-md": ["Inter"],
-                        "body-sm": ["Inter"]
-                    },
-                    fontSize: {
-                        "headline-sm": ["18px", { "lineHeight": "24px", "fontWeight": "600" }],
-                        "display-bold": ["24px", { "lineHeight": "32px", "fontWeight": "700" }],
-                        "data-md": ["14px", { "lineHeight": "20px", "fontWeight": "500" }],
-                        "data-lg": ["20px", { "lineHeight": "28px", "letterSpacing": "-0.02em", "fontWeight": "600" }],
-                        "data-sm": ["11px", { "lineHeight": "14px", "fontWeight": "500" }],
-                        "body-md": ["14px", { "lineHeight": "20px", "fontWeight": "400" }],
-                        "body-sm": ["12px", { "lineHeight": "16px", "fontWeight": "400" }]
-                    }
-                }
-            }
-        }
-    </script>
 </head>
 
 <body
@@ -185,14 +89,14 @@
                         for="customer-name">Purchaser Name (F3)</label>
                     <input
                         class="bg-transparent border-b border-outline-variant py-1 font-body-md text-on-surface focus:border-primary outline-none transition-all"
-                        id="customer-name" placeholder="Walk-in Customer" type="text" maxlength="255" />
+                        id="customer-name" placeholder="Walk-in Customer" type="text" />
                 </div>
                 <div class="flex flex-col w-48">
                     <label class="text-on-surface-variant font-body-sm text-[11px] uppercase tracking-wider mb-0.5"
                         for="customer-mobile">Mobile Number</label>
                     <input
                         class="bg-transparent border-b border-outline-variant py-1 font-data-md text-on-surface focus:border-primary outline-none transition-all"
-                        id="customer-mobile" placeholder="9875346550" type="text" maxlength="20" />
+                        id="customer-mobile" placeholder="9875346550" type="text" />
                 </div>
                 <div class="flex flex-col w-32">
                     <label class="text-on-surface-variant font-body-sm text-[11px] uppercase tracking-wider mb-0.5">Bill
@@ -208,17 +112,21 @@
                         <div class="relative">
                             <input autofocus
                                 class="w-full bg-surface-container-low border border-outline p-3 font-data-md text-data-md text-on-surface input-focus-ring placeholder:text-outline transition-all outline-none"
-                                id="sku-input" placeholder="Scan Barcode or Type SKU..." type="text" maxlength="50" />
+                                id="sku-input" placeholder="Scan Barcode or Type SKU..." type="text" />
                             <div class="absolute right-3 top-1/2 -translate-y-1/2">
                                 <span
                                     class="bg-surface-container-high text-on-surface-variant px-2 py-0.5 rounded font-data-sm text-[10px] border border-outline-variant">F1</span>
                             </div>
-                            <div id="sku-dropdown" class="hidden absolute left-0 right-0 top-full mt-1 bg-surface border border-outline-variant rounded-lg shadow-2xl z-50 max-h-72 overflow-y-auto"></div>
+                            <div id="sku-dropdown"
+                                class="hidden absolute left-0 right-0 top-full mt-1 bg-surface border border-outline-variant rounded-lg shadow-2xl z-50 max-h-72 overflow-y-auto">
+                            </div>
                         </div>
                     </div>
                     <div class="col-span-6 flex items-end">
-                        <div class="w-full bg-surface-container-low border border-outline rounded p-4 min-h-[52px] flex flex-col justify-center">
-                            <span class="text-[11px] font-bold uppercase text-on-surface-variant block mb-0.5">Product</span>
+                        <div
+                            class="w-full bg-surface-container-low border border-outline rounded p-4 min-h-[52px] flex flex-col justify-center">
+                            <span
+                                class="text-[11px] font-bold uppercase text-on-surface-variant block mb-0.5">Product</span>
                             <span class="font-data-lg text-data-lg text-on-surface block" id="product-preview">-</span>
                         </div>
                     </div>
@@ -248,7 +156,6 @@
                                 <th
                                     class="p-padding-cell font-body-sm text-body-sm text-on-surface font-bold uppercase tracking-wider">
                                     Item Name</th>
-
                                 <th
                                     class="p-padding-cell font-body-sm text-body-sm text-on-surface font-bold uppercase tracking-wider text-right">
                                     Price</th>
@@ -269,7 +176,16 @@
             </div>
         </div>
         <aside class="col-span-3 flex flex-col gap-gutter">
-
+            <div class="bg-surface border border-outline-variant p-4 flex flex-col gap-3 shadow-sm hidden">
+                <div class="flex justify-between items-center pb-1 border-b border-outline-variant">
+                    <span class="text-on-surface-variant text-body-sm font-body-sm">Sub Total</span>
+                    <span class="font-data-md text-data-md text-on-surface" id="subtotal-display">0.00</span>
+                </div>
+                <div class="flex justify-between items-center">
+                    <span class="text-on-surface-variant text-body-sm font-body-sm">Discount</span>
+                    <span class="font-data-md text-data-md text-tertiary" id="discount-display">- 0.00</span>
+                </div>
+            </div>
             <div
                 class="bg-primary border border-primary p-6 flex flex-col items-end relative overflow-hidden group shadow-md">
                 <div
@@ -282,16 +198,22 @@
                 <div class="mt-3 bg-white bg-opacity-20 px-3 py-1 rounded-full relative z-10">
                     <span class="text-on-primary font-data-sm text-data-sm" id="units-display">Items: 0 Units</span>
                 </div>
-                <span class="text-on-primary font-data-sm text-data-sm relative z-10 mt-1" id="subtotal-display"></span>
             </div>
 
             <div class="flex flex-col gap-2 mt-auto">
-                <button
-                    class="clickable bg-surface-container-high text-error hover:bg-error-container py-3 font-bold border border-outline-variant transition-all flex items-center justify-center gap-2 text-[12px]"
-                    id="void-btn">
-                    <span class="material-symbols-outlined text-[18px]">backspace</span>
-                    F8 - VOID
-                </button>
+                <div class="grid grid-cols-2 gap-2">
+                    <button
+                        class="clickable bg-surface-container-high text-on-surface hover:bg-surface-container-highest py-3 font-bold border border-outline-variant transition-all flex items-center justify-center gap-2 text-[12px]">
+                        <span class="material-symbols-outlined text-[18px]">payments</span>
+                        F9 - CUSTOM
+                    </button>
+                    <button
+                        class="clickable bg-surface-container-high text-error hover:bg-error-container py-3 font-bold border border-outline-variant transition-all flex items-center justify-center gap-2 text-[12px]"
+                        id="void-btn">
+                        <span class="material-symbols-outlined text-[18px]">backspace</span>
+                        F8 - VOID
+                    </button>
+                </div>
                 <button
                     class="clickable w-full bg-primary text-on-primary hover:bg-inverse-primary hover:scale-[1.01] active:scale-[0.98] py-6 font-display-bold text-headline-sm border-2 border-primary transition-all flex flex-col items-center shadow-lg shadow-primary/20"
                     id="checkout-btn">
@@ -307,7 +229,8 @@
         <section class="flex flex-col md:flex-row md:items-end justify-between gap-4 py-2">
             <div>
                 <h1 class="text-display-bold text-on-surface">Arun Crackers Inventory</h1>
-                <p class="text-body-md text-on-surface-variant">Manage pricing and product catalog. <span id="inventory-count-display" class="font-semibold text-primary"></span></p>
+                <p class="text-body-md text-on-surface-variant">Manage cracker stock levels, pricing, and product
+                    catalog. <span id="inventory-count-display" class="font-semibold text-primary"></span></p>
             </div>
             <div class="flex flex-wrap gap-2 items-center">
                 <div class="flex gap-2 items-center">
@@ -382,7 +305,8 @@
                     <p class="text-body-md text-on-surface-variant">Real-time performance metrics for Arun Crackers</p>
                 </div>
                 <div class="flex flex-wrap items-center gap-2">
-                    <div class="flex items-center bg-surface-container-lowest border border-outline-variant rounded p-1" id="period-btn-group">
+                    <div class="flex items-center bg-surface-container-lowest border border-outline-variant rounded p-1"
+                        id="period-btn-group">
                         <button class="px-3 py-1 text-sm font-bold bg-primary text-white rounded shadow-sm"
                             data-period="today">Today</button>
                         <button
@@ -395,14 +319,18 @@
                             class="px-3 py-1 text-sm font-bold text-on-surface-variant hover:bg-surface-container-low rounded"
                             data-period="custom">Custom</button>
                     </div>
-                    <div id="custom-date-container" class="hidden flex items-center gap-2 border border-outline-variant rounded bg-surface-container-lowest p-1 shadow-sm">
+                    <div id="custom-date-container"
+                        class="hidden flex items-center gap-2 border border-outline-variant rounded bg-surface-container-lowest p-1 shadow-sm">
                         <div class="flex items-center gap-1.5 pl-1.5">
-                            <span class="material-symbols-outlined text-[16px] text-on-surface-variant">calendar_today</span>
-                            <input type="date" id="custom-start-date" class="bg-transparent border-none py-0.5 px-1 text-body-sm font-data-md text-on-surface outline-none focus:ring-0 w-[125px] h-7" />
+                            <span
+                                class="material-symbols-outlined text-[16px] text-on-surface-variant">calendar_today</span>
+                            <input type="date" id="custom-start-date"
+                                class="bg-transparent border-none py-0.5 px-1 text-body-sm font-data-md text-on-surface outline-none focus:ring-0 w-[125px] h-7" />
                         </div>
                         <span class="text-on-surface-variant text-[10px] font-bold uppercase">to</span>
                         <div class="flex items-center gap-1.5 pr-1.5">
-                            <input type="date" id="custom-end-date" class="bg-transparent border-none py-0.5 px-1 text-body-sm font-data-md text-on-surface outline-none focus:ring-0 w-[125px] h-7" />
+                            <input type="date" id="custom-end-date"
+                                class="bg-transparent border-none py-0.5 px-1 text-body-sm font-data-md text-on-surface outline-none focus:ring-0 w-[125px] h-7" />
                         </div>
                     </div>
                 </div>
@@ -411,7 +339,7 @@
                 <div class="md:col-span-2 bg-surface-container-lowest border border-outline-variant p-4">
                     <span class="text-sm font-bold text-on-surface-variant flex items-center gap-1">
                         <span class="material-symbols-outlined text-[16px]">payments</span>
-                        <span id="report-period-label">DAILY SALES</span>
+                        DAILY SALES
                     </span>
                     <div class="mt-2">
                         <span class="font-data-lg text-display-bold text-primary" id="report-today-sales">₹0</span>
@@ -473,13 +401,13 @@
                         <label class="text-[11px] font-bold uppercase text-on-surface-variant">SKU / S.No</label>
                         <input
                             class="w-full bg-white border border-outline-variant rounded px-3 py-2 outline-none focus:border-primary text-on-surface"
-                            id="product-sku" type="text" maxlength="50" />
+                            id="product-sku" type="text" />
                     </div>
                     <div class="space-y-1">
                         <label class="text-[11px] font-bold uppercase text-on-surface-variant">Product Name</label>
                         <input
                             class="w-full bg-white border border-outline-variant rounded px-3 py-2 outline-none focus:border-primary text-on-surface"
-                            id="product-name" type="text" maxlength="255" />
+                            id="product-name" type="text" />
                     </div>
                 </div>
                 <div class="space-y-1">
@@ -487,6 +415,32 @@
                     <select
                         class="w-full bg-white border border-outline-variant rounded px-3 py-2 outline-none focus:border-primary text-on-surface"
                         id="product-category">
+                        <option>One Sound Crackers</option>
+                        <option>Ground Chakkars</option>
+                        <option>Spinner Chakkars</option>
+                        <option>Flower Pots</option>
+                        <option>Atom Bomb</option>
+                        <option>Paper Bomb</option>
+                        <option>Rockets</option>
+                        <option>Bijili Crackers</option>
+                        <option>Twinkling Star</option>
+                        <option>Pencils</option>
+                        <option>Fancy Novelties</option>
+                        <option>Kids Special</option>
+                        <option>Fountain</option>
+                        <option>Deluxe Crackers ( Big )</option>
+                        <option>Garland ( Half Count )</option>
+                        <option>Garland ( Full Count )</option>
+                        <option>Aerial Novelties ( Single Pipe )</option>
+                        <option>Fancy Repeating Shots</option>
+                        <option>Fancy Multi Shots</option>
+                        <option>7 CM Sparklers</option>
+                        <option>10 CM Sparklers</option>
+                        <option>12 CM Sparklers</option>
+                        <option>30 CM Sparklers</option>
+                        <option>50 CM Sparklers</option>
+                        <option>New Significant Varities</option>
+                        <option>Gift Box</option>
                     </select>
                 </div>
                 <div class="space-y-1">
@@ -518,11 +472,11 @@
             <span class="text-on-surface-variant font-data-sm text-data-sm flex items-center gap-1"><span
                     class="text-primary font-bold">[F8]</span> Void</span>
             <span class="text-on-surface-variant font-data-sm text-data-sm flex items-center gap-1"><span
-                    class="text-primary font-bold">[Del]</span> Remove</span>
-            <span class="text-on-surface-variant font-data-sm text-data-sm flex items-center gap-1"><span
                     class="text-primary font-bold">[F12]</span> Print</span>
         </div>
         <div class="flex items-center gap-4">
+            <a class="text-on-surface-variant font-data-sm text-data-sm hover:text-primary transition-colors"
+                href="#">Help</a>
             <span class="text-outline-variant">|</span>
             <span class="text-data-md font-data-md text-on-surface ml-2">Terminal: ARUN-01</span>
         </div>
@@ -577,16 +531,21 @@
     </div>
 
     <!-- Custom Confirm Modal -->
-    <div id="custom-confirm-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9999] flex items-center justify-center hidden opacity-0 transition-opacity duration-200">
-        <div class="bg-surface border border-outline-variant w-full max-w-md p-6 rounded-xl shadow-2xl transform scale-95 transition-transform duration-200 mx-4">
+    <div id="custom-confirm-modal"
+        class="fixed inset-0 bg-black/60 backdrop-blur-sm z-[9999] flex items-center justify-center hidden opacity-0 transition-opacity duration-200">
+        <div
+            class="bg-surface border border-outline-variant w-full max-w-md p-6 rounded-xl shadow-2xl transform scale-95 transition-transform duration-200 mx-4">
             <div class="flex items-center gap-3 mb-4">
                 <span class="material-symbols-outlined text-primary text-[24px]">help</span>
                 <h3 class="text-[16px] font-bold text-on-surface" id="custom-confirm-title">ArunCrackers</h3>
             </div>
-            <p class="text-[14px] text-on-surface-variant mb-6" id="custom-confirm-message">Are you sure you want to proceed?</p>
+            <p class="text-[14px] text-on-surface-variant mb-6" id="custom-confirm-message">Are you sure you want to
+                proceed?</p>
             <div class="flex justify-end gap-2">
-                <button id="custom-confirm-cancel" class="px-4 py-2 rounded-md text-[13px] font-bold text-on-surface-variant hover:bg-surface-container-high transition-colors">Cancel</button>
-                <button id="custom-confirm-ok" class="px-5 py-2 bg-primary text-white rounded-md text-[13px] font-bold hover:brightness-110 transition-all">OK</button>
+                <button id="custom-confirm-cancel"
+                    class="px-4 py-2 rounded-md text-[13px] font-bold text-on-surface-variant hover:bg-surface-container-high transition-colors">Cancel</button>
+                <button id="custom-confirm-ok"
+                    class="px-5 py-2 bg-primary text-white rounded-md text-[13px] font-bold hover:brightness-110 transition-all">OK</button>
             </div>
         </div>
     </div>

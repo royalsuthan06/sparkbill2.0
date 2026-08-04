@@ -9,43 +9,6 @@ const SparkBill = {
     currentViewingSaleId: null
 };
 
-let products = SparkBill.products;
-
-Object.defineProperty(window, 'products', {
-    get() { return SparkBill.products; },
-    set(v) { SparkBill.products = v; products = v; }
-});
-
-Object.defineProperty(window, 'allSales', {
-    get() { return SparkBill.allSales; },
-    set(v) { SparkBill.allSales = v; }
-});
-
-Object.defineProperty(window, 'cartItems', {
-    get() { return SparkBill.cartItems; },
-    set(v) { SparkBill.cartItems = v; }
-});
-
-Object.defineProperty(window, 'cartNavIndex', {
-    get() { return SparkBill.cartNavIndex; },
-    set(v) { SparkBill.cartNavIndex = v; }
-});
-
-Object.defineProperty(window, 'editingProductId', {
-    get() { return SparkBill.editingProductId; },
-    set(v) { SparkBill.editingProductId = v; }
-});
-
-Object.defineProperty(window, 'activePeriod', {
-    get() { return SparkBill.activePeriod; },
-    set(v) { SparkBill.activePeriod = v; }
-});
-
-Object.defineProperty(window, 'currentViewingSaleId', {
-    get() { return SparkBill.currentViewingSaleId; },
-    set(v) { SparkBill.currentViewingSaleId = v; }
-});
-
 async function init() {
     updateDate();
     await loadProducts();
@@ -64,7 +27,6 @@ async function loadProducts() {
         const res = await fetch(`${API_BASE}/products`);
         if (!res.ok) throw new Error('Failed to fetch products');
         SparkBill.products = await res.json();
-        products = SparkBill.products;
         populateCategoryFilter();
         renderInventoryTable();
     } catch (err) {
@@ -86,10 +48,18 @@ async function loadStats() {
 
 async function loadSales() {
     try {
-        const res = await fetch(`${API_BASE}/sales`);
-        if (!res.ok) throw new Error('Failed to fetch sales');
-        const data = await res.json();
-        SparkBill.allSales = data.sales || data;
+        const all = [];
+        let page = 1;
+        let totalPages = 1;
+        do {
+            const res = await fetch(`${API_BASE}/sales?page=${page}&per_page=500`);
+            if (!res.ok) throw new Error('Failed to fetch sales');
+            const data = await res.json();
+            all.push(...(data.sales || data));
+            totalPages = data.pages || 1;
+            page++;
+        } while (page <= totalPages);
+        SparkBill.allSales = all;
         filterReports();
     } catch (err) {
         console.error('Failed to load sales:', err);
@@ -219,7 +189,7 @@ function setupEventListeners() {
         });
     }
 
-    document.getElementById('qty-input').addEventListener('keypress', (e) => {
+    document.getElementById('qty-input').addEventListener('keydown', (e) => {
         if (e.key === 'Enter') addToCart();
     });
     document.getElementById('void-btn').addEventListener('click', voidCart);
