@@ -475,6 +475,9 @@
                     class="text-primary font-bold">[F12]</span> Print</span>
         </div>
         <div class="flex items-center gap-4">
+            <a class="text-on-surface-variant font-data-sm text-data-sm cursor-pointer" id="about-link">Made by <span
+                    class="text-primary font-bold">Team PSR ITians</span></a>
+            <span class="text-outline-variant">|</span>
             <a class="text-on-surface-variant font-data-sm text-data-sm hover:text-primary transition-colors"
                 href="#">Help</a>
             <span class="text-outline-variant">|</span>
@@ -546,6 +549,55 @@
                     class="px-4 py-2 rounded-md text-[13px] font-bold text-on-surface-variant hover:bg-surface-container-high transition-colors">Cancel</button>
                 <button id="custom-confirm-ok"
                     class="px-5 py-2 bg-primary text-white rounded-md text-[13px] font-bold hover:brightness-110 transition-all">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- About / Team Modal -->
+    <div class="fixed inset-0 z-[100] flex items-center justify-center p-4 hidden" id="about-modal">
+        <div class="absolute inset-0 custom-modal-backdrop" id="about-modal-backdrop"></div>
+        <div
+            class="relative bg-surface border border-outline-variant rounded-xl w-full max-w-lg shadow-2xl overflow-hidden max-h-[90vh] flex flex-col">
+            <div
+                class="p-4 border-b border-outline-variant flex justify-between items-center bg-surface-container-high">
+                <h2 class="text-xl font-bold">PSR ITians</h2>
+                <button class="material-symbols-outlined hover:text-primary" id="about-modal-close">close</button>
+            </div>
+            <div class="p-6 overflow-y-auto flex-1">
+                <p class="text-body-md text-on-surface-variant">SparkBill is a system built for Arun Crackers by Team
+                    PSR
+                    ITians.</p>
+                <div class="mt-4 border border-outline-variant rounded-lg shadow-sm overflow-hidden">
+                    <div class="p-3 border-b border-outline-variant bg-surface-container-high">
+                        <h2 class="text-headline-sm font-bold">Team Members</h2>
+                    </div>
+                    <ul class="divide-y divide-outline-variant">
+                        <li class="flex items-center justify-between gap-4 p-4">
+                            <div class="flex-1">
+                                <span class="font-bold text-on-surface">Yukanthan</span>
+                            </div>
+                        </li>
+                        <li class="flex items-center justify-between gap-4 p-4">
+                            <div class="flex-1">
+                                <span class="font-bold text-on-surface">RamaKrishnan</span>
+                            </div>
+                        </li>
+                        <li class="flex items-center justify-between gap-4 p-4">
+                            <div class="flex-1">
+                                <span class="font-bold text-on-surface">Vignesh</span>
+                            </div>
+                        </li>
+                        <li class="flex items-center justify-between gap-4 p-4">
+                            <div class="flex-1">
+                                <span class="font-bold text-on-surface">Ram Kumar</span>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="p-4 bg-surface-container-low border-t border-outline-variant flex justify-end gap-3">
+                <button class="px-4 py-2 hover:bg-surface-container-highest rounded transition-all font-medium"
+                    id="about-modal-cancel">Close</button>
             </div>
         </div>
     </div>

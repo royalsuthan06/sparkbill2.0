@@ -195,6 +195,11 @@ function setupEventListeners() {
     document.getElementById('void-btn').addEventListener('click', voidCart);
     document.getElementById('checkout-btn').addEventListener('click', checkout);
 
+    document.getElementById('about-link').addEventListener('click', openAboutModal);
+    document.getElementById('about-modal-close').addEventListener('click', closeAboutModal);
+    document.getElementById('about-modal-backdrop').addEventListener('click', closeAboutModal);
+    document.getElementById('about-modal-cancel').addEventListener('click', closeAboutModal);
+
     document.getElementById('add-product-btn').addEventListener('click', openAddProductModal);
     document.getElementById('product-modal-close').addEventListener('click', closeProductModal);
     document.getElementById('product-modal-backdrop').addEventListener('click', closeProductModal);
@@ -228,6 +233,14 @@ function setupEventListeners() {
     });
 
     document.addEventListener('keydown', handleHotkeys);
+}
+
+function openAboutModal() {
+    document.getElementById('about-modal').classList.remove('hidden');
+}
+
+function closeAboutModal() {
+    document.getElementById('about-modal').classList.add('hidden');
 }
 
 function handleHotkeys(e) {
