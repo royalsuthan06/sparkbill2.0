@@ -110,11 +110,11 @@ async function voidCart() {
 async function checkout(options = {}) {
     if (SparkBill.cartItems.length === 0) {
         showToast('Cart is empty!', 'error');
-        return;
+        return false;
     }
 
     const checkoutBtn = document.getElementById('checkout-btn');
-    if (checkoutBtn.disabled) return;
+    if (checkoutBtn.disabled) return false;
     checkoutBtn.disabled = true;
     checkoutBtn.innerHTML = '<span class="text-xs uppercase tracking-[0.2em] mb-1 font-bold">Processing...</span>';
 
@@ -159,14 +159,17 @@ async function checkout(options = {}) {
             document.getElementById('product-preview').textContent = '-';
             await loadProducts();
             await loadStats();
-            await loadSales();
+            await loadSales(true);
+            return true;
         } else {
             const errorData = await res.json();
             showToast(`Failed to complete sale: ${errorData.error || 'Unknown error'}`, 'error');
+            return false;
         }
     } catch (err) {
         console.error(err);
         showToast('An error occurred while processing the sale.', 'error');
+        return false;
     } finally {
         checkoutBtn.disabled = false;
         checkoutBtn.innerHTML = '<span class="text-xs uppercase tracking-[0.2em] mb-1 font-bold">Confirm & Print</span>F12 - GENERATE INVOICE';
@@ -207,6 +210,9 @@ function closePaymentModal() {
 }
 
 async function confirmPayment() {
+    const confirmBtn = document.getElementById('payment-modal-confirm');
+    if (confirmBtn.disabled) return;
+
     const total = cartTotal();
     const amount = parseFloat(document.getElementById('payment-amount').value);
     const method = document.getElementById('payment-method').value;
@@ -220,6 +226,11 @@ async function confirmPayment() {
         return;
     }
 
-    closePaymentModal();
-    await checkout({ payment_method: method, amount_paid: amount });
+    confirmBtn.disabled = true;
+    try {
+        const ok = await checkout({ payment_method: method, amount_paid: amount });
+        if (ok) closePaymentModal();
+    } finally {
+        confirmBtn.disabled = false;
+    }
 }

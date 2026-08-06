@@ -1,6 +1,7 @@
 const SparkBill = {
     products: [],
     allSales: [],
+    allSalesLoaded: false,
     currentView: 'billing',
     cartItems: [],
     cartNavIndex: -1,
@@ -46,7 +47,11 @@ async function loadStats() {
     }
 }
 
-async function loadSales() {
+async function loadSales(force = false) {
+    if (SparkBill.allSalesLoaded && !force) {
+        filterReports();
+        return;
+    }
     try {
         const all = [];
         let page = 1;
@@ -60,6 +65,7 @@ async function loadSales() {
             page++;
         } while (page <= totalPages);
         SparkBill.allSales = all;
+        SparkBill.allSalesLoaded = true;
         filterReports();
     } catch (err) {
         console.error('Failed to load sales:', err);
@@ -264,8 +270,42 @@ function closeHelpModal() {
     document.getElementById('help-modal').classList.add('hidden');
 }
 
+const MODAL_IDS = ['payment-modal', 'product-modal', 'sale-modal', 'pdf-modal', 'about-modal', 'help-modal', 'custom-confirm-modal'];
+
+function isAnyModalOpen() {
+    return MODAL_IDS.some(id => {
+        const el = document.getElementById(id);
+        return el && !el.classList.contains('hidden');
+    });
+}
+
+function closeOpenModal() {
+    const modalIds = ['help-modal', 'about-modal', 'pdf-modal', 'sale-modal', 'product-modal', 'payment-modal'];
+    for (const id of modalIds) {
+        const el = document.getElementById(id);
+        if (el && !el.classList.contains('hidden')) {
+            if (id === 'payment-modal') closePaymentModal();
+            else if (id === 'product-modal') closeProductModal();
+            else if (id === 'sale-modal') closeSaleModal();
+            else if (id === 'pdf-modal') closePdfModal();
+            else if (id === 'about-modal') closeAboutModal();
+            else if (id === 'help-modal') closeHelpModal();
+            return true;
+        }
+    }
+    return false;
+}
+
 function handleHotkeys(e) {
+    if (e.key === 'Escape') {
+        if (closeOpenModal()) {
+            e.preventDefault();
+            return;
+        }
+    }
+
     if (SparkBill.currentView !== 'billing') return;
+    if (isAnyModalOpen()) return;
 
     if (e.key === 'F1') { e.preventDefault(); document.getElementById('sku-input').focus(); return; }
     if (e.key === 'F2') { e.preventDefault(); document.getElementById('qty-input').focus(); return; }
@@ -279,10 +319,6 @@ function handleHotkeys(e) {
 
     if (e.key === 'Escape') {
         e.preventDefault();
-        if (!document.getElementById('payment-modal').classList.contains('hidden')) {
-            closePaymentModal();
-            return;
-        }
         if (inInput) active.blur();
         if (SparkBill.cartNavIndex >= 0) {
             SparkBill.cartNavIndex = -1;

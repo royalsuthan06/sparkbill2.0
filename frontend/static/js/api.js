@@ -42,15 +42,28 @@ function askConfirmation(message) {
 
             okBtn.removeEventListener('click', onOk);
             cancelBtn.removeEventListener('click', onCancel);
+            modal.removeEventListener('click', onBackdrop);
+            document.removeEventListener('keydown', onKey);
 
             resolve(result);
         }
 
         function onOk() { cleanUp(true); }
         function onCancel() { cleanUp(false); }
+        function onBackdrop(e) {
+            if (e.target === modal) cleanUp(false);
+        }
+        function onKey(e) {
+            if (e.key === 'Escape') {
+                e.preventDefault();
+                cleanUp(false);
+            }
+        }
 
         okBtn.addEventListener('click', onOk);
         cancelBtn.addEventListener('click', onCancel);
+        modal.addEventListener('click', onBackdrop);
+        document.addEventListener('keydown', onKey);
     });
 }
 

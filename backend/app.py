@@ -721,21 +721,25 @@ def init_db():
         seed_sample_data()
 
 
-def _find_free_port(preferred=5000):
-    for port in range(preferred, preferred + 20):
+def _find_free_port(preferred=5000, tries=100):
+    for port in range(preferred, preferred + tries):
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             try:
                 s.bind(('127.0.0.1', port))
                 return port
             except OSError:
                 continue
-    return preferred
+    raise RuntimeError(f"No free port available between {preferred} and {preferred + tries - 1}")
 
 
 def start_app():
     init_db()
 
-    port = _find_free_port()
+    try:
+        port = _find_free_port()
+    except RuntimeError as e:
+        logger.error(f"Failed to start server: {e}")
+        return
     if port != 5000:
         logger.warning(f"Port 5000 is in use, using port {port} instead")
 

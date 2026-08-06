@@ -224,7 +224,7 @@ async function deleteSale(id, invoiceNumber) {
             if (res.ok) {
                 showToast('Invoice deleted successfully!', 'success');
                 closeSaleModal();
-                await loadSales();
+                await loadSales(true);
                 await loadStats();
             } else {
                 const errorData = await res.json();
