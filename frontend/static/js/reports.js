@@ -102,17 +102,18 @@ function handlePeriodChange(period) {
         }
     });
 
-    const customContainer = document.getElementById('custom-date-container');
-    if (period === 'custom') {
-        customContainer.classList.remove('hidden');
-        const startInput = document.getElementById('custom-start-date');
-        const endInput = document.getElementById('custom-end-date');
-        const todayStr = new Date().toISOString().split('T')[0];
-        if (!startInput.value) startInput.value = todayStr;
-        if (!endInput.value) endInput.value = todayStr;
-    } else {
-        customContainer.classList.add('hidden');
-    }
+        const customContainer = document.getElementById('custom-date-container');
+        if (period === 'custom') {
+            customContainer.classList.remove('hidden');
+            const startInput = document.getElementById('custom-start-date');
+            const endInput = document.getElementById('custom-end-date');
+            const now = new Date();
+            const todayStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+            if (!startInput.value) startInput.value = todayStr;
+            if (!endInput.value) endInput.value = todayStr;
+        } else {
+            customContainer.classList.add('hidden');
+        }
 
     filterReports();
 }

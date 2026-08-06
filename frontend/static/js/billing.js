@@ -72,10 +72,11 @@ function renderCart() {
 
 function updateCartItemQty(productId, qty) {
     const item = SparkBill.cartItems.find(i => i.product_id === productId);
-    const newQty = parseInt(qty) || 1;
+    const parsed = parseInt(qty, 10);
+    const newQty = Number.isFinite(parsed) ? parsed : 1;
     if (item) {
         item.quantity = newQty;
-        if (item.quantity <=0) removeFromCart(productId);
+        if (item.quantity <= 0) removeFromCart(productId);
         else renderCart();
     }
 }
@@ -106,7 +107,7 @@ async function voidCart() {
     }
 }
 
-async function checkout() {
+async function checkout(options = {}) {
     if (SparkBill.cartItems.length === 0) {
         showToast('Cart is empty!', 'error');
         return;
@@ -123,12 +124,16 @@ async function checkout() {
     const saleData = {
         customer_name: customerName,
         customer_mobile: customerMobile,
-        payment_method: 'Cash',
+        payment_method: options.payment_method || 'Cash',
         items: SparkBill.cartItems.map(i => ({
             product_id: i.product_id,
             quantity: i.quantity
         }))
     };
+
+    if (options.amount_paid !== undefined && options.amount_paid !== null && options.amount_paid !== '') {
+        saleData.amount_paid = parseFloat(options.amount_paid);
+    }
 
     try {
         const res = await fetch(`${API_BASE}/sales`, {
@@ -178,3 +183,43 @@ document.addEventListener('change', (e) => {
         updateCartItemQty(parseInt(e.target.dataset.productId), e.target.value);
     }
 });
+
+function cartTotal() {
+    return SparkBill.cartItems.reduce((sum, i) => sum + (i.price * i.quantity), 0);
+}
+
+function openPaymentModal() {
+    if (SparkBill.cartItems.length === 0) {
+        showToast('Cart is empty!', 'error');
+        return;
+    }
+    const total = cartTotal();
+    document.getElementById('payment-total-display').textContent = `₹${total.toFixed(2)}`;
+    document.getElementById('payment-amount').value = total.toFixed(2);
+    document.getElementById('payment-method').value = 'Cash';
+    document.getElementById('payment-modal').classList.remove('hidden');
+    document.getElementById('payment-amount').focus();
+    document.getElementById('payment-amount').select();
+}
+
+function closePaymentModal() {
+    document.getElementById('payment-modal').classList.add('hidden');
+}
+
+async function confirmPayment() {
+    const total = cartTotal();
+    const amount = parseFloat(document.getElementById('payment-amount').value);
+    const method = document.getElementById('payment-method').value;
+
+    if (isNaN(amount) || amount < 0) {
+        showToast('Enter a valid amount paid', 'error');
+        return;
+    }
+    if (amount > total + 0.001) {
+        showToast('Amount paid cannot exceed the total amount', 'error');
+        return;
+    }
+
+    closePaymentModal();
+    await checkout({ payment_method: method, amount_paid: amount });
+}

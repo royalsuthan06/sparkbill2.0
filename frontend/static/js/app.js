@@ -194,11 +194,24 @@ function setupEventListeners() {
     });
     document.getElementById('void-btn').addEventListener('click', voidCart);
     document.getElementById('checkout-btn').addEventListener('click', checkout);
+    document.getElementById('custom-pay-btn').addEventListener('click', openPaymentModal);
+    document.getElementById('payment-modal-close').addEventListener('click', closePaymentModal);
+    document.getElementById('payment-modal-backdrop').addEventListener('click', closePaymentModal);
+    document.getElementById('payment-modal-cancel').addEventListener('click', closePaymentModal);
+    document.getElementById('payment-modal-confirm').addEventListener('click', confirmPayment);
 
     document.getElementById('about-link').addEventListener('click', openAboutModal);
     document.getElementById('about-modal-close').addEventListener('click', closeAboutModal);
     document.getElementById('about-modal-backdrop').addEventListener('click', closeAboutModal);
     document.getElementById('about-modal-cancel').addEventListener('click', closeAboutModal);
+
+    document.getElementById('help-link').addEventListener('click', (e) => {
+        e.preventDefault();
+        openHelpModal();
+    });
+    document.getElementById('help-modal-close').addEventListener('click', closeHelpModal);
+    document.getElementById('help-modal-backdrop').addEventListener('click', closeHelpModal);
+    document.getElementById('help-modal-cancel').addEventListener('click', closeHelpModal);
 
     document.getElementById('add-product-btn').addEventListener('click', openAddProductModal);
     document.getElementById('product-modal-close').addEventListener('click', closeProductModal);
@@ -243,19 +256,33 @@ function closeAboutModal() {
     document.getElementById('about-modal').classList.add('hidden');
 }
 
-function handleHotkeys(e) {
-    if (e.key === 'F1') { e.preventDefault(); document.getElementById('sku-input').focus(); }
-    if (e.key === 'F2') { e.preventDefault(); document.getElementById('qty-input').focus(); }
-    if (e.key === 'F3') { e.preventDefault(); document.getElementById('customer-name').focus(); }
-    if (e.key === 'F8') { e.preventDefault(); voidCart(); }
-    if (e.key === 'F12') { e.preventDefault(); checkout(); }
+function openHelpModal() {
+    document.getElementById('help-modal').classList.remove('hidden');
+}
 
+function closeHelpModal() {
+    document.getElementById('help-modal').classList.add('hidden');
+}
+
+function handleHotkeys(e) {
     if (SparkBill.currentView !== 'billing') return;
+
+    if (e.key === 'F1') { e.preventDefault(); document.getElementById('sku-input').focus(); return; }
+    if (e.key === 'F2') { e.preventDefault(); document.getElementById('qty-input').focus(); return; }
+    if (e.key === 'F3') { e.preventDefault(); document.getElementById('customer-name').focus(); return; }
+    if (e.key === 'F8') { e.preventDefault(); voidCart(); return; }
+    if (e.key === 'F9') { e.preventDefault(); openPaymentModal(); return; }
+    if (e.key === 'F12') { e.preventDefault(); checkout(); return; }
+
     const active = document.activeElement;
     const inInput = active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA');
 
     if (e.key === 'Escape') {
         e.preventDefault();
+        if (!document.getElementById('payment-modal').classList.contains('hidden')) {
+            closePaymentModal();
+            return;
+        }
         if (inInput) active.blur();
         if (SparkBill.cartNavIndex >= 0) {
             SparkBill.cartNavIndex = -1;

@@ -3,6 +3,7 @@ import sys
 import secrets
 import json
 import re
+import socket
 import threading
 import time
 
@@ -225,6 +226,8 @@ def update_product(product_id):
 
         if 'sku' in data:
             sku = str(data['sku']).strip()
+            if not sku:
+                return jsonify({'error': 'SKU cannot be empty'}), 400
             if len(sku) > 50:
                 return jsonify({'error': 'SKU must be 50 characters or fewer'}), 400
             if sku != product.sku:
@@ -235,6 +238,8 @@ def update_product(product_id):
         
         if 'name' in data:
             name = str(data['name']).strip()
+            if not name:
+                return jsonify({'error': 'Product name cannot be empty'}), 400
             if len(name) > 255:
                 return jsonify({'error': 'Product name must be 255 characters or fewer'}), 400
             product.name = name
@@ -349,10 +354,13 @@ def create_sale():
                 item['product_id'] = int(item['product_id'])
             except (ValueError, TypeError):
                 return jsonify({'error': 'product_id must be a valid integer'}), 400
+            qty_raw = item.get('quantity', 0)
             try:
-                qty = int(item.get('quantity', 0))
+                qty = int(qty_raw)
             except (ValueError, TypeError):
                 return jsonify({'error': 'Quantity must be a valid integer'}), 400
+            if qty != qty_raw:
+                return jsonify({'error': 'Quantity must be a whole number'}), 400
             if qty <= 0:
                 return jsonify({'error': 'Quantity must be greater than 0'}), 400
             if qty > 9999:
@@ -386,9 +394,9 @@ def create_sale():
                 counter_row = InvoiceCounter(year=year, counter=0)
                 db.session.add(counter_row)
                 db.session.flush()
-            counter_row.counter += 1
-            if counter_row.counter > 9999:
+            if counter_row.counter >= 9999:
                 return jsonify({'error': 'Invoice limit reached for this year'}), 500
+            counter_row.counter += 1
             suffix = f'{counter_row.counter:04d}'
             invoice_number = f'INV-{now.strftime("%Y%m%d%H%M%S")}-{suffix}'
 
@@ -480,7 +488,11 @@ def delete_sale(sale_id):
 def get_stats():
     today = datetime.now().date()
     start_of_today = datetime.combine(today, datetime.min.time())
-    today_sales = Sale.query.filter(Sale.sale_date >= start_of_today).all()
+    end_of_today = datetime.combine(today, datetime.max.time())
+    today_sales = Sale.query.filter(
+        Sale.sale_date >= start_of_today,
+        Sale.sale_date <= end_of_today
+    ).all()
     today_total = sum(float(s.total_amount) for s in today_sales if s.total_amount is not None)
     today_count = len(today_sales)
     
@@ -709,26 +721,41 @@ def init_db():
         seed_sample_data()
 
 
+def _find_free_port(preferred=5000):
+    for port in range(preferred, preferred + 20):
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            try:
+                s.bind(('127.0.0.1', port))
+                return port
+            except OSError:
+                continue
+    return preferred
+
+
 def start_app():
     init_db()
-    
+
+    port = _find_free_port()
+    if port != 5000:
+        logger.warning(f"Port 5000 is in use, using port {port} instead")
+
     try:
         from waitress import serve
         logger.info("Using waitress WSGI server")
         server_thread = threading.Thread(
-            target=lambda: serve(app, host='127.0.0.1', port=5000, threads=8),
+            target=lambda: serve(app, host='127.0.0.1', port=port, threads=8),
             daemon=True
         )
     except ImportError:
         logger.warning("waitress not installed, falling back to Flask dev server")
         server_thread = threading.Thread(
-            target=lambda: app.run(host='127.0.0.1', port=5000, debug=False, use_reloader=False),
+            target=lambda: app.run(host='127.0.0.1', port=port, debug=False, use_reloader=False),
             daemon=True
         )
     server_thread.start()
-    
+
     logger.info("=" * 60)
-    logger.info(" ArunCrackers POS App is running desktop window via pywebview...")
+    logger.info(f" ArunCrackers POS App is running desktop window via pywebview... (port {port})")
     logger.info("=" * 60)
     
     icon_filename = "logo.ico"
@@ -752,7 +779,7 @@ def start_app():
     try:
         window = webview.create_window(
             title="SparkBill POS",
-            url="http://127.0.0.1:5000",
+            url=f"http://127.0.0.1:{port}",
             width=1280,
             height=800,
             resizable=True
@@ -760,7 +787,7 @@ def start_app():
         webview.start()
     except Exception as e:
         logger.error(f"Desktop window failed to start: {e}")
-        logger.error("The server is still running. Open http://127.0.0.1:5000 in a browser.")
+        logger.error(f"The server is still running. Open http://127.0.0.1:{port} in a browser.")
         while True:
             time.sleep(3600)
 
