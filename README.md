@@ -46,13 +46,15 @@ pip install -r backend/requirements.txt
 
 ### 4. Run the App
 
-From the project root:
+The simplest way is to double-click `run.bat` from the project root.
+
+Alternatively, from the project root:
 
 ```bash
 python app.py
 ```
 
-or double-click `run.bat`. You can also run it from inside the `backend/` folder:
+You can also run it from inside the `backend/` folder:
 
 ```bash
 cd backend
