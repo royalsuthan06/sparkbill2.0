@@ -1,5 +1,7 @@
 # SparkBill POS
 
+compiled exe file link: https://drive.google.com/file/d/1y8aVg0BwK_ELVMeqxrFq7Bhyv5LT_wXV/view?usp=sharing
+
 A full-stack Point of Sale (POS) system for Arun Crackers, built with a Flask backend, SQLite database, and a vanilla HTML/CSS/JS frontend. It runs as a desktop window via pywebview (WebView2) and is also reachable in any browser.
 
 ## Tech Stack
