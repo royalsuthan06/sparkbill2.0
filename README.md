@@ -76,37 +76,40 @@ python -m pytest test_app.py -v
 
 ```
 SparkBill/
-├── app.py                   # Entry point (launcher)
-├── flask_utils.py           # Frozen-path helper for packaged builds
-├── run.bat                  # Windows launcher
-├── build.bat                # PyInstaller build script
-├── logo.ico                 # App icon
+├── app.py                                    # Entry point (launcher)
+├── flask_utils.py                            # Frozen-path helper for packaged builds
+├── run.bat                                   # Windows launcher
+├── build.bat                                 # PyInstaller build script
+├── logo.ico                                  # App icon
+├── Arun_crackers_print_pricelist_finalout_2025_removed.pdf  # Legacy price list
+├── ArunCrackers.exe.config                   # Legacy config
+├── stitch_ignite_pos_retail_interface/       # Legacy UI reference
 ├── backend/
-│   ├── app.py               # Flask application, API routes, CSP, seeding
-│   ├── models.py            # SQLAlchemy models
-│   ├── test_app.py          # pytest tests
-│   ├── requirements.txt     # Python dependencies
-│   └── .env                 # Environment variables (gitignored)
+│   ├── app.py                                # Flask application, API routes, CSP, seeding
+│   ├── models.py                             # SQLAlchemy models
+│   ├── test_app.py                           # pytest tests
+│   ├── requirements.txt                      # Python dependencies
+│   └── .env                                  # Environment variables (gitignored)
 ├── database/
-│   ├── schema.sql           # Database schema reference
-│   └── inventory_data.json  # Product seed data (151 products)
+│   ├── schema.sql                            # Database schema reference
+│   ├── inventory_data.json                   # Product seed data (151 products)
+│   └── arun_crackers_pos.db                  # SQLite database (auto-created)
 ├── frontend/
-│   ├── index.html           # Main HTML file (no inline scripts)
+│   ├── index.html                            # Main HTML file (no inline scripts)
 │   └── static/
 │       ├── css/
-│       │   ├── style.css              # Custom CSS
-│       │   ├── fonts.css              # Local font faces
-│       │   └── material-symbols.css   # Material Symbols icons
-│       ├── fonts/                     # Bundled woff2 fonts (offline)
+│       │   ├── fonts.css                     # Local font faces
+│       │   ├── material-symbols.css          # Material Symbols icons
+│       │   └── material-symbols-outlined.woff2  # Bundled icon font (offline)
 │       └── js/
-│           ├── tailwindcss.js         # Tailwind Play CDN (offline copy)
-│           ├── tailwind-config.js     # Tailwind theme config (external)
-│           ├── api.js                 # API helpers, SKU lookup, toast notifications
-│           ├── billing.js             # Cart management, checkout, payment
-│           ├── inventory.js           # Product CRUD, filters
-│           ├── reports.js             # Sales reports, PDF view, sale details
-│           └── app.js                 # Init, navigation, hotkeys, event wiring
-├── invoices/                # Generated PDF invoices
+│           ├── tailwindcss.js                # Tailwind Play CDN (offline copy)
+│           ├── tailwind-config.js            # Tailwind theme config (external)
+│           ├── api.js                        # API helpers, SKU lookup, toast notifications
+│           ├── billing.js                    # Cart management, checkout, payment
+│           ├── inventory.js                  # Product CRUD, filters
+│           ├── reports.js                    # Sales reports, PDF view, sale details
+│           └── app.js                        # Init, navigation, hotkeys, event wiring
+├── invoices/                                 # Generated PDF invoices
 ├── .gitignore
 └── README.md
 ```
@@ -129,8 +132,8 @@ SparkBill/
 
 ## Default Sample Products
 
-- SKU 001: Flower Pot - Special Large (₹250)
-- SKU 002: Laxmi Bombs (28 Pcs) (₹180)
-- SKU 003: Sparklers - Multicolour 15cm (₹45)
-- SKU 004: Chakra - 5 Inch (₹60)
-- SKU 005: Rockets - 10 Pcs (₹120)
+- SKU 001: 2 3/4'' KURUVI CRACKERS (₹9)
+- SKU 002: 3.5'' SPIDERMAN CRACKERS 3.5 (₹15)
+- SKU 003: 4'' LAKSHMI CRACKERS (₹22)
+- SKU 004: (10 PLY) 4'' GOLD LAKSHMI DELUXE (₹38)
+- SKU 005: (12 PLY) 4'' MEGA DELUXE GANESH (₹40)
