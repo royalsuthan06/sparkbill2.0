@@ -104,9 +104,24 @@ function setupEventListeners() {
             return;
         }
 
-        const matched = SparkBill.products.filter(p =>
-            p.sku.toLowerCase().includes(query) || p.name.toLowerCase().includes(query)
-        );
+        const isNumeric = /^\d+$/.test(query);
+        let matched;
+        if (isNumeric) {
+            const numericQuery = query.replace(/^0+/, '');
+            matched = SparkBill.products.filter(p =>
+                p.sku.toLowerCase().includes(query) ||
+                String(p.sku).replace(/^0+/, '') === numericQuery
+            );
+            matched.sort((a, b) => {
+                const aExact = String(a.sku).replace(/^0+/, '') === numericQuery;
+                const bExact = String(b.sku).replace(/^0+/, '') === numericQuery;
+                return (bExact ? 1 : 0) - (aExact ? 1 : 0);
+            });
+        } else {
+            matched = SparkBill.products.filter(p =>
+                p.name.toLowerCase().includes(query)
+            );
+        }
 
         if (matched.length > 0) {
             showSkuDropdown(matched);
